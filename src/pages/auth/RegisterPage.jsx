@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { validateRegisterForm } from "../../utils/validators";
 import Input from "../../components/ui/Input";
 import Spinner from "../../components/ui/Spinner";
-import { register, DEMO_MODE } from "../../services/authService";
+import { register } from "../../services/authService";
 
 function PasswordField({ id, name, label, value, onChange, error }) {
   const [show, setShow] = useState(false);
@@ -24,7 +24,7 @@ function PasswordField({ id, name, label, value, onChange, error }) {
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-3 top-[2.1rem] text-xs text-white/30 hover:text-white transition-colors"
+        className="absolute right-3 top-[2.1rem] text-xs text-white hover:text-white transition-colors"
       >
         {show ? "Hide" : "Show"}
       </button>
@@ -76,53 +76,63 @@ export default function RegisterPage() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center pt-14">
-      <div className="w-full max-w-sm px-5 py-16">
-        <h1 className="text-2xl font-bold text-white mb-2">Join Nigeria Celebrates</h1>
-        <p className="text-sm text-white/40 mb-10">
-          {DEMO_MODE ? "Demo mode — no real account is created." : "Create your free account."}
-        </p>
+    <section className="min-h-screen flex">
+      {/* Left side: Art */}
+      <div className="hidden lg:flex w-1/2 bg-black relative border-r border-white/10 items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#008751]/20 to-black z-0"></div>
+        <img 
+          src="/register_art.png" 
+          alt="Nigerian Art" 
+          className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-lighten"
+        />
+      </div>
 
-        {referralCode && (
-          <p className="text-xs text-white/30 mb-6">Referral: {referralCode}</p>
-        )}
+      {/* Right side: Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        <div className="w-full max-w-sm px-5 py-16">
+          <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Claim Your Spot</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <Input id="reg-name" name="fullName" label="Full Name" placeholder="Ngozi Achebe"
-            value={form.fullName} onChange={update} error={errors.fullName} autoComplete="name" />
+          {referralCode && (
+            <p className="text-xs text-white mb-6">Referral: {referralCode}</p>
+          )}
 
-          <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
-            value={form.email} onChange={update} error={errors.email} autoComplete="email" />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <Input id="reg-name" name="fullName" label="Full Name" placeholder="Ngozi Achebe"
+              value={form.fullName} onChange={update} error={errors.fullName} autoComplete="name" />
 
-          <Input id="reg-phone" name="phone" type="tel" label="Phone (optional)" placeholder="08012345678"
-            value={form.phone} onChange={update} error={errors.phone} autoComplete="tel" />
+            <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
+              value={form.email} onChange={update} error={errors.email} autoComplete="email" />
 
-          <PasswordField id="reg-password" name="password" label="Password"
-            value={form.password} onChange={update} error={errors.password} />
+            <Input id="reg-phone" name="phone" type="tel" label="Phone (optional)" placeholder="08012345678"
+              value={form.phone} onChange={update} error={errors.phone} autoComplete="tel" />
 
-          <PasswordField id="reg-confirm" name="confirmPassword" label="Confirm Password"
-            value={form.confirmPassword} onChange={update} error={errors.confirmPassword} />
+            <PasswordField id="reg-password" name="password" label="Password"
+              value={form.password} onChange={update} error={errors.password} />
 
-          <label className="flex items-start gap-2 cursor-pointer">
-            <input type="checkbox" name="agreed" checked={form.agreed} onChange={update}
-              className="mt-0.5 accent-white" />
-            <span className="text-xs text-white/40 leading-relaxed">
-              I agree to the Terms & Conditions and Privacy Policy.
-            </span>
-          </label>
-          {errors.agreed && <p className="text-xs text-red-400 -mt-3">{errors.agreed}</p>}
+            <PasswordField id="reg-confirm" name="confirmPassword" label="Confirm Password"
+              value={form.confirmPassword} onChange={update} error={errors.confirmPassword} />
 
-          <button type="submit" disabled={submitting}
-            className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
-            {submitting && <Spinner size={16} />}
-            {submitting ? "Creating account…" : "Create Account"}
-          </button>
-        </form>
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" name="agreed" checked={form.agreed} onChange={update}
+                className="mt-0.5 accent-white" />
+              <span className="text-xs text-white leading-relaxed">
+                I agree to the Terms & Conditions and Privacy Policy.
+              </span>
+            </label>
+            {errors.agreed && <p className="text-xs text-red-400 -mt-3">{errors.agreed}</p>}
 
-        <p className="text-sm text-white/30 mt-8 text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-white hover:underline">Sign In</Link>
-        </p>
+            <button type="submit" disabled={submitting}
+              className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
+              {submitting && <Spinner size={16} />}
+              {submitting ? "Creating account…" : "Create Account"}
+            </button>
+          </form>
+
+          <p className="text-sm text-white mt-8 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[color:#008751] hover:underline font-semibold">Sign In</Link>
+          </p>
+        </div>
       </div>
     </section>
   );

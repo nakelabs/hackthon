@@ -18,16 +18,16 @@ function Hero() {
       <div className="container-main py-24 md:py-32 relative z-10">
         {/* Overline */}
         <p 
-          className="text-xs text-[color:#008751] uppercase tracking-[0.2em] mb-8 animate-fade-in font-black ml-8 sm:ml-32"
+          className="text-xs text-white uppercase tracking-[0.2em] mb-8 animate-fade-in font-black ml-8 sm:ml-32"
           style={{ textShadow: "0 2px 10px rgba(0,0,0,1)" }}
         >
-          Nigeria's Celebration Platform
+          Nigeria's <span className="text-[color:#008751]">Celebration</span> Platform
         </p>
 
         {/* Headline */}
         <h1 
           className="font-bold text-5xl sm:text-6xl md:text-8xl leading-[1.05] tracking-tight mb-8 animate-slide-up text-white"
-          style={{ textShadow: "0px 4px 30px rgba(0,0,0,1), 0px 2px 10px rgba(0,0,0,1)" }}
+          style={{ textShadow: "0 0 40px rgba(0,0,0,0.8)" }}
         >
           One <span style={{ color: "#008751" }}>Nation.</span><br />
           Infinite <span style={{ color: "#008751" }}>Talent.</span><br />
@@ -36,7 +36,7 @@ function Hero() {
 
         {/* Body copy */}
         <p 
-          className="text-white/80 text-base sm:text-lg max-w-xl mb-12 leading-relaxed animate-slide-up font-medium" 
+          className="text-white text-base sm:text-lg max-w-xl mb-12 leading-relaxed animate-slide-up font-medium" 
           style={{ animationDelay: "0.1s", textShadow: "0 2px 10px rgba(0,0,0,1)" }}
         >
           Upload your talent, vote for Nigeria's finest, test your knowledge,
@@ -90,20 +90,20 @@ function Pillars() {
     <section id="pillars" className="section border-t border-white/8">
       <div className="container-main">
         <div className="mb-10">
-          <p className="text-xs text-white/25 uppercase tracking-[0.2em] mb-3">What We Celebrate</p>
-          <h2 className="heading text-2xl sm:text-3xl">Three Pillars</h2>
+          <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">What We <span className="text-[color:#008751]">Celebrate</span></p>
+          <h2 className="heading text-2xl sm:text-3xl">Three <span className="text-[color:#008751]">Pillars</span></h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/8">
           {PILLARS.map(({ id, index, title, body, cta, href }) => (
             <article key={id} className="bg-black p-8 md:p-10 flex flex-col gap-6 group">
-              <p className="text-xs font-mono text-white/20">{index}</p>
+              <p className="text-xs font-mono text-white">{index}</p>
               <h3 className="font-semibold text-[color:#008751] text-lg leading-snug">{title}</h3>
-              <p className="text-sm text-white/40 leading-relaxed flex-1">{body}</p>
+              <p className="text-sm text-white leading-relaxed flex-1">{body}</p>
               <a
                 href={href}
                 id={`pillar-${id}`}
-                className="text-sm text-white/50 hover:text-white transition-colors inline-flex items-center gap-2"
+                className="text-sm text-white hover:text-white transition-colors inline-flex items-center gap-2"
               >
                 {cta}
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -123,8 +123,8 @@ function TalentCategories() {
       <div className="container-main">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
-            <p className="text-xs text-white/25 uppercase tracking-[0.2em] mb-3">Naija Talent Zone</p>
-            <h2 className="heading text-2xl sm:text-3xl">11 Categories</h2>
+            <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Naija <span className="text-[color:#008751]">Talent Zone</span></p>
+            <h2 className="heading text-2xl sm:text-3xl">11 <span className="text-[color:#008751]">Categories</span></h2>
           </div>
           <Link to="/register" id="talent-upload-all" className="btn-outline text-sm self-start sm:self-auto">
             Upload Your Talent
@@ -142,7 +142,7 @@ function TalentCategories() {
               <p className="font-medium text-sm text-[color:#008751] mb-1 group-hover:text-[#00a663] transition-colors">
                 {label}
               </p>
-              <p className="text-xs text-white/30 leading-snug">{description}</p>
+              <p className="text-xs text-white leading-snug">{description}</p>
             </Link>
           ))}
         </div>
@@ -246,10 +246,10 @@ function IconPresentation({ icon, onClose }) {
       {/* Top Bar */}
       <div className="flex items-center justify-between p-6 z-10">
         <div>
-          <p className="text-xs text-white/40 uppercase tracking-[0.2em] mb-1">Global Icon</p>
+          <p className="text-xs text-white uppercase tracking-[0.2em] mb-1">Global Icon</p>
           <h3 className="text-xl font-bold text-white">{icon.name}</h3>
         </div>
-        <button onClick={onClose} className="text-white/40 hover:text-white transition-colors text-sm font-medium px-4 py-2 border border-white/10 rounded-md">
+        <button onClick={onClose} className="text-white hover:text-white transition-colors text-sm font-medium px-4 py-2 border border-white/10 rounded-md">
           Exit Presentation
         </button>
       </div>
@@ -291,14 +291,14 @@ function IconPresentation({ icon, onClose }) {
             >
               {/* Image Placeholder (Left side) */}
               <div className="w-full md:w-1/2 aspect-video md:aspect-auto bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center">
-                <span className="text-white/20 text-sm tracking-widest uppercase">Chapter Image Placeholder</span>
+                <span className="text-white text-sm tracking-widest uppercase">Chapter Image Placeholder</span>
               </div>
 
               {/* Text Content (Right side) */}
               <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
-                <p className="font-mono text-white/30 text-sm mb-4">Chapter {idx + 1} of {icon.chapters.length}</p>
+                <p className="font-mono text-white text-sm mb-4">Chapter {idx + 1} of {icon.chapters.length}</p>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 leading-tight">{chapter.title}</h2>
-                <p className="text-white/60 text-lg leading-relaxed">{chapter.body}</p>
+                <p className="text-white text-lg leading-relaxed">{chapter.body}</p>
               </div>
             </div>
           );
@@ -347,10 +347,10 @@ function GlobalIcons() {
       <div className="container-main">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
-            <p className="text-xs text-white/25 uppercase tracking-[0.2em] mb-3">Nigeria Global Icons</p>
-            <h2 className="heading text-2xl sm:text-3xl">Hall of Legends</h2>
+            <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Nigeria Global <span className="text-[color:#008751]">Icons</span></p>
+            <h2 className="heading text-2xl sm:text-3xl">Hall of <span className="text-[color:#008751]">Legends</span></h2>
           </div>
-          <p className="text-sm text-white/40 max-w-xs text-left sm:text-right">
+          <p className="text-sm text-white max-w-xs text-left sm:text-right">
             Tap on an icon to explore their journey.
           </p>
         </div>
@@ -362,9 +362,9 @@ function GlobalIcons() {
               onClick={() => setActiveIcon(icon)}
               className="bg-black p-6 hover:bg-[#0a0a0a] transition-colors text-left cursor-pointer group flex flex-col h-full animate-fade-in"
             >
-              <p className="font-bold text-lg text-white mb-2">{icon.name}</p>
-              <p className="text-xs text-white/40 mb-6">{icon.role}</p>
-              <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between text-white/30 group-hover:text-white transition-colors">
+              <h3 className="font-bold text-lg text-[color:#008751] mb-2">{icon.name}</h3>
+              <p className="text-xs text-white mb-6">{icon.role}</p>
+              <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between text-white group-hover:text-white transition-colors">
                 <span className="text-xs font-medium">Read Journey</span>
                 <span>→</span>
               </div>
@@ -405,9 +405,9 @@ function StateLeaderboard() {
     <section id="leaderboard" className="section border-t border-white/8 overflow-hidden relative">
       <div className="container-main">
         <div className="text-center mb-4">
-          <p className="text-xs text-white/25 uppercase tracking-[0.2em] mb-3">Rep Your State</p>
-          <h2 className="heading text-3xl sm:text-4xl">State Leaderboard</h2>
-          <p className="text-sm text-white/40 max-w-md mx-auto mt-4">
+          <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Rep Your <span className="text-[color:#008751]">State</span></p>
+          <h2 className="heading text-3xl sm:text-4xl">State <span className="text-[color:#008751]">Leaderboard</span></h2>
+          <p className="text-sm text-white max-w-md mx-auto mt-4">
             Which state brings the most heat? Ranking is based on total talent uploads, votes, and quiz scores.
             Tap a state to view its top contributors.
           </p>
@@ -417,24 +417,24 @@ function StateLeaderboard() {
         <div className="podium-container">
           {/* Rank 2 (Left) */}
           <button onClick={() => openModal(top3[1].state)} className="podium-block podium-rank-2 mt-auto cursor-pointer">
-            <span className="text-white/40 font-mono text-sm mb-1">#2</span>
+            <span className="text-white font-mono text-sm mb-1">#2</span>
             <span className="font-bold text-lg text-white mb-2">{top3[1].state}</span>
-            <span className="text-xs text-white/50">{top3[1].score}</span>
+            <span className="text-xs text-white">{top3[1].score}</span>
           </button>
 
           {/* Rank 1 (Center) */}
           <button onClick={() => openModal(top3[0].state)} className="podium-block podium-rank-1 border-white/80 mt-auto shadow-[12px_12px_0px_0px_rgba(255,255,255,0.3)] cursor-pointer">
             <span className="text-white font-mono text-sm mb-1">#1</span>
             <span className="font-black text-2xl text-white mb-2">{top3[0].state}</span>
-            <span className="text-xs text-white/70">{top3[0].score}</span>
+            <span className="text-xs text-white">{top3[0].score}</span>
             <span className="mt-4 text-xs font-bold px-2 py-1 bg-white text-black">CHAMPION</span>
           </button>
 
           {/* Rank 3 (Right) */}
           <button onClick={() => openModal(top3[2].state)} className="podium-block podium-rank-3 mt-auto cursor-pointer">
-            <span className="text-white/40 font-mono text-sm mb-1">#3</span>
+            <span className="text-white font-mono text-sm mb-1">#3</span>
             <span className="font-bold text-lg text-white mb-2">{top3[2].state}</span>
-            <span className="text-xs text-white/50">{top3[2].score}</span>
+            <span className="text-xs text-white">{top3[2].score}</span>
           </button>
         </div>
 
@@ -447,10 +447,10 @@ function StateLeaderboard() {
               className="list-item-3d w-full cursor-pointer text-left"
             >
               <div className="flex items-center gap-4">
-                <span className="font-mono text-white/30 text-sm">#{item.rank}</span>
+                <span className="font-mono text-white text-sm">#{item.rank}</span>
                 <span className="font-semibold text-white">{item.state}</span>
               </div>
-              <span className="text-sm font-medium text-white/70">{item.score} <span className="text-xs text-white/30 font-normal">pts</span></span>
+              <span className="text-sm font-medium text-white">{item.score} <span className="text-xs text-white font-normal">pts</span></span>
             </button>
           ))}
           <div className="text-center mt-8">
@@ -466,14 +466,14 @@ function StateLeaderboard() {
             
             <button 
               onClick={closeModal}
-              className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-white hover:text-white transition-colors"
               aria-label="Close modal"
             >
               ✕
             </button>
 
             <div className="mb-8">
-              <p className="text-xs text-white/30 uppercase tracking-widest mb-1">Top Contributors</p>
+              <p className="text-xs text-white uppercase tracking-widest mb-1">Top Contributors</p>
               <h3 className="heading text-2xl">{selectedState}</h3>
             </div>
 
@@ -483,16 +483,16 @@ function StateLeaderboard() {
                   <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-3 last:border-0 last:pb-0">
                     <div>
                       <p className="font-semibold text-sm text-white mb-0.5">{p.name}</p>
-                      <p className="text-xs text-white/40">{p.category}</p>
+                      <p className="text-xs text-white">{p.category}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-white/80">{p.votes}</p>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wide mt-0.5">Votes</p>
+                      <p className="text-sm font-medium text-white">{p.votes}</p>
+                      <p className="text-[10px] text-white uppercase tracking-wide mt-0.5">Votes</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-white/40">No participants data available for this state yet.</p>
+                <p className="text-sm text-white">No participants data available for this state yet.</p>
               )}
             </div>
 
@@ -511,8 +511,8 @@ function CtaBanner() {
   return (
     <section className="section border-t border-white/8">
       <div className="container-main text-center">
-        <h2 className="heading text-2xl sm:text-3xl mb-4">Ready to Celebrate Nigeria?</h2>
-        <p className="text-sm text-white/40 max-w-md mx-auto mb-8">
+        <h2 className="heading text-2xl sm:text-3xl mb-4">Ready to <span className="text-[color:#008751]">Celebrate</span> Nigeria?</h2>
+        <p className="text-sm text-white max-w-md mx-auto mb-8">
           Join thousands of Nigerians showcasing talent, voting for their favourites, and celebrating the culture.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

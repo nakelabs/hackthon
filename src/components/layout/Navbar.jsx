@@ -46,7 +46,7 @@ export default function Navbar() {
             <li key={href}>
               <a
                 href={href}
-                className="px-3 py-2 rounded text-sm text-white/40 hover:text-white transition-colors"
+                className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
               >
                 {label}
               </a>
@@ -83,7 +83,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
-          className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
+          className="md:hidden p-2 text-white hover:text-white transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             {open ? (
@@ -114,7 +114,7 @@ export default function Navbar() {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="py-2.5 px-3 text-sm text-white/50 hover:text-white transition-colors rounded"
+              className="py-2.5 px-3 text-sm text-white hover:text-white transition-colors rounded"
             >
               {label}
             </a>
