@@ -148,17 +148,17 @@ export default function HomePage() {
             {/* Info Overlay (Bottom Left) */}
             <div className="absolute bottom-20 left-4 right-16 z-20">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-bold text-white text-lg tracking-tight hover:underline cursor-pointer drop-shadow-md">{post.username}</span>
-                <span className="px-2 py-0.5 bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-mono text-white rounded-sm uppercase">
+                <span className="text-base text-white tracking-tight hover:underline cursor-pointer drop-shadow-md">{post.username}</span>
+                <span className="text-base text-white/80 uppercase drop-shadow-md">
                   {post.state}
                 </span>
               </div>
-              <p className="text-white/90 text-sm mb-3 leading-snug drop-shadow-md">
+              <p className="text-base text-white/90 mb-3 leading-snug drop-shadow-md">
                 {post.caption}
               </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs font-bold px-2 py-1 bg-[#008751] text-white uppercase tracking-widest shadow-lg">#{post.category}</span>
-                <span className="text-xs font-bold px-2 py-1 bg-white/10 backdrop-blur-md border border-white/10 text-white uppercase tracking-widest">#NaijaTalent</span>
+              <div className="flex flex-wrap gap-3">
+                <span className="text-base text-white uppercase drop-shadow-md">#{post.category}</span>
+                <span className="text-base text-white uppercase drop-shadow-md">#NAIJATALENT</span>
               </div>
             </div>
 
@@ -171,9 +171,7 @@ export default function HomePage() {
                 className="flex flex-col items-center group transition-transform hover:scale-110"
               >
                 <div className={`w-12 h-12 flex items-center justify-center border-2 rounded-full mb-1 transition-all duration-300 ${activePosts[post.id] ? 'bg-[#008751] border-[#008751] shadow-[0_0_15px_#008751]' : 'bg-black/40 backdrop-blur-md border-white/20 hover:border-[#008751]'}`}>
-                  <svg className={`w-6 h-6 transition-colors ${activePosts[post.id] ? 'text-white' : 'text-white'}`} fill={activePosts[post.id] ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activePosts[post.id] ? "0" : "2"} d="M5 15l7-7 7 7" />
-                  </svg>
+                  <span className="text-[11px] font-black tracking-wider text-white">VOTE</span>
                 </div>
                 <span className={`text-xs font-bold drop-shadow-md ${activePosts[post.id] ? 'text-[#008751]' : 'text-white/90'}`}>
                   {activePosts[post.id] ? (post.votes + 1).toLocaleString() : post.votes.toLocaleString()}
@@ -186,8 +184,8 @@ export default function HomePage() {
                 className="flex flex-col items-center group transition-transform hover:scale-110"
               >
                 <div className="w-12 h-12 flex items-center justify-center bg-black/40 backdrop-blur-md border-2 border-white/20 rounded-full mb-1 hover:border-white transition-colors">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
                   </svg>
                 </div>
                 <span className="text-white/90 text-xs font-bold drop-shadow-md">{post.comments}</span>
@@ -196,8 +194,9 @@ export default function HomePage() {
               {/* Share Button */}
               <button className="flex flex-col items-center group transition-transform hover:scale-110">
                 <div className="w-12 h-12 flex items-center justify-center bg-black/40 backdrop-blur-md border-2 border-white/20 rounded-full mb-1 hover:border-white transition-colors">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  <svg className="w-5 h-5 text-white translate-x-[-1px] translate-y-[1px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <path d="m22 2-7 20-4-9-9-4Z"/>
+                    <path d="M22 2 11 13"/>
                   </svg>
                 </div>
                 <span className="text-white/90 text-xs font-bold drop-shadow-md">{post.shares}</span>

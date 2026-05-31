@@ -24,7 +24,7 @@ export default function MobileBottomNav() {
     },
     {
       name: "Upload",
-      path: "/register?category=music",
+      path: "/upload",
       isUpload: true,
       icon: (
         <div className="w-12 h-8 bg-white text-black flex items-center justify-center rounded-md font-bold text-xl hover:bg-[#008751] hover:text-white transition-colors">

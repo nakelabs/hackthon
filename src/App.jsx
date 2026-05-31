@@ -9,15 +9,16 @@ import MyArenaPage from "./pages/dashboard/MyArenaPage";
 import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
+import UploadPage from "./pages/UploadPage";
 
 export default function App() {
   const location = useLocation();
   
   // Hide global Navbar & Footer on these routes
-  const hideNavFooter = ["/login", "/register", "/home", "/my-arena", "/quiz", "/map"].includes(location.pathname);
+  const hideNavFooter = ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload"].includes(location.pathname);
   
   // Show Mobile Bottom Nav only on the core app routes
-  const showBottomNav = ["/home", "/my-arena", "/quiz", "/map"].includes(location.pathname);
+  const showBottomNav = ["/home", "/my-arena", "/quiz", "/map", "/upload"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/upload" element={<UploadPage />} />
         </Routes>
       </main>
 

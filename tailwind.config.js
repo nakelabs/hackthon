@@ -15,8 +15,8 @@ export default {
         "border-strong": "rgba(255,255,255,0.16)",
       },
       fontFamily: {
-        sans:    ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans:    ["Google Sans", "Product Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Google Sans", "Product Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono:    ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       animation: {
