@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TALENT_CATEGORIES, MOCK_STATE_LEADERBOARD, MOCK_STATE_PARTICIPANTS } from "../utils/constants";
+import NigeriaMap from "../components/ui/NigeriaMap";
 
 // ─── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
@@ -81,7 +82,7 @@ const PILLARS = [
     title: "Weekly Live Quiz",
     body: "Test your knowledge of Nigeria every week. Compete live, earn points, and climb the national leaderboard.",
     cta: "Join Quiz →",
-    href: "/#quiz",
+    href: "/quiz",
   },
 ];
 
@@ -131,20 +132,48 @@ function TalentCategories() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-white/8">
-          {TALENT_CATEGORIES.map(({ id, label, description }) => (
-            <Link
-              key={id}
-              to={`/register?category=${id}`}
-              id={`category-${id}`}
-              className="bg-black p-5 group hover:bg-[#0a0a0a] transition-colors"
-            >
-              <p className="font-medium text-sm text-[color:#008751] mb-1 group-hover:text-[#00a663] transition-colors">
-                {label}
-              </p>
-              <p className="text-xs text-white leading-snug">{description}</p>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {TALENT_CATEGORIES.map(({ id, label, description, emoji }, index) => {
+            // Bento Box Logic: Make Music and Dance prominent
+            const isFeatured = index === 0 || index === 1;
+            const spanClass = isFeatured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : "col-span-1";
+            
+            return (
+              <Link
+                key={id}
+                to={`/register?category=${id}`}
+                id={`category-${id}`}
+                className={`relative bg-[#050505] p-5 sm:p-6 flex flex-col justify-between border border-white/10 group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:border-[#008751] hover:bg-[#0a0a0a] hover:shadow-[6px_6px_0px_#008751] ${spanClass}`}
+                style={{ minHeight: isFeatured ? '220px' : '160px' }}
+              >
+                {/* Background Emoji Watermark */}
+                <div className="absolute -bottom-6 -right-6 text-[6rem] sm:text-[8rem] opacity-5 grayscale group-hover:grayscale-0 group-hover:opacity-10 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 pointer-events-none select-none z-0 mix-blend-luminosity">
+                  {emoji}
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div className="flex items-start justify-between">
+                    <p className="font-mono text-white/20 group-hover:text-[#008751] transition-colors text-lg sm:text-xl font-black tracking-widest mb-3">
+                      {String(index + 1).padStart(2, '0')}
+                    </p>
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#008751] text-xl font-black">
+                      +
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <h3 className={`font-black text-white uppercase tracking-tight mb-2 group-hover:text-white transition-colors ${isFeatured ? 'text-2xl sm:text-4xl' : 'text-lg sm:text-xl'}`}>
+                      {label}
+                    </h3>
+                    <p className={`text-white/60 leading-relaxed group-hover:text-white/90 transition-colors ${isFeatured ? 'text-sm sm:text-base max-w-xs' : 'text-xs sm:text-sm'}`}>
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -242,95 +271,109 @@ function IconPresentation({ icon, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#050505] overflow-hidden animate-fade-in">
+      
+      {/* Massive Background Typography */}
+      <div 
+        className="absolute -top-10 sm:-top-20 -right-10 text-[300px] sm:text-[400px] md:text-[500px] font-black pointer-events-none select-none z-0 transition-all duration-700" 
+        style={{ WebkitTextStroke: "2px rgba(255,255,255,0.05)", color: "transparent", lineHeight: 0.8 }}
+      >
+        0{activeSlide + 1}
+      </div>
+
       {/* Top Bar */}
-      <div className="flex items-center justify-between p-6 z-10">
+      <div className="flex items-center justify-between p-6 md:p-10 z-50">
         <div>
-          <p className="text-xs text-white uppercase tracking-[0.2em] mb-1">Global Icon</p>
-          <h3 className="text-xl font-bold text-white">{icon.name}</h3>
+          <p className="text-xs text-white uppercase tracking-[0.3em] mb-2">Global Icon</p>
+          <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase">{icon.name}</h3>
         </div>
-        <button onClick={onClose} className="text-white hover:text-white transition-colors text-sm font-medium px-4 py-2 border border-white/10 rounded-md">
-          Exit Presentation
+        <button onClick={onClose} className="text-white hover:text-[#008751] hover:border-[#008751] transition-colors text-sm font-bold tracking-widest uppercase px-6 py-3 border border-white/20 bg-black shadow-[4px_4px_0_rgba(255,255,255,0.1)] hover:shadow-[4px_4px_0_rgba(0,135,81,0.5)]">
+          [ Exit ]
         </button>
       </div>
 
+      {/* Aggressive Side Navigation Controls */}
+      <button 
+        onClick={handlePrev} 
+        disabled={activeSlide === 0}
+        className="absolute left-0 top-0 bottom-0 w-16 md:w-24 hover:bg-white/5 flex items-center justify-center transition-all group z-40 disabled:opacity-0"
+      >
+        <span className="text-white/20 group-hover:text-white text-5xl md:text-7xl font-black group-hover:-translate-x-2 transition-transform">{"<"}</span>
+      </button>
+
+      <button 
+        onClick={handleNext} 
+        disabled={activeSlide === icon.chapters.length - 1}
+        className="absolute right-0 top-0 bottom-0 w-16 md:w-24 hover:bg-white/5 flex items-center justify-center transition-all group z-40 disabled:opacity-0"
+      >
+        <span className="text-white/20 group-hover:text-white text-5xl md:text-7xl font-black group-hover:translate-x-2 transition-transform">{">"}</span>
+      </button>
+
       {/* 3D Slide Engine */}
-      <div className="flex-1 relative perspective-container overflow-hidden flex items-center justify-center">
+      <div className="flex-1 relative perspective-container flex items-center justify-center w-full max-w-[1600px] mx-auto px-16 md:px-24 py-8 z-10">
         {icon.chapters.map((chapter, idx) => {
           const delta = idx - activeSlide;
           
-          let transform = "translateX(0) translateZ(0) rotateY(0)";
+          let transform = "translateX(0) translateZ(0) rotateY(0) scale(1)";
           let opacity = 1;
           let pointerEvents = "auto";
 
           if (delta < 0) {
-            transform = `translateX(-120%) translateZ(-400px) rotateY(45deg)`;
+            transform = `translateX(-80%) translateZ(-500px) rotateY(30deg) scale(0.9)`;
             opacity = 0;
             pointerEvents = "none";
           } else if (delta > 0) {
-            const xOffset = 40 * delta;
-            const zOffset = -200 * delta;
-            const rotate = -15 - (5 * delta);
-            transform = `translateX(${xOffset}%) translateZ(${zOffset}px) rotateY(${rotate}deg)`;
-            opacity = Math.max(0, 1 - (delta * 0.3));
+            const xOffset = 30 * delta;
+            const zOffset = -300 * delta;
+            const rotate = -10 - (2 * delta);
+            transform = `translateX(${xOffset}%) translateZ(${zOffset}px) rotateY(${rotate}deg) scale(${1 - delta * 0.05})`;
+            opacity = Math.max(0, 1 - (delta * 0.4));
             pointerEvents = "none";
           }
 
           return (
             <div 
               key={idx}
-              className="absolute w-full max-w-5xl flex flex-col md:flex-row border border-white/10 bg-black min-h-[400px]"
+              className="absolute w-[90vw] max-w-[1200px] min-h-[60vh] flex flex-col md:flex-row border border-white/10 bg-[#050505]"
               style={{
                 transform,
                 opacity,
                 pointerEvents,
                 zIndex: 50 - Math.abs(delta),
-                transition: "all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)",
-                boxShadow: delta === 0 ? "0 25px 50px -12px rgba(255,255,255,0.05)" : "none"
+                transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+                boxShadow: delta === 0 ? "16px 16px 0px 0px rgba(0,135,81,0.3)" : "none"
               }}
             >
               {/* Image Placeholder (Left side) */}
-              <div className="w-full md:w-1/2 aspect-video md:aspect-auto bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center">
-                <span className="text-white text-sm tracking-widest uppercase">Chapter Image Placeholder</span>
+              <div className="w-full md:w-5/12 h-64 md:h-auto bg-[#111] border-b md:border-b-0 md:border-r border-white/10 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#008751]/20 to-transparent mix-blend-overlay"></div>
+                <span className="text-white/5 text-[8rem] md:text-[12rem] font-black tracking-tighter uppercase absolute -left-10 opacity-30 select-none pointer-events-none leading-none">
+                  0{idx + 1}
+                </span>
+                <span className="text-white/50 text-sm tracking-widest uppercase z-10 font-bold border border-white/20 px-4 py-2 bg-black/50 backdrop-blur-sm">
+                  Image Placeholder
+                </span>
               </div>
 
               {/* Text Content (Right side) */}
-              <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
-                <p className="font-mono text-white text-sm mb-4">Chapter {idx + 1} of {icon.chapters.length}</p>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 leading-tight">{chapter.title}</h2>
-                <p className="text-white text-lg leading-relaxed">{chapter.body}</p>
+              <div className="w-full md:w-7/12 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-[#0a0a0a]">
+                <p className="font-mono text-[#008751] text-xs mb-4 uppercase tracking-[0.3em] font-bold">Chapter 0{idx + 1} // 0{icon.chapters.length}</p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tighter uppercase">
+                  {chapter.title}
+                </h2>
+                <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-xl">
+                  {chapter.body}
+                </p>
+                
+                {idx === icon.chapters.length - 1 && (
+                  <button onClick={onClose} className="mt-10 btn-primary self-start text-base px-6 py-3 uppercase tracking-widest font-bold">
+                    Return to Legends
+                  </button>
+                )}
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="p-6 sm:p-10 flex items-center justify-between z-10 border-t border-white/5 bg-black/50">
-        <div className="flex gap-2">
-          {icon.chapters.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={`h-1 transition-all duration-300 ${idx === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/20'}`}
-            />
-          ))}
-        </div>
-        <div className="flex gap-4">
-          <button 
-            onClick={handlePrev} 
-            disabled={activeSlide === 0}
-            className="btn-ghost disabled:opacity-20"
-          >
-            Previous
-          </button>
-          <button 
-            onClick={handleNext} 
-            disabled={activeSlide === icon.chapters.length - 1}
-            className="btn-primary"
-          >
-            {activeSlide === icon.chapters.length - 1 ? "Finish" : "Next Chapter →"}
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -390,7 +433,7 @@ function GlobalIcons() {
 }
 
 // ─── Rep Your State Leaderboard ───────────────────────────────────────────────
-function StateLeaderboard() {
+export function StateLeaderboard() {
   const [selectedState, setSelectedState] = useState(null);
 
   const top3 = MOCK_STATE_LEADERBOARD.slice(0, 3);
@@ -403,59 +446,54 @@ function StateLeaderboard() {
 
   return (
     <section id="leaderboard" className="section border-t border-white/8 overflow-hidden relative">
-      <div className="container-main">
-        <div className="text-center mb-4">
-          <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Rep Your <span className="text-[color:#008751]">State</span></p>
-          <h2 className="heading text-3xl sm:text-4xl">State <span className="text-[color:#008751]">Leaderboard</span></h2>
-          <p className="text-sm text-white max-w-md mx-auto mt-4">
-            Which state brings the most heat? Ranking is based on total talent uploads, votes, and quiz scores.
-            Tap a state to view its top contributors.
-          </p>
-        </div>
-
-        {/* 3D Podium for Top 3 */}
-        <div className="podium-container">
-          {/* Rank 2 (Left) */}
-          <button onClick={() => openModal(top3[1].state)} className="podium-block podium-rank-2 mt-auto cursor-pointer">
-            <span className="text-white font-mono text-sm mb-1">#2</span>
-            <span className="font-bold text-lg text-white mb-2">{top3[1].state}</span>
-            <span className="text-xs text-white">{top3[1].score}</span>
-          </button>
-
-          {/* Rank 1 (Center) */}
-          <button onClick={() => openModal(top3[0].state)} className="podium-block podium-rank-1 border-white/80 mt-auto shadow-[12px_12px_0px_0px_rgba(255,255,255,0.3)] cursor-pointer">
-            <span className="text-white font-mono text-sm mb-1">#1</span>
-            <span className="font-black text-2xl text-white mb-2">{top3[0].state}</span>
-            <span className="text-xs text-white">{top3[0].score}</span>
-            <span className="mt-4 text-xs font-bold px-2 py-1 bg-white text-black">CHAMPION</span>
-          </button>
-
-          {/* Rank 3 (Right) */}
-          <button onClick={() => openModal(top3[2].state)} className="podium-block podium-rank-3 mt-auto cursor-pointer">
-            <span className="text-white font-mono text-sm mb-1">#3</span>
-            <span className="font-bold text-lg text-white mb-2">{top3[2].state}</span>
-            <span className="text-xs text-white">{top3[2].score}</span>
-          </button>
-        </div>
-
-        {/* List for the rest */}
-        <div className="max-w-lg mx-auto">
-          {rest.map((item) => (
-            <button 
-              key={item.state} 
-              onClick={() => openModal(item.state)}
-              className="list-item-3d w-full cursor-pointer text-left"
-            >
-              <div className="flex items-center gap-4">
-                <span className="font-mono text-white text-sm">#{item.rank}</span>
-                <span className="font-semibold text-white">{item.state}</span>
-              </div>
-              <span className="text-sm font-medium text-white">{item.score} <span className="text-xs text-white font-normal">pts</span></span>
-            </button>
-          ))}
-          <div className="text-center mt-8">
-            <button className="btn-ghost text-sm">Load Full Rankings ↓</button>
+      <div className="w-full max-w-[1400px] mx-auto px-5 sm:px-8">
+        <div className="flex flex-col xl:flex-row items-center gap-10 xl:gap-20">
+          
+          {/* Left Side: Interactive Map Highlight */}
+          <div className="w-full xl:w-2/3 order-2 xl:order-1 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <NigeriaMap 
+              leaderboardData={MOCK_STATE_LEADERBOARD} 
+              onStateClick={(stateData) => openModal(stateData.state)} 
+            />
           </div>
+
+          {/* Right Side: Text & Reduced Podium */}
+          <div className="w-full xl:w-1/3 order-1 xl:order-2">
+            <div className="text-left mb-12">
+              <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Rep Your <span className="text-[color:#008751]">State</span></p>
+              <h2 className="heading text-4xl sm:text-5xl lg:text-6xl leading-tight mb-4">State <span className="text-[color:#008751]">Leaderboard</span></h2>
+              <p className="text-sm text-white/80 max-w-sm leading-relaxed">
+                Which state brings the most heat? Ranking is based on total talent uploads, votes, and quiz scores.
+                Tap a state on the map to view its top contributors.
+              </p>
+            </div>
+
+            {/* Reduced 3D Podium for Top 3 */}
+            <div className="flex items-end justify-start gap-3 sm:gap-4 scale-90 sm:scale-100 origin-left">
+              {/* Rank 2 (Left) */}
+              <button onClick={() => openModal(top3[1].state)} className="relative flex flex-col items-center justify-start pt-4 border border-white/20 bg-[#0a0a0a] transition-transform duration-300 shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] h-[160px] w-[90px] mt-auto cursor-pointer">
+                <span className="text-white/60 font-mono text-[10px] mb-1">#2</span>
+                <span className="font-bold text-sm text-white mb-1">{top3[1].state}</span>
+                <span className="text-[10px] text-[#008751] font-bold">{top3[1].score}</span>
+              </button>
+
+              {/* Rank 1 (Center) */}
+              <button onClick={() => openModal(top3[0].state)} className="relative flex flex-col items-center justify-start pt-4 border border-white/80 bg-[#111] transition-transform duration-300 shadow-[8px_8px_0px_0px_rgba(255,255,255,0.25)] hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(255,255,255,0.35)] h-[200px] w-[110px] mt-auto cursor-pointer z-10">
+                <span className="text-white font-mono text-[10px] mb-1">#1</span>
+                <span className="font-black text-xl text-white mb-1">{top3[0].state}</span>
+                <span className="text-xs text-[#008751] font-bold">{top3[0].score}</span>
+                <span className="mt-2 text-[9px] font-bold px-1.5 py-0.5 bg-white text-black tracking-widest">CHAMPION</span>
+              </button>
+
+              {/* Rank 3 (Right) */}
+              <button onClick={() => openModal(top3[2].state)} className="relative flex flex-col items-center justify-start pt-4 border border-white/20 bg-[#0a0a0a] transition-transform duration-300 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] h-[130px] w-[90px] mt-auto cursor-pointer">
+                <span className="text-white/60 font-mono text-[10px] mb-1">#3</span>
+                <span className="font-bold text-sm text-white mb-1">{top3[2].state}</span>
+                <span className="text-[10px] text-[#008751] font-bold">{top3[2].score}</span>
+              </button>
+            </div>
+          </div>
+          
         </div>
       </div>
 
