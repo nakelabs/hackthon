@@ -75,20 +75,25 @@
            disabled:opacity-30 disabled:cursor-not-allowed;
   }
 
-  /* Primary: solid white */
+  /* Primary: dark with green border + clipped corners */
   .btn-primary {
-    @apply btn bg-white text-black;
+    @apply btn bg-black text-white font-black text-sm tracking-widest uppercase;
+    border: 1px solid #008751;
+    clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px);
+    border-radius: 0;
   }
-  .btn-primary:hover  { background: rgba(255, 255, 255, 0.9); }
-  .btn-primary:active { background: rgba(255, 255, 255, 0.8); }
+  .btn-primary:hover  { background: #0a0a0a; border-color: #00a562; }
+  .btn-primary:active { background: #111; }
 
-  /* Outline: transparent bg, white border */
+  /* Outline: dark with white border + clipped corners */
   .btn-outline {
-    @apply btn bg-transparent text-white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply btn bg-black text-white font-black text-sm tracking-widest uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px);
+    border-radius: 0;
   }
-  .btn-outline:hover  { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
-  .btn-outline:active { background: rgba(255, 255, 255, 0.1); }
+  .btn-outline:hover  { border-color: rgba(255, 255, 255, 0.55); background: rgba(255,255,255,0.04); }
+  .btn-outline:active { background: rgba(255, 255, 255, 0.08); }
 
   /* Ghost: no border */
   .btn-ghost {

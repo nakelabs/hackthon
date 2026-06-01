@@ -49,9 +49,9 @@ function Hero() {
           <Link to="/register" id="hero-upload" className="btn-primary">
             Upload Your Talent
           </Link>
-          <a href="/#talent" id="hero-explore" className="btn-outline">
-            Explore Categories
-          </a>
+          <Link to="/home" id="hero-explore" className="btn-outline">
+            See Nigerian Talent
+          </Link>
         </div>
       </div>
     </section>
@@ -544,28 +544,6 @@ export function StateLeaderboard() {
   );
 }
 
-// ─── CTA Banner ────────────────────────────────────────────────────────────────
-function CtaBanner() {
-  return (
-    <section className="section border-t border-white/8">
-      <div className="container-main text-center">
-        <h2 className="heading text-2xl sm:text-3xl mb-4">Ready to <span className="text-[color:#008751]">Celebrate</span> Nigeria?</h2>
-        <p className="text-sm text-white max-w-md mx-auto mb-8">
-          Join thousands of Nigerians showcasing talent, voting for their favourites, and celebrating the culture.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/register" id="cta-join" className="btn-primary">
-            Join Free
-          </Link>
-          <a href="/#talent" id="cta-explore" className="btn-outline">
-            Explore Talent
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Landing Page (Composed) ──────────────────────────────────────────────────
 export default function LandingPage() {
   return (
@@ -575,7 +553,6 @@ export default function LandingPage() {
       <TalentCategories />
       <StateLeaderboard />
       <GlobalIcons />
-      <CtaBanner />
     </>
   );
 }
