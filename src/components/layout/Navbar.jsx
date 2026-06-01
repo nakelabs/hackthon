@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const NAV_LINKS = [
-  { href: "/#talent", label: "Talent" },
-  { href: "/#votes",  label: "Votes" },
-  { href: "/#quiz",   label: "Quiz" },
-  { href: "/#icons",  label: "Icons" },
+  { href: "/#talent",      label: "Talent" },
+  { href: "/#votes",       label: "Votes" },
+  { href: "/#quiz",        label: "Quiz" },
+  { href: "/#icons",       label: "Icons" },
+  { href: "/leaderboard",  label: "Leaderboard", isRoute: true },
 ];
 
 export default function Navbar() {
@@ -42,14 +43,23 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-0.5">
-          {NAV_LINKS.map(({ href, label }) => (
+          {NAV_LINKS.map(({ href, label, isRoute }) => (
             <li key={href}>
-              <a
-                href={href}
-                className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
-              >
-                {label}
-              </a>
+              {isRoute ? (
+                <Link
+                  to={href}
+                  className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  href={href}
+                  className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
+                >
+                  {label}
+                </a>
+              )}
             </li>
           ))}
         </ul>
@@ -109,15 +119,26 @@ export default function Navbar() {
         }`}
       >
         <div className="container-main py-4 flex flex-col gap-1">
-          {NAV_LINKS.map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="py-2.5 px-3 text-sm text-white hover:text-white transition-colors rounded"
-            >
-              {label}
-            </a>
+          {NAV_LINKS.map(({ href, label, isRoute }) => (
+            isRoute ? (
+              <Link
+                key={href}
+                to={href}
+                onClick={() => setOpen(false)}
+                className="py-2.5 px-3 text-sm text-white hover:text-white transition-colors rounded"
+              >
+                {label}
+              </Link>
+            ) : (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className="py-2.5 px-3 text-sm text-white hover:text-white transition-colors rounded"
+              >
+                {label}
+              </a>
+            )
           ))}
           <div className="border-t border-white/8 mt-2 pt-3 flex flex-col gap-2">
             {user ? (

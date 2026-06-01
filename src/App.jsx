@@ -10,19 +10,23 @@ import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import UploadPage from "./pages/UploadPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 export default function App() {
   const location = useLocation();
   
-  // Hide global Navbar & Footer on these routes
-  const hideNavFooter = ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload"].includes(location.pathname);
+  // Hide global Navbar on these routes
+  const hideNavbar = ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
+  
+  // Hide global Footer on these routes
+  const hideFooter = ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
   
   // Show Mobile Bottom Nav only on the core app routes
   const showBottomNav = ["/home", "/my-arena", "/quiz", "/map", "/upload"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!hideNavFooter && <Navbar />}
+      {!hideNavbar && <Navbar />}
       
       <main className="flex-1">
         <Routes>
@@ -34,11 +38,12 @@ export default function App() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
       </main>
 
       {showBottomNav && <MobileBottomNav />}
-      {!hideNavFooter && <Footer />}
+      {!hideFooter && <Footer />}
     </div>
   );
 }

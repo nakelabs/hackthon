@@ -11,17 +11,17 @@ export const APP_TAGLINE = "One Nation. Infinite Talent. Endless Pride.";
 
 // ─── Talent Categories ────────────────────────────────────────────────────────
 export const TALENT_CATEGORIES = [
-  { id: "music", label: "Music", emoji: "🎵", description: "Singing, rap, spoken word, instrumentals" },
-  { id: "dance", label: "Dance", emoji: "💃", description: "Afrobeats, contemporary, street dance & more" },
-  { id: "comedy", label: "Comedy", emoji: "😂", description: "Stand-up, skits, and satirical content" },
-  { id: "fashion", label: "Fashion", emoji: "👗", description: "Style, design, modelling & fashion photography" },
-  { id: "art", label: "Visual Art", emoji: "🎨", description: "Painting, sculpture, digital art & illustration" },
-  { id: "culinary", label: "Culinary Arts", emoji: "🍲", description: "Cooking, baking & Nigerian cuisine mastery" },
-  { id: "sport", label: "Sports", emoji: "⚽", description: "Athletic skills, fitness & sports excellence" },
-  { id: "tech", label: "Technology", emoji: "💻", description: "Innovation, coding & tech entrepreneurship" },
-  { id: "acting", label: "Acting & Drama", emoji: "🎭", description: "Film, theatre, Nollywood & screen performance" },
-  { id: "writing", label: "Creative Writing", emoji: "✍️", description: "Poetry, fiction, journalism & storytelling" },
-  { id: "business", label: "Entrepreneurship", emoji: "🚀", description: "Business innovation & startup excellence" },
+  { id: "music", label: "Music / Songs", emoji: "🎵", description: "Singing, rap, spoken word, instrumentals" },
+  { id: "football", label: "Football Freestyle", emoji: "⚽", description: "Football juggling and tricks" },
+  { id: "basketball", label: "Basketball Freestyle", emoji: "🏀", description: "Basketball handling and tricks" },
+  { id: "comedy", label: "Comedy Skits", emoji: "😂", description: "Stand-up, skits, and satirical content" },
+  { id: "artwork", label: "Artwork (Handmade Only)", emoji: "🎨", description: "Pencil drawings, paintings, sculptures, beadwork, traditional craft (no digital art)" },
+  { id: "hair", label: "Hair Artistry", emoji: "✂️", description: "Braiding, styling, creative hair designs, short styling videos" },
+  { id: "fashion", label: "Fashion Showcase", emoji: "👗", description: "Style, design, modelling & fashion" },
+  { id: "film", label: "My Nigeria Story (Short Film)", emoji: "🎬", description: "Short films and cinematic storytelling" },
+  { id: "photography", label: "Photography", emoji: "📸", description: "Capturing Nigeria through the lens" },
+  { id: "tech", label: "Tech Innovation", emoji: "💻", description: "Innovation, coding & tech entrepreneurship" },
+  { id: "logo", label: "Logo Design", emoji: "💡", description: "Original logos, branding concepts, mockups, optional explanation videos" },
 ];
 
 // ─── Quiz Config ──────────────────────────────────────────────────────────────
