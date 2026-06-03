@@ -27,12 +27,13 @@ function Hero() {
     <section id="hero" className="min-h-screen flex flex-col justify-center pt-14 relative overflow-hidden">
       
       {/* 3D Flag Ribbon */}
-      <img 
-        src="/flag-ribbon.png" 
-        alt="Nigerian Flag Ribbon" 
-        className="absolute -top-10 -left-10 md:-top-20 md:-left-20 w-full max-w-lg md:max-w-3xl opacity-90 pointer-events-none animate-slide-up mix-blend-lighten"
-        style={{ animationDuration: '1.2s' }}
-      />
+      <div className="absolute -top-10 -left-10 md:-top-20 md:-left-20 w-full max-w-lg md:max-w-3xl pointer-events-none animate-slide-up" style={{ animationDuration: '1.2s' }}>
+        <img 
+          src="/flag-ribbon.png" 
+          alt="Nigerian Flag Ribbon" 
+          className="w-full opacity-90 animate-float mix-blend-lighten"
+        />
+      </div>
 
       <div className="container-main py-24 md:py-32 relative z-10">
         {/* Overline */}
@@ -115,8 +116,8 @@ function Pillars() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/8">
           {PILLARS.map(({ id, index, title, body, cta, href }) => (
-            <article key={id} className="bg-black p-8 md:p-10 flex flex-col gap-6 group">
-              <p className="text-xs font-mono text-white">{index}</p>
+            <article key={id} className="bg-black p-8 md:p-10 flex flex-col gap-6 group relative z-0 border border-transparent transition-all duration-300 hover:z-10 hover:-translate-y-2 hover:-translate-x-2 hover:border-[#008751] hover:shadow-[8px_8px_0px_#008751]">
+              <p className="text-xs font-mono text-white group-hover:text-[#008751] transition-colors">{index}</p>
               <h3 className="font-semibold text-[color:#008751] text-lg leading-snug">{title}</h3>
               <p className="text-sm text-white leading-relaxed flex-1">{body}</p>
               <a

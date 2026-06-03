@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import MobileBottomNav from "./components/layout/MobileBottomNav";
+import CustomCursor from "./components/ui/CustomCursor";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -26,6 +27,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <CustomCursor />
       {!hideNavbar && <Navbar />}
       
       <main className="flex-1">
