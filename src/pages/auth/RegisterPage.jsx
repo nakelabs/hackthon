@@ -45,6 +45,7 @@ export default function RegisterPage() {
 
   const [form, setForm] = useState({
     fullName: "",
+    username: "",
     email: "",
     location: "",
     password: "",
@@ -103,6 +104,9 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input id="reg-name" name="fullName" label="Full Name" placeholder="Ngozi Achebe"
               value={form.fullName} onChange={update} error={errors.fullName} autoComplete="name" />
+
+            <Input id="reg-username" name="username" label="Username" placeholder="ngozi_ach"
+              value={form.username} onChange={update} error={errors.username} autoComplete="username" />
 
             <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
               value={form.email} onChange={update} error={errors.email} autoComplete="email" />

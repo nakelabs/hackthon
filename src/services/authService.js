@@ -22,6 +22,7 @@ export const register = async (data) => {
   }
   const res = await api.post("/auth/register", {
     full_name: data.fullName,
+    username:  data.username,
     location:  data.location,
     email:     data.email,
     password:  data.password,

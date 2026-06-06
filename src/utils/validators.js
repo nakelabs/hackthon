@@ -25,6 +25,13 @@ export const validateName = (value) => {
   return "";
 };
 
+export const validateUsername = (value) => {
+  if (!value || !value.trim()) return "Username is required.";
+  if (value.trim().length < 3) return "Username must be at least 3 characters.";
+  if (!/^[a-zA-Z0-9_]+$/.test(value.trim())) return "Username can only contain letters, numbers, and underscores.";
+  return "";
+};
+
 export const validatePhone = (value) => {
   if (!value || !value.trim()) return ""; // optional field
   const cleaned = value.replace(/\s+/g, "");
@@ -54,6 +61,7 @@ export const validateLoginForm = ({ email, password }) => {
 // ─── Validate entire register form ───────────────────────────────────────────
 export const validateRegisterForm = ({
   fullName,
+  username,
   email,
   location,
   password,
@@ -61,11 +69,13 @@ export const validateRegisterForm = ({
 }) => {
   const errors = {};
   const nameErr = validateName(fullName);
+  const userErr = validateUsername(username);
   const emailErr = validateEmail(email);
   const locErr = validateLocation(location);
   const passErr = validatePassword(password);
   const confirmErr = validateConfirmPassword(password, confirmPassword);
   if (nameErr) errors.fullName = nameErr;
+  if (userErr) errors.username = userErr;
   if (emailErr) errors.email = emailErr;
   if (locErr) errors.location = locErr;
   if (passErr) errors.password = passErr;
