@@ -70,6 +70,18 @@ export const updateProfile = async (data) => {
   return res.data;
 };
 
+// ─── uploadProfilePicture ─────────────────────────────────────────────────────
+// POST /auth/me/profile-picture — body: multipart/form-data
+export const uploadProfilePicture = async (file) => {
+  if (DEMO_MODE) return makeMockUser({});
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await api.post("/auth/me/profile-picture", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 export const persistAuth = (authData) => {
   localStorage.setItem(LS_TOKEN_KEY, authData.access_token);
@@ -89,4 +101,21 @@ export const getStoredUser = () => {
   }
 };
 
+// ─── getUserById ──────────────────────────────────────────────────────────────
+// GET /auth/users/{user_id}
+export const getUserById = async (userId) => {
+  if (DEMO_MODE) return makeMockUser({ id: userId });
+  const res = await api.get(`/auth/users/${userId}`);
+  return res.data;
+};
+
+// ─── searchUsers ──────────────────────────────────────────────────────────────
+// GET /search/users?q=&skip=0&limit=20
+export const searchUsers = async (query, { skip = 0, limit = 20 } = {}) => {
+  if (DEMO_MODE) return { users: [], total: 0 };
+  const res = await api.get("/search/users", { params: { q: query, skip, limit } });
+  return res.data; // { users: [...], total }
+};
+
 export { DEMO_MODE };
+

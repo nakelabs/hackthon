@@ -174,14 +174,22 @@ export default function LeaderboardPage() {
               </div>
             )}
             {rankings.map((entry, idx) => {
-              const rank = idx + 1;
+              const rank  = entry.position ?? (idx + 1);
               const medal = MEDALS[rank - 1] ?? null;
               const isTop = rank <= 3;
-              const displayName = entry.title || `Submission #${entry.submission_id}`;
+
+              // Correct API fields: fullname, profile_picture, position
+              const userName    = entry.fullname || entry.title || "Unknown";
+              const displayName = entry.title || userName;
+              const initial     = userName.charAt(0).toUpperCase();
+
               return (
-                <div
-                  key={entry.submission_id}
-                  className={`flex items-center gap-4 px-4 py-3.5 border transition-all duration-200 hover:-translate-y-0.5 ${rank === 1
+                <button
+                  key={entry.submission_id ?? idx}
+                  onClick={() => {
+                    if (entry.user_id) navigate(`/profile/${entry.user_id}`);
+                  }}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 border transition-all duration-200 hover:-translate-y-0.5 text-left ${rank === 1
                     ? `bg-[#0a1a0f] border-[#008751] ${medal.shadow}`
                     : isTop
                       ? `bg-[#0a0a0a] ${medal?.border ?? "border-white/15"}`
@@ -199,31 +207,47 @@ export default function LeaderboardPage() {
                     )}
                   </div>
 
-                  {/* Avatar */}
-                  <div className={`w-9 h-9 flex-shrink-0 flex items-center justify-center font-black text-sm border ${rank === 1
-                    ? "bg-[#008751] border-[#008751] text-white"
-                    : "bg-[#111] border-white/10 text-white/50"}`}>
-                    {displayName.charAt(0).toUpperCase()}
+                  {/* User Avatar */}
+                  <div className={`w-10 h-10 flex-shrink-0 rounded-full overflow-hidden flex items-center justify-center font-black text-sm border ${rank === 1
+                    ? "border-[#008751]"
+                    : "border-white/10"}`}
+                  >
+                    {entry.profile_picture ? (
+                      <img
+                        src={entry.profile_picture}
+                        alt={userName}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center ${rank === 1 ? "bg-[#008751] text-white" : "bg-[#111] text-white/50"}`}>
+                        {initial}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Name + Category */}
+                  {/* Name + Post title */}
                   <div className="flex-1 min-w-0">
                     <p className={`font-black text-sm uppercase tracking-wide truncate ${isTop ? "text-white" : "text-white/70"}`}>
-                      {displayName}
+                      {userName}
                     </p>
-                    <p className="text-[10px] text-white/35 uppercase tracking-widest font-bold">
-                      {entry.category || `ID #${entry.submission_id}`}
+                    <p className="text-[10px] text-white/35 uppercase tracking-widest font-bold truncate">
+                      {displayName !== userName ? displayName : (entry.category || "")}
                     </p>
                   </div>
 
-                  {/* Votes */}
-                  <div className="text-right flex-shrink-0">
-                    <p className={`font-black text-base tabular-nums ${rank === 1 ? "text-[#008751]" : isTop ? "text-white/80" : "text-white/50"}`}>
-                      {(entry.vote_count || 0).toLocaleString()}
-                    </p>
-                    <p className="text-[9px] text-white/25 uppercase tracking-widest">votes</p>
+                  {/* Votes + arrow */}
+                  <div className="text-right flex-shrink-0 flex items-center gap-3">
+                    <div>
+                      <p className={`font-black text-base tabular-nums ${rank === 1 ? "text-[#008751]" : isTop ? "text-white/80" : "text-white/50"}`}>
+                        {(entry.vote_count || 0).toLocaleString()}
+                      </p>
+                      <p className="text-[9px] text-white/25 uppercase tracking-widest">votes</p>
+                    </div>
+                    <svg className="w-4 h-4 text-white/20 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

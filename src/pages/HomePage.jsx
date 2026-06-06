@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { TALENT_CATEGORIES } from "../utils/constants";
 import { getApprovedTalents, castVote, removeVote } from "../services/talentService";
@@ -18,29 +19,60 @@ function getMediaType(talent) {
   return talent.media_type || (talent.video_url ? "video" : talent.audio_url ? "audio" : "image");
 }
 
+// Uploader avatar shown on each post (Instagram-style)
+function PostAvatar({ post, onClick }) {
+  const name    = post.username || "?";
+  const initial = name.charAt(0).toUpperCase();
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 group"
+    >
+      <div className="w-9 h-9 rounded-full border-2 border-[#008751] overflow-hidden bg-[#111] flex items-center justify-center shrink-0 shadow-lg group-hover:border-white transition-colors">
+        {post.profile_picture_url ? (
+          <img
+            src={post.profile_picture_url}
+            alt={name}
+            className="w-full h-full object-cover object-center"
+          />
+        ) : (
+          <span className="text-xs font-black text-white">{initial}</span>
+        )}
+      </div>
+      <span className="text-white text-sm font-semibold drop-shadow-md truncate max-w-[100px] group-hover:text-[#008751] transition-colors">
+        {name}
+      </span>
+    </button>
+  );
+}
+
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user }  = useAuth();
+  const navigate  = useNavigate();
 
   // ── Feed state ────────────────────────────────────────────────────────────
-  const [feed, setFeed]           = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [feed, setFeed]               = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError]         = useState(null);
-  const [skip, setSkip]           = useState(0);
-  const [hasMore, setHasMore]     = useState(true);
+  const [error, setError]             = useState(null);
+  const [skip, setSkip]               = useState(0);
+  const [hasMore, setHasMore]         = useState(true);
   const LIMIT = 20;
 
-  // ── Filter state ──────────────────────────────────────────────────────────
-  const [searchQuery, setSearchQuery]         = useState("");
-  const [activeCategory, setActiveCategory]   = useState("All");
-  const [isFilterOpen, setIsFilterOpen]       = useState(false);
+  // ── Filter / Search state ─────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery]       = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [isFilterOpen, setIsFilterOpen]     = useState(false);
 
   // ── Vote state ────────────────────────────────────────────────────────────
-  const [votedIds, setVotedIds]   = useState(new Set());
-  const [votingId, setVotingId]   = useState(null);
+  // voteCounts tracks real-time vote count per post; hasVotedMap tracks voted state
+  const [voteCounts, setVoteCounts]     = useState({});   // { [postId]: number }
+  const [hasVotedMap, setHasVotedMap]   = useState({});   // { [postId]: bool }
+  const [votingId, setVotingId]         = useState(null);
 
   // ── Comment state ─────────────────────────────────────────────────────────
   const [activePostId, setActivePostId]       = useState(null);
+  const [activePostCommentCount, setActivePostCommentCount] = useState(0);
   const [comments, setComments]               = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [newComment, setNewComment]           = useState("");
@@ -58,11 +90,22 @@ export default function HomePage() {
         : undefined;
       const data = await getApprovedTalents({ category: catParam, skip: currentSkip, limit: LIMIT });
       const newItems = data.talents || [];
-      setFeed(prev => reset ? newItems : [...prev, ...newItems]);
+
+      // Seed vote state from API response
+      const newVoteCounts  = {};
+      const newHasVotedMap = {};
+      newItems.forEach(item => {
+        newVoteCounts[item.id]  = item.vote_count  ?? 0;
+        newHasVotedMap[item.id] = item.has_voted   ?? false;
+      });
+
+      setVoteCounts(prev  => ({ ...prev,  ...newVoteCounts  }));
+      setHasVotedMap(prev => ({ ...prev,  ...newHasVotedMap }));
+      setFeed(prev  => reset ? newItems : [...prev, ...newItems]);
       setSkip(currentSkip + newItems.length);
       setHasMore(newItems.length === LIMIT);
       setError(null);
-    } catch (err) {
+    } catch {
       setError("Could not load the talent feed. Please try again.");
     } finally {
       setLoading(false);
@@ -73,29 +116,21 @@ export default function HomePage() {
   useEffect(() => { loadFeed(true); }, [activeCategory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Vote ──────────────────────────────────────────────────────────────────
-  const handleVote = async (submissionId) => {
+  const handleVote = async (postId) => {
     if (!user) { alert("Please sign in to vote."); return; }
-    if (votingId === submissionId) return;
-    setVotingId(submissionId);
-    
-    const isVoted = votedIds.has(submissionId);
+    if (votingId === postId) return;
+    setVotingId(postId);
+
+    const alreadyVoted = hasVotedMap[postId];
     try {
-      if (isVoted) {
-        await removeVote(submissionId);
-        setVotedIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(submissionId);
-          return newSet;
-        });
-        setFeed(prev => prev.map(p =>
-          p.id === submissionId ? { ...p, vote_count: Math.max(0, (p.vote_count || 0) - 1) } : p
-        ));
+      if (alreadyVoted) {
+        await removeVote(postId);
+        setHasVotedMap(prev => ({ ...prev, [postId]: false }));
+        setVoteCounts(prev  => ({ ...prev, [postId]: Math.max(0, (prev[postId] || 0) - 1) }));
       } else {
-        await castVote(submissionId);
-        setVotedIds(prev => new Set([...prev, submissionId]));
-        setFeed(prev => prev.map(p =>
-          p.id === submissionId ? { ...p, vote_count: (p.vote_count || 0) + 1 } : p
-        ));
+        await castVote(postId);
+        setHasVotedMap(prev => ({ ...prev, [postId]: true }));
+        setVoteCounts(prev  => ({ ...prev, [postId]: (prev[postId] || 0) + 1 }));
       }
     } catch {
       // silently fail
@@ -105,11 +140,12 @@ export default function HomePage() {
   };
 
   // ── Comments ──────────────────────────────────────────────────────────────
-  const openComments = async (submissionId) => {
-    setActivePostId(submissionId);
+  const openComments = async (post) => {
+    setActivePostId(post.id);
+    setActivePostCommentCount(post.comment_count ?? 0);
     setCommentsLoading(true);
     try {
-      const data = await getComments(submissionId);
+      const data = await getComments(post.id);
       setComments(data.comments || []);
     } catch {
       setComments([]);
@@ -126,6 +162,11 @@ export default function HomePage() {
       const c = await createComment(activePostId, newComment.trim());
       setComments(prev => [...prev, c]);
       setNewComment("");
+      // bump comment count in feed
+      setFeed(prev => prev.map(p =>
+        p.id === activePostId ? { ...p, comment_count: (p.comment_count || 0) + 1 } : p
+      ));
+      setActivePostCommentCount(prev => prev + 1);
     } catch {
       // ignore
     } finally {
@@ -133,7 +174,7 @@ export default function HomePage() {
     }
   };
 
-  // ── Client-side search filter (on top of server category filter) ──────────
+  // ── Client-side search filter ─────────────────────────────────────────────
   const filteredFeed = useMemo(() => {
     if (!searchQuery) return feed;
     const q = searchQuery.toLowerCase();
@@ -149,20 +190,32 @@ export default function HomePage() {
       <div className="w-full max-w-[450px] h-[100dvh] bg-[#050505] relative overflow-y-scroll snap-y snap-mandatory hide-scrollbar border-x border-white/5 shadow-2xl shadow-black">
 
         {/* Top Nav */}
-        <div className="absolute top-0 w-full px-6 py-6 z-50 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+        <div className="absolute top-0 w-full px-5 py-5 z-50 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
           <h1 className="text-xl font-black text-white tracking-widest uppercase drop-shadow-md">For You</h1>
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            className={`pointer-events-auto p-3 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center ${
-              (searchQuery || activeCategory !== "All")
-                ? "bg-[#008751] text-white"
-                : "bg-black/40 text-white hover:bg-black/60"
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {/* User search icon */}
+            <button
+              onClick={() => navigate("/search")}
+              className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all shadow-lg flex items-center justify-center"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+            {/* Filter icon */}
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              className={`p-3 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center ${
+                (searchQuery || activeCategory !== "All")
+                  ? "bg-[#008751] text-white"
+                  : "bg-black/40 text-white hover:bg-black/60"
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Loading skeleton */}
@@ -201,15 +254,17 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* The Feed */}
+        {/* ── The Feed ── */}
         {filteredFeed.map((post, idx) => {
-          const hasVoted = votedIds.has(post.id);
-          const mediaUrl = getMediaUrl(post);
-          const mediaType = getMediaType(post);
-          const gradient = CARD_GRADIENTS[idx % CARD_GRADIENTS.length];
+          const alreadyVoted = hasVotedMap[post.id] ?? false;
+          const voteCount    = voteCounts[post.id]  ?? post.vote_count ?? 0;
+          const commentCount = post.comment_count   ?? 0;
+          const mediaUrl     = getMediaUrl(post);
+          const mediaType    = getMediaType(post);
+          const gradient     = CARD_GRADIENTS[idx % CARD_GRADIENTS.length];
 
           return (
-            <div key={post.id} className={`relative w-full h-[100dvh] snap-start snap-always flex items-center justify-center bg-[#0a0a0a] overflow-hidden group`}>
+            <div key={post.id} className="relative w-full h-[100dvh] snap-start snap-always flex items-center justify-center bg-[#0a0a0a] overflow-hidden group">
 
               {/* Media */}
               {mediaUrl && mediaType === "video" ? (
@@ -227,41 +282,54 @@ export default function HomePage() {
                 <audio src={mediaUrl} autoPlay loop className="hidden" />
               )}
 
-              {/* Overlay */}
+              {/* Dark overlay */}
               <div className="absolute bottom-0 w-full h-2/3 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none" />
 
-              {/* Info */}
+              {/* ── Bottom info row ── */}
               <div className="absolute bottom-20 left-4 right-16 z-20">
+                {/* Uploader avatar — Instagram style */}
+                <div className="mb-3">
+                  <PostAvatar
+                    post={post}
+                    onClick={() => {
+                      if (post.user_id) navigate(`/profile/${post.user_id}`);
+                    }}
+                  />
+                </div>
                 <p className="text-base text-white font-semibold mb-1 drop-shadow-md">{post.title}</p>
-                <p className="text-sm text-white/80 mb-3 leading-snug drop-shadow-md line-clamp-2">{post.description}</p>
-                <span className="text-base text-white uppercase drop-shadow-md">#{post.category}</span>
+                <p className="text-sm text-white/80 mb-2 leading-snug drop-shadow-md line-clamp-2">{post.description}</p>
+                <span className="text-sm text-white/70 uppercase drop-shadow-md">#{post.category}</span>
               </div>
 
-              {/* Actions */}
+              {/* ── Action bar (right side) ── */}
               <div className="absolute bottom-20 right-4 z-30 flex flex-col gap-5 items-center">
-                {/* Vote */}
-                <button
-                  onClick={() => handleVote(post.id)}
-                  disabled={votingId === post.id}
-                  className="flex flex-col items-center transition-transform hover:scale-110"
-                >
-                  <div className={`w-12 h-12 flex items-center justify-center border-2 rounded-full mb-1 transition-all duration-300 ${
-                    hasVoted
-                      ? "bg-[#008751] border-[#008751] shadow-[0_0_15px_#008751]"
-                      : "bg-black/40 backdrop-blur-md border-white/20 hover:border-[#008751]"
-                  }`}>
-                    <span className="text-[11px] font-black tracking-wider text-white">
-                      {votingId === post.id ? "…" : "VOTE"}
-                    </span>
-                  </div>
-                  <span className={`text-xs font-bold drop-shadow-md ${hasVoted ? "text-[#008751]" : "text-white/90"}`}>
-                    {((post.vote_count || 0) + (hasVoted ? 0 : 0)).toLocaleString()}
-                  </span>
-                </button>
 
-                {/* Comment */}
+                {/* Vote button */}
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={() => handleVote(post.id)}
+                    disabled={votingId === post.id}
+                    className={`relative w-12 h-12 flex items-center justify-center border-2 rounded-full mb-1 transition-all duration-300 ${
+                      alreadyVoted
+                        ? "bg-[#008751]/30 border-[#008751] shadow-[0_0_15px_rgba(0,135,81,0.5)] opacity-60 cursor-default"
+                        : "bg-black/40 backdrop-blur-md border-white/20 hover:border-[#008751] hover:scale-110"
+                    }`}
+                  >
+                    {alreadyVoted && (
+                      <div className="absolute inset-0 rounded-full backdrop-blur-[2px]" />
+                    )}
+                    <span className={`text-[10px] font-black tracking-wider relative z-10 ${alreadyVoted ? "text-[#008751]" : "text-white"}`}>
+                      {votingId === post.id ? "…" : alreadyVoted ? "✓" : "VOTE"}
+                    </span>
+                  </button>
+                  <span className={`text-xs font-bold drop-shadow-md ${alreadyVoted ? "text-[#008751]" : "text-white/90"}`}>
+                    {voteCount.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Comment button */}
                 <button
-                  onClick={() => openComments(post.id)}
+                  onClick={() => openComments(post)}
                   className="flex flex-col items-center transition-transform hover:scale-110"
                 >
                   <div className="w-12 h-12 flex items-center justify-center bg-black/40 backdrop-blur-md border-2 border-white/20 rounded-full mb-1 hover:border-white transition-colors">
@@ -269,10 +337,12 @@ export default function HomePage() {
                       <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
                     </svg>
                   </div>
-                  <span className="text-white/90 text-xs font-bold drop-shadow-md">💬</span>
+                  <span className="text-white/90 text-xs font-bold drop-shadow-md">
+                    {commentCount > 0 ? commentCount.toLocaleString() : "💬"}
+                  </span>
                 </button>
 
-                {/* Share */}
+                {/* Share button */}
                 <button
                   onClick={() => navigator.share?.({ title: post.title, text: post.description })}
                   className="flex flex-col items-center transition-transform hover:scale-110"
@@ -302,7 +372,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Filter Drawer */}
+      {/* ── Filter Drawer ── */}
       <div
         className={`fixed inset-0 z-[100] flex justify-center items-end bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={() => setIsFilterOpen(false)}
@@ -315,7 +385,7 @@ export default function HomePage() {
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
           <div className="px-6 pb-4 flex items-center justify-between border-b border-white/5">
-            <h2 className="text-2xl font-black text-white uppercase tracking-tight">Search & Filter</h2>
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight">Filter</h2>
             {(searchQuery || activeCategory !== "All") && (
               <button onClick={() => { setSearchQuery(""); setActiveCategory("All"); }} className="text-xs font-bold text-[#008751] uppercase tracking-widest">
                 Clear All
@@ -323,14 +393,14 @@ export default function HomePage() {
             )}
           </div>
           <div className="flex-1 overflow-y-auto px-6 py-6 hide-scrollbar">
-            <div className="mb-8 relative group">
+            <div className="mb-8 relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
               <input
-                type="text" placeholder="Search talent or descriptions…"
+                type="text" placeholder="Search posts…"
                 value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#111] border border-white/10 text-white text-base rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-[#008751] transition-all placeholder:text-white/30"
               />
@@ -357,7 +427,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Comments Drawer */}
+      {/* ── Comments Drawer ── */}
       <div
         className={`fixed inset-0 z-[100] flex justify-center items-end bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${activePostId ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={() => setActivePostId(null)}
@@ -368,7 +438,9 @@ export default function HomePage() {
         >
           <div className="w-full flex flex-col items-center pt-3 pb-3 border-b border-white/10 sticky top-0 bg-[#262626] rounded-t-xl z-10">
             <div className="w-10 h-1 bg-white/20 rounded-full mb-3" />
-            <h2 className="text-sm font-bold text-white">Comments</h2>
+            <h2 className="text-sm font-bold text-white">
+              Comments {activePostCommentCount > 0 && <span className="text-white/50 font-normal">({activePostCommentCount.toLocaleString()})</span>}
+            </h2>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-4 hide-scrollbar">
@@ -397,8 +469,12 @@ export default function HomePage() {
           </div>
 
           <div className="p-4 border-t border-white/10 bg-[#262626] flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#008751] to-green-900 shrink-0 flex items-center justify-center text-xs text-white font-bold">
-              {user?.full_name?.charAt(0) || "Me"}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#008751] to-green-900 shrink-0 flex items-center justify-center text-xs text-white font-bold overflow-hidden">
+              {user?.profile_picture_url ? (
+                <img src={user.profile_picture_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                user?.full_name?.charAt(0) || "Me"
+              )}
             </div>
             <div className="flex-1 relative flex items-center">
               <input

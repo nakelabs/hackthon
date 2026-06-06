@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getMyTalents, deleteTalent } from "../../services/talentService";
-import { updateProfile } from "../../services/authService";
+import { updateProfile, uploadProfilePicture } from "../../services/authService";
 import Spinner from "../../components/ui/Spinner";
 
 const GRADIENT_FOR_CAT = {
@@ -27,6 +27,9 @@ export default function MyArenaPage() {
   const [editError, setEditError]   = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
 
+  const [uploadingPic, setUploadingPic] = useState(false);
+  const fileInputRef = useRef(null);
+
   // ── Load user's uploads ───────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
@@ -40,6 +43,21 @@ export default function MyArenaPage() {
   useEffect(() => {
     if (user) setEditForm({ full_name: user.full_name || "", location: user.location || "" });
   }, [user]);
+
+  const handleProfilePictureChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPic(true);
+    try {
+      const updatedUser = await uploadProfilePicture(file);
+      loginUser({ access_token: localStorage.getItem("nc_auth_token"), user: updatedUser });
+    } catch (err) {
+      alert("Failed to upload profile picture. Try again.");
+    } finally {
+      setUploadingPic(false);
+    }
+  };
 
   const handleDeleteUpload = async (id) => {
     if (!window.confirm("Delete this submission? This cannot be undone.")) return;
@@ -105,9 +123,36 @@ export default function MyArenaPage() {
 
         {/* Profile Identity */}
         <div className="px-6 pt-8 pb-6 flex flex-col items-center border-b border-white/5">
-          <div className="w-24 h-24 bg-[#111] border-2 border-[#008751] flex items-center justify-center shadow-[4px_4px_0_#008751] mb-4 transform -rotate-3 hover:rotate-0 transition-transform">
-            <span className="text-4xl font-black text-white">{initial}</span>
+          <div 
+            onClick={() => !uploadingPic && fileInputRef.current?.click()}
+            className="w-28 h-28 bg-[#111] border-2 border-[#008751] rounded-full flex items-center justify-center mb-4 transition-all cursor-pointer relative overflow-hidden group shadow-lg hover:border-[#00b36b]"
+          >
+            {user.profile_picture_url ? (
+              <img src={user.profile_picture_url} alt="Profile" className="w-full h-full object-cover object-center" />
+            ) : (
+              <span className="text-4xl font-black text-white">{initial}</span>
+            )}
+            
+            {/* Hover overlay for upload */}
+            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg className="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span className="text-white text-[10px] font-bold uppercase tracking-widest text-center">
+                {uploadingPic ? "..." : "Change"}
+              </span>
+            </div>
+            {uploadingPic && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <Spinner size={16} className="text-[#008751]" />
+              </div>
+            )}
           </div>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleProfilePictureChange} 
+            accept="image/*" 
+            className="hidden" 
+          />
           <h2 className="text-xl font-black text-white mb-1">{displayName}</h2>
           <div className="flex gap-2 items-center mb-4">
             {user.location && (

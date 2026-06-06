@@ -13,6 +13,9 @@ import MapPage from "./pages/MapPage";
 import UploadPage from "./pages/UploadPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import CompendiumPage from "./pages/CompendiumPage";
+import PublicProfilePage from "./pages/PublicProfilePage";
+import UserSearchPage from "./pages/UserSearchPage";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 
 // ── Admin ──────────────────────────────────────────────────────────────────────
 import { AdminAuthProvider } from "./context/AdminAuthContext";
@@ -38,9 +41,9 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
-  const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload"].includes(location.pathname);
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
 
   return (
     <AdminAuthProvider>
@@ -50,7 +53,8 @@ export default function App() {
         {!hideNavbar && <Navbar />}
         
         <main className="flex-1">
-          <Routes>
+          <ErrorBoundary>
+            <Routes>
             {/* ── Public routes ──────────────────────────────────────────── */}
             <Route path="/"            element={<LandingPage />} />
             <Route path="/login"       element={<LoginPage />} />
@@ -62,6 +66,8 @@ export default function App() {
             <Route path="/upload"      element={<UploadPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/compendium"  element={<CompendiumPage />} />
+            <Route path="/search"      element={<UserSearchPage />} />
+            <Route path="/profile/:userId" element={<PublicProfilePage />} />
 
             {/* ── Admin routes (obfuscated URL) ──────────────────────────── */}
             {/* Login page — accessible without a token */}
@@ -80,7 +86,8 @@ export default function App() {
                 </div>
               </div>
             } />
-          </Routes>
+            </Routes>
+          </ErrorBoundary>
         </main>
 
         {showBottomNav && <MobileBottomNav />}
