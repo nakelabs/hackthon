@@ -131,13 +131,31 @@ export default function RegisterPage() {
             <PasswordField id="reg-confirm" name="confirmPassword" label="Confirm Password"
               value={form.confirmPassword} onChange={update} error={errors.confirmPassword} />
 
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" name="agreed" checked={form.agreed} onChange={update}
-                className="mt-0.5 accent-white" />
-              <span className="text-xs text-white leading-relaxed">
-                I agree to the Terms & Conditions and Privacy Policy.
+            {/* Terms checkbox — large tap target for mobile */}
+            <button
+              type="button"
+              onClick={() => setForm(f => ({ ...f, agreed: !f.agreed }))}
+              className="flex items-start gap-3 w-full text-left group"
+            >
+              {/* Custom checkbox box */}
+              <span className={`mt-0.5 flex-shrink-0 w-6 h-6 border-2 rounded flex items-center justify-center transition-all duration-200 ${
+                form.agreed
+                  ? "bg-[#008751] border-[#008751]"
+                  : "bg-transparent border-white/30 group-active:border-white/60"
+              }`}>
+                {form.agreed && (
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </span>
-            </label>
+              <span className="text-xs text-white/70 leading-relaxed pt-0.5">
+                I agree to the{" "}
+                <span className="text-white underline underline-offset-2">Terms &amp; Conditions</span>
+                {" "}and{" "}
+                <span className="text-white underline underline-offset-2">Privacy Policy</span>.
+              </span>
+            </button>
             {errors.agreed && <p className="text-xs text-red-400 -mt-3">{errors.agreed}</p>}
 
             <button type="submit" disabled={submitting}
