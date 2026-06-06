@@ -34,6 +34,13 @@ export const validatePhone = (value) => {
   return "";
 };
 
+export const validateLocation = (value) => {
+  if (!value || !value.trim()) return "Please select your state.";
+  if (value.trim().length < 2 || value.trim().length > 15) return "Location must be 2–15 characters.";
+  return "";
+};
+
+
 // ─── Validate entire login form ───────────────────────────────────────────────
 export const validateLoginForm = ({ email, password }) => {
   const errors = {};
@@ -48,19 +55,19 @@ export const validateLoginForm = ({ email, password }) => {
 export const validateRegisterForm = ({
   fullName,
   email,
-  phone,
+  location,
   password,
   confirmPassword,
 }) => {
   const errors = {};
   const nameErr = validateName(fullName);
   const emailErr = validateEmail(email);
-  const phoneErr = validatePhone(phone);
+  const locErr = validateLocation(location);
   const passErr = validatePassword(password);
   const confirmErr = validateConfirmPassword(password, confirmPassword);
   if (nameErr) errors.fullName = nameErr;
   if (emailErr) errors.email = emailErr;
-  if (phoneErr) errors.phone = phoneErr;
+  if (locErr) errors.location = locErr;
   if (passErr) errors.password = passErr;
   if (confirmErr) errors.confirmPassword = confirmErr;
   return errors;

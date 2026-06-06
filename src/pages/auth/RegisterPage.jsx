@@ -46,10 +46,9 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    phone: "",
+    location: "",
     password: "",
     confirmPassword: "",
-    referralCode,
     agreed: false,
   });
 
@@ -108,8 +107,23 @@ export default function RegisterPage() {
             <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
               value={form.email} onChange={update} error={errors.email} autoComplete="email" />
 
-            <Input id="reg-phone" name="phone" type="tel" label="Phone (optional)" placeholder="08012345678"
-              value={form.phone} onChange={update} error={errors.phone} autoComplete="tel" />
+            {/* Location / State — required by API (2-15 chars) */}
+            <div className="flex flex-col gap-1.5">
+              <label className="label" htmlFor="reg-location">State / Location</label>
+              <select
+                id="reg-location"
+                name="location"
+                value={form.location}
+                onChange={update}
+                className={`input ${errors.location ? 'input-error' : ''}`}
+              >
+                <option value="">Select your state…</option>
+                {["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno","Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara","FCT Abuja"].map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+              {errors.location && <p className="text-xs text-red-400 mt-0.5">{errors.location}</p>}
+            </div>
 
             <PasswordField id="reg-password" name="password" label="Password"
               value={form.password} onChange={update} error={errors.password} />

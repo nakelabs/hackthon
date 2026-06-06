@@ -54,7 +54,7 @@ export default function MobileBottomNav() {
 
   return (
     <div className="fixed bottom-0 w-full z-50 flex justify-center bg-transparent pointer-events-none">
-      <div className="w-full max-w-[450px] bg-black border-t border-white/10 px-2 py-3 flex justify-between items-center pointer-events-auto">
+      <div className="w-full max-w-[450px] md:max-w-full md:px-10 lg:px-20 bg-black border-t border-white/10 px-2 py-3 flex justify-between items-center pointer-events-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path && !item.isUpload;
           

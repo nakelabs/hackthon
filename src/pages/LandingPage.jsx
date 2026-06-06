@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { TALENT_CATEGORIES, MOCK_STATE_LEADERBOARD, MOCK_STATE_PARTICIPANTS } from "../utils/constants";
+import { TALENT_CATEGORIES } from "../utils/constants";
 import NigeriaMap from "../components/ui/NigeriaMap";
+import { getStateLeaderboard, getCategoryLeaderboard } from "../services/talentService";
+import api from "../services/api";
 import {
   Music, Medal, Volleyball, Laugh, Palette,
   Scissors, Shirt, Clapperboard, Camera, Laptop, Brush
@@ -468,18 +470,54 @@ function GlobalIcons() {
 
 // ─── Rep Your State Leaderboard ───────────────────────────────────────────────
 export function StateLeaderboard() {
-  const [selectedState, setSelectedState] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedState, setSelectedState]       = useState(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState(null);
 
-  const top3 = MOCK_STATE_LEADERBOARD.slice(0, 3);
+  // ── Real state leaderboard data ────────────────────────────────────────────
+  const [stateData, setStateData]   = useState([]);
+  const [catEntries, setCatEntries] = useState([]);
+  const [catLoading, setCatLoading] = useState(false);
+  const [apiCategories, setApiCategories] = useState([]);
 
-  const openModal = (stateName) => {
-    setSelectedState(stateName);
-    setSelectedCategory(null);
-  };
+  useEffect(() => {
+    getStateLeaderboard({ byVoterLocation: false })
+      .then(data => setStateData(data.entries || []))
+      .catch(() => {});
+
+    api.get("/talents/categories/approved")
+      .then(res => setApiCategories(res.data || []))
+      .catch(() => {
+        setApiCategories([
+          "Music", "Football Freestyle", "Basketball Freestyle",
+          "Comedy Skits", "Handmade Artwork", "Hair Artistry",
+          "Fashion", "Short Film", "Photography", "Tech Innovation", "Logo Design",
+        ].map((name, i) => ({ id: i + 1, name, status: "approved" })));
+      });
+  }, []);
+
+  // Fetch leaderboard when state+category are both selected
+  useEffect(() => {
+    if (!selectedState || !selectedCategoryName) return;
+    setCatLoading(true);
+    getCategoryLeaderboard(selectedCategoryName, { location: selectedState, limit: 10 })
+      .then(data => setCatEntries(data.entries || []))
+      .catch(() => setCatEntries([]))
+      .finally(() => setCatLoading(false));
+  }, [selectedState, selectedCategoryName]);
+
+  // Build top-3 from real data, fall back to placeholders if empty
+  const top3 = stateData.slice(0, 3).map((e, i) => ({
+    state: e.state,
+    score: e.vote_count.toLocaleString(),
+    rank: i + 1,
+  }));
+  // Pad with placeholders if the API hasn't returned 3 yet
+  while (top3.length < 3) top3.push({ state: "—", score: "0", rank: top3.length + 1 });
+
+  const openModal = (stateName) => { if (stateName !== "—") { setSelectedState(stateName); setSelectedCategoryName(null); } };
   const closeModal = () => {
     setSelectedState(null);
-    setSelectedCategory(null);
+    setSelectedCategoryName(null);
   };
 
   return (
@@ -490,7 +528,7 @@ export function StateLeaderboard() {
           {/* Left Side: Interactive Map */}
           <div className="w-full xl:w-2/3 order-2 xl:order-1 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <NigeriaMap 
-              leaderboardData={MOCK_STATE_LEADERBOARD} 
+              leaderboardData={stateData.map((e, i) => ({ rank: i + 1, state: e.state, score: e.vote_count.toLocaleString(), tag: "Votes" }))} 
               onStateClick={(stateData) => openModal(stateData.state)} 
             />
           </div>
@@ -540,37 +578,48 @@ export function StateLeaderboard() {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div>
-                {selectedCategory ? (
-                  <button onClick={() => setSelectedCategory(null)} className="text-[10px] text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1 hover:text-white transition-colors">
+                {selectedCategoryName ? (
+                  <button onClick={() => setSelectedCategoryName(null)} className="text-[10px] text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1 hover:text-white transition-colors">
                     ← {selectedState}
                   </button>
                 ) : (
                   <p className="text-[10px] text-[#008751] uppercase tracking-widest mb-1 font-bold">State Selected</p>
                 )}
                 <h3 className="text-xl font-black text-white uppercase tracking-tight">
-                  {selectedCategory ? TALENT_CATEGORIES.find(c => c.id === selectedCategory)?.label : selectedState}
+                  {selectedCategoryName ? selectedCategoryName : selectedState}
                 </h3>
               </div>
               <button onClick={closeModal} className="w-8 h-8 flex items-center justify-center border border-white/20 text-white hover:border-white transition-colors text-sm">✕</button>
             </div>
 
             {/* Step 1: Category Grid */}
-            {!selectedCategory && (
+            {!selectedCategoryName && (
               <div className="p-6">
                 <p className="text-xs text-white/40 uppercase tracking-widest mb-5 font-bold">Pick a category to view the leaderboard</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {TALENT_CATEGORIES.map((cat) => {
-                    const Icon = CATEGORY_ICONS[cat.id] || Music;
+                  {apiCategories.map((cat) => {
+                    const iconKey = cat.name.toLowerCase().includes("football") ? "football" 
+                                  : cat.name.toLowerCase().includes("basketball") ? "basketball"
+                                  : cat.name.toLowerCase().includes("music") ? "music"
+                                  : cat.name.toLowerCase().includes("comedy") ? "comedy"
+                                  : cat.name.toLowerCase().includes("hair") ? "hair"
+                                  : cat.name.toLowerCase().includes("fashion") ? "fashion"
+                                  : cat.name.toLowerCase().includes("film") ? "film"
+                                  : cat.name.toLowerCase().includes("photo") ? "photography"
+                                  : cat.name.toLowerCase().includes("tech") ? "tech"
+                                  : cat.name.toLowerCase().includes("logo") ? "logo"
+                                  : "artwork";
+                    const Icon = CATEGORY_ICONS[iconKey] || Music;
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
+                        onClick={() => setSelectedCategoryName(cat.name)}
                         className="flex items-center gap-3 p-3 border border-white/10 bg-black text-left hover:border-[#008751] hover:bg-[#0a1a0f] transition-all group"
                       >
                         <span className="w-8 h-8 flex items-center justify-center border border-white/10 bg-[#111] text-white/50 group-hover:text-[#008751] group-hover:border-[#008751]/40 transition-colors flex-shrink-0">
                           <Icon className="w-4 h-4" strokeWidth={2} />
                         </span>
-                        <span className="text-xs font-black text-white/70 group-hover:text-white uppercase tracking-wide">{cat.label}</span>
+                        <span className="text-[10px] font-black text-white/70 group-hover:text-white uppercase tracking-wide">{cat.name}</span>
                       </button>
                     );
                   })}
@@ -579,33 +628,35 @@ export function StateLeaderboard() {
             )}
 
             {/* Step 2: Category Leaderboard for Selected State */}
-            {selectedCategory && (
+            {selectedCategoryName && (
               <div className="p-6">
                 <p className="text-[10px] text-white/40 uppercase tracking-widest mb-4 font-bold">
                   Top talent in {selectedState}
                 </p>
                 <div className="space-y-3 mb-6">
-                  {MOCK_STATE_PARTICIPANTS[selectedState] ? (
-                    MOCK_STATE_PARTICIPANTS[selectedState]
-                      .filter(() => true) // In a real app: filter by category
-                      .map((p, idx) => (
-                        <div key={idx} className="flex items-center gap-3 py-2.5 border-b border-white/8 last:border-0">
+                  {catLoading ? (
+                    <div className="flex justify-center py-6">
+                      <div className="w-5 h-5 border-2 border-[#008751] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : catEntries.length === 0 ? (
+                    <p className="text-xs text-white/30 text-center py-6">No entries yet for {selectedCategoryName.toLowerCase()} in {selectedState}.</p>
+                  ) : (
+                     catEntries.map((p, idx) => (
+                        <div key={p.submission_id || idx} className="flex items-center gap-3 py-2.5 border-b border-white/8 last:border-0">
                           <span className="font-mono text-white/30 text-xs w-5">#{idx + 1}</span>
                           <div className="w-8 h-8 flex items-center justify-center bg-[#111] border border-white/10 text-white font-black text-xs flex-shrink-0">
-                            {p.name.charAt(0)}
+                            {(p.title || "?").charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-black text-white truncate">{p.name}</p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-wide">{p.category}</p>
+                            <p className="text-sm font-black text-white truncate">{p.title || `Submission #${p.submission_id}`}</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-wide">ID #{p.submission_id}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-black text-[#008751]">{p.votes}</p>
+                            <p className="text-sm font-black text-[#008751]">{(p.vote_count || 0).toLocaleString()}</p>
                             <p className="text-[9px] text-white/30 uppercase">votes</p>
                           </div>
                         </div>
                       ))
-                  ) : (
-                    <p className="text-sm text-white/40 py-4 text-center">No data yet for this state.</p>
                   )}
                 </div>
                 <Link
