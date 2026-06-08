@@ -55,6 +55,23 @@ export const login = async (data) => {
   return { access_token: token, user };
 };
 
+// ─── loginWithGoogle ──────────────────────────────────────────────────────────
+// POST /auth/google — body: { id_token }
+export const loginWithGoogle = async (idToken) => {
+  if (DEMO_MODE) {
+    const token = "demo-google-jwt-token";
+    localStorage.setItem(LS_TOKEN_KEY, token);
+    const user = await getMe();
+    return { access_token: token, user };
+  }
+
+  const res = await api.post("/auth/google", { id_token: idToken });
+  const token = res.data.access_token;
+  localStorage.setItem(LS_TOKEN_KEY, token);
+  const user = await getMe();
+  return { access_token: token, user };
+};
+
 // ─── getMe ────────────────────────────────────────────────────────────────────
 // GET /auth/me — returns UserResponse
 export const getMe = async () => {
@@ -116,6 +133,38 @@ export const searchUsers = async (query, { skip = 0, limit = 20 } = {}) => {
   if (DEMO_MODE) return { users: [], total: 0 };
   const res = await api.get("/search/users", { params: { q: query, skip, limit } });
   return res.data; // { users: [...], total }
+};
+
+// ─── forgotPassword ───────────────────────────────────────────────────────────
+// POST /auth/forgot-password — body: { email }
+export const forgotPassword = async (email) => {
+  if (DEMO_MODE) return "Password reset email sent (Demo Mode)";
+  const res = await api.post("/auth/forgot-password", { email });
+  return res.data;
+};
+
+// ─── resetPassword ────────────────────────────────────────────────────────────
+// POST /auth/reset-password — body: { token, new_password }
+export const resetPassword = async (token, newPassword) => {
+  if (DEMO_MODE) return "Password reset successfully (Demo Mode)";
+  const res = await api.post("/auth/reset-password", { token, new_password: newPassword });
+  return res.data;
+};
+
+// ─── verifyEmail ──────────────────────────────────────────────────────────────
+// GET /auth/verify-email?token={token}
+export const verifyEmail = async (token) => {
+  if (DEMO_MODE) return "Email verified successfully (Demo Mode)";
+  const res = await api.get("/auth/verify-email", { params: { token } });
+  return res.data;
+};
+
+// ─── resendVerification ───────────────────────────────────────────────────────
+// POST /auth/resend-verification — body: { email }
+export const resendVerification = async (email) => {
+  if (DEMO_MODE) return "Verification email resent (Demo Mode)";
+  const res = await api.post("/auth/resend-verification", { email });
+  return res.data;
 };
 
 export { DEMO_MODE };

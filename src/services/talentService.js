@@ -90,3 +90,11 @@ export const getStateLeaderboard = async ({ byVoterLocation = false } = {}) => {
   });
   return res.data; // StateLeaderboardResponse { entries: [{ state, vote_count }] }
 };
+
+// ─── Submit a custom category ──────────────────────────────────────────────────
+// POST /talents/categories/submit
+export const submitCategory = async (name) => {
+  if (DEMO_MODE) return { id: 0, name, status: "pending" };
+  const res = await api.post("/talents/categories/submit", { name });
+  return res.data;
+};

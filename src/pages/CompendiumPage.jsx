@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Award, ThumbsUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getNominees, voteForNominee } from "../services/compendiumService";
 
 export default function CompendiumPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [nominees, setNominees]   = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -27,7 +29,7 @@ export default function CompendiumPage() {
   }, []);
 
   const handleVote = async (id) => {
-    if (!user) { alert("Please sign in to vote for a nominee."); return; }
+    if (!user) { navigate("/login?redirect=/compendium"); return; }
     if (votedIds.has(id) || votingId === id) return;
     setVotingId(id);
     try {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getUserById } from "../services/authService";
-import { getApprovedTalents } from "../services/talentService";
 
 export default function PublicProfilePage() {
   const { userId } = useParams();
@@ -17,20 +16,15 @@ export default function PublicProfilePage() {
     setLoading(true);
     setError(null);
 
-    Promise.all([
-      getUserById(userId).catch(() => null),
-      // fetch their approved posts – filter by uploader_id if API supports it
-      getApprovedTalents({ limit: 50 }).catch(() => ({ talents: [] })),
-    ]).then(([profileData, feedData]) => {
+    getUserById(userId).then(profileData => {
       if (!profileData) {
         setError("User not found.");
       } else {
         setProfile(profileData);
-        // Filter to only this user's posts
-        const allTalents = feedData.talents || [];
-        setUploads(allTalents.filter(t => String(t.uploader_id) === String(userId)));
+        setUploads(profileData.posts?.items || []);
       }
-    }).finally(() => setLoading(false));
+    }).catch(() => setError("User not found."))
+      .finally(() => setLoading(false));
   }, [userId]);
 
   if (loading) return (
@@ -53,7 +47,8 @@ export default function PublicProfilePage() {
   const displayName = profile.full_name || profile.username || "Naija Talent";
   const username    = `@${(profile.username || profile.full_name || "naija_star").replace(/\s+/g, "").toLowerCase()}`;
   const initial     = displayName.charAt(0).toUpperCase();
-  const totalVotes  = uploads.reduce((sum, u) => sum + (u.vote_count || 0), 0);
+  const totalVotes  = profile.vote_count ?? uploads.reduce((sum, u) => sum + (u.vote_count || 0), 0);
+  const totalPosts  = profile.posts?.total ?? uploads.length;
 
   return (
     <div className="bg-black min-h-screen flex justify-center">
@@ -107,7 +102,7 @@ export default function PublicProfilePage() {
           {/* Stats */}
           <div className="flex gap-0 border border-white/8 rounded-xl overflow-hidden">
             <div className="flex-1 py-3 flex flex-col items-center justify-center border-r border-white/8 bg-white/3 hover:bg-white/6 transition-colors">
-              <span className="text-lg font-black text-white">{uploads.length}</span>
+              <span className="text-lg font-black text-white">{totalPosts}</span>
               <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Posts</span>
             </div>
             <div className="flex-1 py-3 flex flex-col items-center justify-center bg-white/3 hover:bg-white/6 transition-colors">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getMyTalents, deleteTalent } from "../../services/talentService";
 import { updateProfile, uploadProfilePicture } from "../../services/authService";
@@ -12,7 +12,8 @@ const GRADIENT_FOR_CAT = {
 };
 
 export default function MyArenaPage() {
-  const { user, loading, loginUser } = useAuth();
+  const { user, loading, loginUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab]   = useState("uploads");
 
   // ── Uploads ───────────────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ export default function MyArenaPage() {
   const displayName  = user.full_name || user.username || "Naija Talent";
   const username     = `@${(user.username || user.full_name || "naija_star").replace(/\s+/g, "").toLowerCase()}`;
   const initial      = displayName.charAt(0).toUpperCase();
-  const totalVotes   = uploads.reduce((sum, u) => sum + (u.vote_count || 0), 0);
+  const totalVotes   = user.total_votes ?? uploads.reduce((sum, u) => sum + (u.vote_count || 0), 0);
   const topCategory  = uploads.length > 0 ? uploads[0].category : null;
 
   return (
@@ -118,7 +119,13 @@ export default function MyArenaPage() {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
           </Link>
           <h1 className="text-sm font-bold text-white tracking-widest uppercase">{username}</h1>
-          <div className="w-6" />
+          <button 
+            onClick={() => { logout(); navigate("/login"); }}
+            className="w-6 h-6 flex items-center justify-center text-white opacity-0 hover:opacity-30 transition-opacity"
+            title="Sign out"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+          </button>
         </div>
 
         {/* Profile Identity */}

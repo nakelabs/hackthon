@@ -41,10 +41,12 @@ export const rejectTalent = async (submissionId) => {
 };
 
 // ─── Nominate a global icon (admin only) ──────────────────────────────────────
-// POST /admin/nominate  body: { name, bio, photo_url }
-export const nominateIcon = async ({ name, bio, photo_url }) => {
-  if (DEMO_MODE) return { id: Date.now(), name, bio, photo_url, vote_count: 0 };
-  const res = await adminApi.post("/admin/nominate", { name, bio, photo_url });
+// POST /admin/nominate  body: FormData { name, bio, photo }
+export const nominateIcon = async (formData) => {
+  if (DEMO_MODE) return { id: Date.now(), name: formData.get('name'), bio: formData.get('bio'), photo_url: "", vote_count: 0 };
+  const res = await adminApi.post("/admin/nominate", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
   return res.data;
 };
 
@@ -67,6 +69,7 @@ export const getAdminCategories = async () => {
 // ─── Approve category ────────────────────────────────────────────────────────
 // PATCH /admin/categories/{category_id}/approve
 export const approveCategory = async (categoryId) => {
+  if (DEMO_MODE) return { id: categoryId, status: "approved" };
   const res = await adminApi.patch(`/admin/categories/${categoryId}/approve`);
   return res.data;
 };
@@ -74,6 +77,7 @@ export const approveCategory = async (categoryId) => {
 // ─── Reject category ─────────────────────────────────────────────────────────
 // PATCH /admin/categories/{category_id}/reject
 export const rejectCategory = async (categoryId) => {
+  if (DEMO_MODE) return { id: categoryId, status: "rejected" };
   const res = await adminApi.patch(`/admin/categories/${categoryId}/reject`);
   return res.data;
 };

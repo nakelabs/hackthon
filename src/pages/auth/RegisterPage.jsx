@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { validateRegisterForm } from "../../utils/validators";
 import Input from "../../components/ui/Input";
 import Spinner from "../../components/ui/Spinner";
-import { register } from "../../services/authService";
+import { GoogleLogin } from "@react-oauth/google";
+import { register, loginWithGoogle, resendVerification } from "../../services/authService";
 
 function PasswordField({ id, name, label, value, onChange, error }) {
   const [show, setShow] = useState(false);
@@ -42,6 +43,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get("ref") || "";
+  const redirectUrl = searchParams.get("redirect") || "/home";
 
   const [form, setForm] = useState({
     fullName: "",
@@ -55,6 +57,34 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || resending) return;
+    setResending(true);
+    setResendMessage("");
+    try {
+      await resendVerification(form.email);
+      setResendMessage("Verification email resent!");
+      setResendCooldown(60);
+    } catch (err) {
+      setResendMessage(err.response?.data?.detail || "Failed to resend email.");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const update = (e) => {
     const { name, value, type, checked } = e.target;
@@ -70,9 +100,8 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
-      const data = await register(form);
-      loginUser(data);
-      navigate("/home");
+      await register(form);
+      setSuccess(true);
     } catch (err) {
       setErrors({ email: err.response?.data?.detail || "Registration failed." });
     } finally {
@@ -101,78 +130,138 @@ export default function RegisterPage() {
             <p className="text-xs text-white mb-6">Referral: {referralCode}</p>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <Input id="reg-name" name="fullName" label="Full Name" placeholder="Ngozi Achebe"
-              value={form.fullName} onChange={update} error={errors.fullName} autoComplete="name" />
+          {success ? (
+            <div className="bg-[#008751]/10 border border-[#008751] rounded-lg p-5 text-center mt-4">
+              <span className="text-3xl mb-2 block">📩</span>
+              <h2 className="text-[#00b36b] font-bold text-lg mb-2">Check your email</h2>
+              <p className="text-white/70 text-sm mb-4">
+                We've sent a verification link to <span className="font-bold text-white">{form.email}</span>. Please click the link to activate your account.
+              </p>
 
-            <Input id="reg-username" name="username" label="Username" placeholder="ngozi_ach"
-              value={form.username} onChange={update} error={errors.username} autoComplete="username" />
-
-            <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
-              value={form.email} onChange={update} error={errors.email} autoComplete="email" />
-
-            {/* Location / State — required by API (2-15 chars) */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label" htmlFor="reg-location">State / Location</label>
-              <select
-                id="reg-location"
-                name="location"
-                value={form.location}
-                onChange={update}
-                className={`input ${errors.location ? 'input-error' : ''}`}
+              <button 
+                onClick={handleResend}
+                disabled={resending || resendCooldown > 0}
+                className="text-xs font-semibold underline underline-offset-2 text-white/50 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="">Select your state…</option>
-                {["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno","Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara","FCT Abuja"].map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-              {errors.location && <p className="text-xs text-red-400 mt-0.5">{errors.location}</p>}
+                {resending ? "Resending..." : resendCooldown > 0 ? `Resend again in ${resendCooldown}s` : "Didn't receive it? Resend"}
+              </button>
+              
+              {resendMessage && (
+                <p className={`text-xs mt-2 ${resendMessage.includes("resent") ? "text-[#00b36b]" : "text-red-400"}`}>
+                  {resendMessage}
+                </p>
+              )}
+
+              <Link to="/login" className="btn-primary w-full mt-6 flex justify-center py-3">
+                Go to Sign In
+              </Link>
             </div>
+          ) : (
+            <>
+              <div className="flex flex-col items-center mb-6">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    setGoogleSubmitting(true);
+                    try {
+                      const data = await loginWithGoogle(credentialResponse.credential);
+                      loginUser(data);
+                      navigate(redirectUrl);
+                    } catch (err) {
+                      setErrors({ email: err.response?.data?.detail || "Google registration failed." });
+                    } finally {
+                      setGoogleSubmitting(false);
+                    }
+                  }}
+                  onError={() => setErrors({ email: "Google sign up was cancelled or failed." })}
+                  theme="filled_black"
+                  shape="pill"
+                  text="signup_with"
+                  size="large"
+                  width="100%"
+                />
+                {googleSubmitting && <p className="text-xs text-white/50 mt-2">Authenticating with Google...</p>}
+              </div>
 
-            <PasswordField id="reg-password" name="password" label="Password"
-              value={form.password} onChange={update} error={errors.password} />
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 h-px bg-white/10"></div>
+                <p className="text-xs text-white/30 font-semibold uppercase tracking-widest">or</p>
+                <div className="flex-1 h-px bg-white/10"></div>
+              </div>
 
-            <PasswordField id="reg-confirm" name="confirmPassword" label="Confirm Password"
-              value={form.confirmPassword} onChange={update} error={errors.confirmPassword} />
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                <Input id="reg-name" name="fullName" label="Full Name" placeholder="Ngozi Achebe"
+                  value={form.fullName} onChange={update} error={errors.fullName} autoComplete="name" />
 
-            {/* Terms checkbox — large tap target for mobile */}
-            <button
-              type="button"
-              onClick={() => setForm(f => ({ ...f, agreed: !f.agreed }))}
-              className="flex items-start gap-3 w-full text-left group"
-            >
-              {/* Custom checkbox box */}
-              <span className={`mt-0.5 flex-shrink-0 w-6 h-6 border-2 rounded flex items-center justify-center transition-all duration-200 ${
-                form.agreed
-                  ? "bg-[#008751] border-[#008751]"
-                  : "bg-transparent border-white/30 group-active:border-white/60"
-              }`}>
-                {form.agreed && (
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </span>
-              <span className="text-xs text-white/70 leading-relaxed pt-0.5">
-                I agree to the{" "}
-                <span className="text-white underline underline-offset-2">Terms &amp; Conditions</span>
-                {" "}and{" "}
-                <span className="text-white underline underline-offset-2">Privacy Policy</span>.
-              </span>
-            </button>
-            {errors.agreed && <p className="text-xs text-red-400 -mt-3">{errors.agreed}</p>}
+                <Input id="reg-username" name="username" label="Username" placeholder="ngozi_ach"
+                  value={form.username} onChange={update} error={errors.username} autoComplete="username" />
 
-            <button type="submit" disabled={submitting}
-              className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
-              {submitting && <Spinner size={16} />}
-              {submitting ? "Creating account…" : "Create Account"}
-            </button>
-          </form>
+                <Input id="reg-email" name="email" type="email" label="Email" placeholder="you@example.com"
+                  value={form.email} onChange={update} error={errors.email} autoComplete="email" />
 
-          <p className="text-sm text-white mt-8 text-center">
-            Already have an account?{" "}
-            <Link to="/login" className="text-[color:#008751] hover:underline font-semibold">Sign In</Link>
-          </p>
+                {/* Location / State — required by API (2-15 chars) */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="label" htmlFor="reg-location">State / Location</label>
+                  <select
+                    id="reg-location"
+                    name="location"
+                    value={form.location}
+                    onChange={update}
+                    className={`input ${errors.location ? 'input-error' : ''}`}
+                  >
+                    <option value="">Select your state…</option>
+                    {["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno","Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara","FCT Abuja"].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {errors.location && <p className="text-xs text-red-400 mt-0.5">{errors.location}</p>}
+                </div>
+
+                <PasswordField id="reg-password" name="password" label="Password"
+                  value={form.password} onChange={update} error={errors.password} />
+
+                <PasswordField id="reg-confirm" name="confirmPassword" label="Confirm Password"
+                  value={form.confirmPassword} onChange={update} error={errors.confirmPassword} />
+
+                {/* Terms checkbox — large tap target for mobile */}
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, agreed: !f.agreed }))}
+                  className="flex items-start gap-3 w-full text-left group"
+                >
+                  {/* Custom checkbox box */}
+                  <span className={`mt-0.5 flex-shrink-0 w-6 h-6 border-2 rounded flex items-center justify-center transition-all duration-200 ${
+                    form.agreed
+                      ? "bg-[#008751] border-[#008751]"
+                      : "bg-transparent border-white/30 group-active:border-white/60"
+                  }`}>
+                    {form.agreed && (
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="text-xs text-white/70 leading-relaxed pt-0.5">
+                    I agree to the{" "}
+                    <span className="text-white underline underline-offset-2">Terms &amp; Conditions</span>
+                    {" "}and{" "}
+                    <span className="text-white underline underline-offset-2">Privacy Policy</span>.
+                  </span>
+                </button>
+                {errors.agreed && <p className="text-xs text-red-400 -mt-3">{errors.agreed}</p>}
+
+                <button type="submit" disabled={submitting}
+                  className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
+                  {submitting && <Spinner size={16} />}
+                  {submitting ? "Creating account…" : "Create Account"}
+                </button>
+              </form>
+
+              <p className="text-sm text-white mt-8 text-center">
+                Already have an account?{" "}
+                <Link to={`/login${redirectUrl !== "/home" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`} className="text-[color:#008751] hover:underline font-semibold">Sign In</Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </section>

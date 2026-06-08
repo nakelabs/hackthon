@@ -6,12 +6,16 @@ import {
   HelpCircle,
   LogOut,
   Flag,
+  Tag,
+  Award,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Dashboard",    href: "/control-deck/dashboard",  icon: LayoutDashboard },
   { label: "Post Approvals", href: "/control-deck/posts",    icon: FileCheck },
+  { label: "Categories",   href: "/control-deck/categories", icon: Tag },
   { label: "Quiz Builder",  href: "/control-deck/quiz",      icon: HelpCircle },
+  { label: "Nominees",      href: "/control-deck/nominees",  icon: Award },
 ];
 
 export default function AdminLayout({ children }) {

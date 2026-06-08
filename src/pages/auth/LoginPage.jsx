@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { validateLoginForm } from "../../utils/validators";
 import Input from "../../components/ui/Input";
 import Spinner from "../../components/ui/Spinner";
-import { login } from "../../services/authService";
+import { GoogleLogin } from "@react-oauth/google";
+import { login, loginWithGoogle } from "../../services/authService";
 
 export default function LoginPage() {
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/home";
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +31,7 @@ export default function LoginPage() {
     try {
       const data = await login(form);
       loginUser(data);
-      navigate("/home");
+      navigate(redirectUrl);
     } catch (err) {
       setErrors({ email: err.response?.data?.detail || "Login failed. Please try again." });
     } finally {
@@ -51,6 +55,36 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-sm px-5 py-16">
           <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Welcome Back</h1>
+
+          <div className="flex flex-col items-center mb-6">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                setGoogleSubmitting(true);
+                try {
+                  const data = await loginWithGoogle(credentialResponse.credential);
+                  loginUser(data);
+                  navigate(redirectUrl);
+                } catch (err) {
+                  setErrors({ email: err.response?.data?.detail || "Google login failed." });
+                } finally {
+                  setGoogleSubmitting(false);
+                }
+              }}
+              onError={() => setErrors({ email: "Google sign in was cancelled or failed." })}
+              theme="filled_black"
+              shape="pill"
+              text="continue_with"
+              size="large"
+              width="100%"
+            />
+            {googleSubmitting && <p className="text-xs text-white/50 mt-2">Authenticating with Google...</p>}
+          </div>
+
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-white/10"></div>
+            <p className="text-xs text-white/30 font-semibold uppercase tracking-widest">or</p>
+            <div className="flex-1 h-px bg-white/10"></div>
+          </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input
@@ -91,6 +125,12 @@ export default function LoginPage() {
               </button>
             </div>
 
+            <div className="flex justify-end -mt-3">
+              <Link to="/forgot-password" className="text-xs text-[color:#008751] hover:underline font-semibold">
+                Forgot password?
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={submitting}
@@ -103,7 +143,7 @@ export default function LoginPage() {
 
           <p className="text-sm text-white mt-8 text-center">
             No account?{" "}
-            <Link to="/register" className="text-[color:#008751] hover:underline font-semibold">Join Free</Link>
+            <Link to={`/register${redirectUrl !== "/home" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`} className="text-[color:#008751] hover:underline font-semibold">Join Free</Link>
           </p>
         </div>
       </div>

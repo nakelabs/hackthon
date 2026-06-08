@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { submitTalent } from "../services/talentService";
+import { submitTalent, submitCategory } from "../services/talentService";
 import api from "../services/api";
 import {
   Music, Medal, Volleyball, Laugh, Palette,
@@ -74,6 +74,7 @@ export default function UploadPage() {
   const [title, setTitle]             = useState("");
   const [description, setDescription] = useState("");
   const [toolsUsed, setToolsUsed]     = useState("");
+  const [customCategory, setCustomCategory] = useState("");
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryRef = useRef(null);
@@ -106,14 +107,23 @@ export default function UploadPage() {
     if (!file)             { setApiError("Please select a file to upload."); return; }
     if (!title.trim())     { setApiError("Please add a title for your submission."); return; }
     if (!description.trim()) { setApiError("Please add a description."); return; }
-    if (!category)         { setApiError("Please select a category."); return; }
+    let finalCategory = category;
+    if (category === "Other") {
+      if (!customCategory.trim()) { setApiError("Please enter a custom category name."); return; }
+      finalCategory = customCategory.trim();
+    }
+    if (!finalCategory) { setApiError("Please select a category."); return; }
 
     setSubmitting(true);
     try {
+      if (category === "Other") {
+        await submitCategory(finalCategory);
+      }
+
       await submitTalent({
         title:       title.trim(),
         description: description.trim(),
-        category,           // ← exact name string from API, e.g. "Basketball Freestyle"
+        category:    finalCategory,           // ← exact name string from API, e.g. "Basketball Freestyle"
         tools_used:  toolsUsed.trim() || undefined,
         file,
         fileType,
@@ -219,7 +229,7 @@ export default function UploadPage() {
 
                 {isCategoryOpen && (
                   <div className="absolute z-50 w-full mt-2 bg-[#050505] border border-[#008751]/40 shadow-[4px_4px_0_rgba(0,135,81,0.3)] max-h-60 overflow-y-auto">
-                    {categories.map(cat => {
+                    {[...categories, { id: 'other', name: 'Other' }].map(cat => {
                       const Icon = getIcon(cat.name);
                       const isSelected = category === cat.name;
                       return (
@@ -237,6 +247,20 @@ export default function UploadPage() {
                 )}
               </div>
             </div>
+
+            {/* Custom Category Input (conditional) */}
+            {category === "Other" && (
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] text-white/50 uppercase tracking-[0.25em] font-black">Custom Category Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter your category name..."
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  className="w-full bg-transparent border border-white/20 text-white text-sm px-4 py-3.5 focus:outline-none focus:border-[#008751] focus:bg-[#0a1a0f] hover:border-[#008751] transition-colors placeholder:text-white/30"
+                />
+              </div>
+            )}
 
             {/* Description */}
             <div className="flex flex-col gap-2">

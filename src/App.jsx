@@ -6,6 +6,9 @@ import CustomCursor from "./components/ui/CustomCursor";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import MyArenaPage from "./pages/dashboard/MyArenaPage";
 import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/HomePage";
@@ -24,7 +27,9 @@ import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPostsPage from "./pages/admin/AdminPostsPage";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminQuizPage from "./pages/admin/AdminQuizPage";
+import AdminNomineesPage from "./pages/admin/AdminNomineesPage";
 
 // Thin wrapper: wraps a page in the shared admin sidebar layout + guard
 function ProtectedAdminPage({ children }) {
@@ -41,8 +46,8 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
   const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
 
   return (
@@ -59,6 +64,9 @@ export default function App() {
             <Route path="/"            element={<LandingPage />} />
             <Route path="/login"       element={<LoginPage />} />
             <Route path="/register"    element={<RegisterPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password"  element={<ResetPasswordPage />} />
             <Route path="/my-arena"    element={<MyArenaPage />} />
             <Route path="/quiz"        element={<QuizPage />} />
             <Route path="/home"        element={<HomePage />} />
@@ -75,7 +83,9 @@ export default function App() {
             {/* Protected pages — redirect to /404 if no admin token */}
             <Route path="/control-deck/dashboard" element={<ProtectedAdminPage><AdminDashboard /></ProtectedAdminPage>} />
             <Route path="/control-deck/posts"     element={<ProtectedAdminPage><AdminPostsPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/categories" element={<ProtectedAdminPage><AdminCategoriesPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/quiz"      element={<ProtectedAdminPage><AdminQuizPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/nominees"  element={<ProtectedAdminPage><AdminNomineesPage /></ProtectedAdminPage>} />
 
             {/* 404 catch-all */}
             <Route path="*" element={
