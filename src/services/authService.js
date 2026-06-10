@@ -20,15 +20,26 @@ export const register = async (data) => {
     const user = makeMockUser(data);
     return { access_token: MOCK_TOKEN, user };
   }
-  const res = await api.post("/auth/register", {
+  const payload = {
     full_name: data.fullName,
     username:  data.username,
     location:  data.location,
     email:     data.email,
     password:  data.password,
-    referral_code: data.referralCode,
-  });
-  // Immediately fetch real profile after registering
+  };
+  if (data.referralCode && data.referralCode.trim() !== "") {
+    payload.referral_code = data.referralCode.trim();
+  }
+
+  const res = await api.post("/auth/register", payload);
+  
+  // If the backend requires email verification, it might not return an access_token.
+  // Instead, it might just return a success message.
+  if (!res.data.access_token) {
+    return res.data; 
+  }
+
+  // Immediately fetch real profile after registering if a token was returned
   const token = res.data.access_token;
   localStorage.setItem(LS_TOKEN_KEY, token);
   const user = await getMe();

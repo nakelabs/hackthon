@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Plus, Trash2, Save, ChevronDown, ChevronUp, Calendar } from "lucide-react";
-import { createQuizSession, addQuizQuestion } from "../../services/adminService";
+import { Plus, Trash2, Save, ChevronDown, ChevronUp, Calendar, Sparkles, X } from "lucide-react";
+import { createQuizSession, addQuizQuestion, generateAIQuestions } from "../../services/adminService";
 
 const QUIZ_CATEGORIES = ["History", "Culture", "Sports", "Music", "Geography", "Government", "Science & Tech"];
 
@@ -23,6 +23,12 @@ export default function AdminQuizPage() {
   const [uploadingQuestions, setUploadingQuestions] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState("");
+
+  // AI Generator state
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiForm, setAiForm] = useState({ topic: "", count: 5, extra_details: "" });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const updateOption = (idx, val) => {
     const opts = [...form.options]; opts[idx] = val;
@@ -122,6 +128,47 @@ export default function AdminQuizPage() {
     }
   };
 
+  const handleGenerateAI = async (e) => {
+    e.preventDefault();
+    if (!aiForm.topic.trim()) {
+      setAiError("Topic is required.");
+      return;
+    }
+    setAiError("");
+    setIsGenerating(true);
+    try {
+      const generated = await generateAIQuestions({
+        topic: aiForm.topic,
+        count: parseInt(aiForm.count, 10),
+        extra_details: aiForm.extra_details
+      });
+      
+      if (!Array.isArray(generated) || generated.length === 0) {
+        throw new Error("No questions were generated.");
+      }
+
+      const formatted = generated.map(q => {
+        const letters = { "A": q.option_a, "B": q.option_b, "C": q.option_c, "D": q.option_d };
+        return {
+          id: Date.now() + Math.random(),
+          question: q.question_text,
+          options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          answer: letters[q.correct_option?.toUpperCase()] || q.option_a,
+          category: "AI Generated",
+          time_limit_seconds: form.time_limit_seconds
+        };
+      });
+      
+      setQuestions(prev => [...formatted, ...prev]);
+      setAiModalOpen(false);
+      setAiForm({ topic: "", count: 5, extra_details: "" });
+    } catch (err) {
+      setAiError(err.response?.data?.detail || err.message || "Failed to generate questions. Try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto">
       <div className="mb-10">
@@ -196,7 +243,14 @@ export default function AdminQuizPage() {
                   <p className="text-sm text-gray-500">Build your question bank for Session {activeSessionId ? `#${activeSessionId}` : '...'}</p>
                 </div>
               </div>
-              {!activeSessionId && <span className="hidden sm:inline-block text-xs font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">Locked</span>}
+              <div className="flex items-center gap-2">
+                {!activeSessionId && <span className="hidden sm:inline-block text-xs font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">Locked</span>}
+                {activeSessionId && (
+                  <button type="button" onClick={() => setAiModalOpen(true)} className="flex items-center gap-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-colors">
+                    <Sparkles className="w-4 h-4" /> <span className="hidden sm:inline">Auto-Generate with AI</span><span className="sm:hidden">AI Gen</span>
+                  </button>
+                )}
+              </div>
             </div>
             <form onSubmit={handleAddQuestion} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -337,6 +391,68 @@ export default function AdminQuizPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Question Generator Modal */}
+      {aiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-indigo-50/30">
+              <div>
+                <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-600" /> AI Question Generator
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">Powered by Gemini AI</p>
+              </div>
+              <button 
+                onClick={() => !isGenerating && setAiModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                disabled={isGenerating}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <form onSubmit={handleGenerateAI} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Topic</label>
+                  <input type="text" value={aiForm.topic} onChange={e => setAiForm({...aiForm, topic: e.target.value})}
+                    placeholder="e.g. Nigerian History 1960-1970" disabled={isGenerating}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 disabled:opacity-50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Number of Questions</label>
+                  <input type="number" min="1" max="20" value={aiForm.count} onChange={e => setAiForm({...aiForm, count: e.target.value})} disabled={isGenerating}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 disabled:opacity-50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Extra Details (Optional)</label>
+                  <textarea rows="3" value={aiForm.extra_details} onChange={e => setAiForm({...aiForm, extra_details: e.target.value})}
+                    placeholder="e.g. Focus on key leaders, events, and transitions. Make it difficult." disabled={isGenerating}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 resize-none disabled:opacity-50" />
+                </div>
+                {aiError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">{aiError}</p>}
+                
+                <div className="pt-4 flex gap-3">
+                  <button type="submit" disabled={isGenerating}
+                    className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-5 py-3 rounded-xl transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-70">
+                    {isGenerating ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Generating...
+                      </span>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" /> Generate Questions
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getMyTalents, deleteTalent } from "../../services/talentService";
 import { updateProfile, uploadProfilePicture } from "../../services/authService";
+import { getUserQuizHistory } from "../../services/quizService";
 import Spinner from "../../components/ui/Spinner";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "../../components/ui/SocialIcons";
 
@@ -21,6 +22,10 @@ export default function MyArenaPage() {
   const [uploads, setUploads]         = useState([]);
   const [uploadsLoading, setUploadsLoading] = useState(true);
   const [deletingId, setDeletingId]   = useState(null);
+
+  // ── Quiz History ──────────────────────────────────────────────────────────
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [quizHistoryLoading, setQuizHistoryLoading] = useState(true);
 
   // ── Edit Profile ──────────────────────────────────────────────────────────
   const [editMode, setEditMode]     = useState(false);
@@ -42,6 +47,11 @@ export default function MyArenaPage() {
       .then(data => setUploads(data.talents || []))
       .catch(() => setUploads([]))
       .finally(() => setUploadsLoading(false));
+
+    getUserQuizHistory(user.id)
+      .then(setQuizHistory)
+      .catch(() => setQuizHistory([]))
+      .finally(() => setQuizHistoryLoading(false));
   }, [user]);
 
   // ── Seed edit form from user ───────────────────────────────────────────────
@@ -153,9 +163,9 @@ export default function MyArenaPage() {
           <Link 
             to="/my-arena/settings"
             className="flex items-center gap-2 text-white/50 hover:text-white transition-colors"
-            title="My User Settings"
+            title="My Account Settings"
           >
-            <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">My User</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">My Account</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
           </Link>
         </div>
@@ -276,7 +286,7 @@ export default function MyArenaPage() {
         </div>
 
         {/* Content */}
-        <div className="p-px">
+        <div className="p-px pb-28 md:pb-8">
           {activeTab === "uploads" && (
             uploadsLoading ? (
               <div className="flex justify-center py-12">
@@ -330,12 +340,35 @@ export default function MyArenaPage() {
           )}
 
           {activeTab === "quiz" && (
-            <div className="p-6 flex flex-col items-center justify-center text-center py-20">
-              <span className="text-6xl grayscale opacity-50 mb-4">🏆</span>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Quiz Stats</h3>
-              <p className="text-white/50 text-sm mb-6 max-w-[250px]">Quiz history will appear here once the quiz sessions are live.</p>
-              <Link to="/quiz" className="btn-outline text-xs px-6 py-2">Go to Quiz →</Link>
-            </div>
+            quizHistoryLoading ? (
+              <div className="flex justify-center py-12">
+                <Spinner size={24} className="text-[#008751]" />
+              </div>
+            ) : quizHistory.length === 0 ? (
+              <div className="p-6 flex flex-col items-center justify-center text-center py-20">
+                <span className="text-6xl grayscale opacity-50 mb-4">🏆</span>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Quiz Stats</h3>
+                <p className="text-white/50 text-sm mb-6 max-w-[250px]">You haven't participated in any quizzes yet.</p>
+                <Link to="/quiz" className="btn-outline text-xs px-6 py-2">Go to Quiz →</Link>
+              </div>
+            ) : (
+              <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+                {quizHistory.map((historyItem, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-6 bg-[#111] border border-white/10 rounded-2xl hover:border-[#008751]/50 hover:bg-[#151515] transition-all shadow-xl group">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Quiz Session</span>
+                      <h4 className="font-black text-white text-lg sm:text-xl group-hover:text-[#008751] transition-colors">{historyItem.quiz_session_name}</h4>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Score</span>
+                      <span className="font-mono text-[#00b36b] font-black text-xl sm:text-2xl bg-[#008751]/20 border border-[#008751]/30 px-5 py-2 rounded-xl shrink-0 shadow-[0_0_15px_rgba(0,135,81,0.2)]">
+                        {historyItem.total_score}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>

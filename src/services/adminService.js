@@ -105,3 +105,11 @@ export const addQuizQuestion = async (sessionId, questionData) => {
   const res = await adminApi.post(`/quiz/sessions/${sessionId}/questions`, questionData);
   return res.data;
 };
+
+// ─── Generate AI Questions ───────────────────────────────────────────────────
+// POST /quiz/ai/generate-questions
+export const generateAIQuestions = async (payload) => {
+  if (DEMO_MODE) return [];
+  const res = await adminApi.post("/quiz/ai/generate-questions", payload);
+  return res.data;
+};

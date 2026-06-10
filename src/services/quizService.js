@@ -34,3 +34,11 @@ export const getSessionLeaderboard = async (sessionId) => {
   const res = await api.get(`/quiz/leaderboard/sessions/${sessionId}`);
   return res.data;
 };
+
+// ─── Get User Quiz History ───────────────────────────────────────────────────
+// GET /quiz/users/{user_id}/history
+export const getUserQuizHistory = async (userId) => {
+  if (DEMO_MODE) return [];
+  const res = await api.get(`/quiz/users/${userId}/history`);
+  return res.data;
+};

@@ -371,7 +371,7 @@ export default function QuizPage() {
                   </span>
                   <span className="font-bold text-white text-lg sm:text-xl tracking-wide group-hover:text-[#008751] transition-colors">{user.username || user.full_name || `User ${user.user_id}`}</span>
                 </div>
-                <span className="font-mono text-[#008751] font-bold text-lg bg-[#008751]/10 px-4 py-2 rounded-sm">{user.total_score.toLocaleString()} PTS</span>
+                <span className="font-mono text-[#008751] font-bold text-lg bg-[#008751]/10 px-4 py-2 rounded-sm">{user.total_score.toLocaleString()}%</span>
               </div>
             ))
           )}
@@ -392,7 +392,7 @@ export default function QuizPage() {
         {/* 2nd Place */}
         <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.4s" }}>
           <p className="text-white/70 font-bold text-xl mb-2">Shadow</p>
-          <p className="text-[#008751] font-mono mb-4 text-sm">--- PTS</p>
+          <p className="text-[#008751] font-mono mb-4 text-sm">---%</p>
           <div className="w-full bg-[#111] border border-white/20 h-40 flex justify-center items-start pt-4 shadow-[8px_8px_0px_rgba(255,255,255,0.1)]">
             <span className="text-white/30 font-black text-4xl">2</span>
           </div>
@@ -402,7 +402,7 @@ export default function QuizPage() {
         <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.2s" }}>
           <p className="text-white font-black text-3xl mb-2">YOU</p>
           <p className="text-[#008751] font-mono mb-4 font-bold text-lg">
-            {finalScoreData?.total_score?.toLocaleString() || 0} PTS
+            {finalScoreData?.total_score?.toLocaleString() || 0}%
           </p>
           <div className="w-full bg-[#0a0a0a] border border-[#008751] h-64 flex justify-center items-start pt-4 shadow-[12px_12px_0px_rgba(0,135,81,0.5)] z-10 relative">
             <span className="text-white font-black text-6xl">1</span>
@@ -413,7 +413,7 @@ export default function QuizPage() {
         {/* 3rd Place */}
         <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.6s" }}>
           <p className="text-white/70 font-bold text-xl mb-2">Ghost</p>
-          <p className="text-[#008751] font-mono mb-4 text-sm">--- PTS</p>
+          <p className="text-[#008751] font-mono mb-4 text-sm">---%</p>
           <div className="w-full bg-[#111] border border-white/20 h-32 flex justify-center items-start pt-4 shadow-[8px_8px_0px_rgba(255,255,255,0.1)]">
             <span className="text-white/30 font-black text-4xl">3</span>
           </div>

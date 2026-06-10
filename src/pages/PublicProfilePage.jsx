@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getUserById } from "../services/authService";
+import { getUserQuizHistory } from "../services/quizService";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "../components/ui/SocialIcons";
+import Spinner from "../components/ui/Spinner";
 
 export default function PublicProfilePage() {
   const { userId } = useParams();
@@ -11,6 +13,10 @@ export default function PublicProfilePage() {
   const [uploads, setUploads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [activeTab, setActiveTab] = useState("uploads");
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [quizHistoryLoading, setQuizHistoryLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
@@ -26,6 +32,11 @@ export default function PublicProfilePage() {
       }
     }).catch(() => setError("User not found."))
       .finally(() => setLoading(false));
+
+    getUserQuizHistory(userId)
+      .then(setQuizHistory)
+      .catch(() => setQuizHistory([]))
+      .finally(() => setQuizHistoryLoading(false));
   }, [userId]);
 
   if (loading) return (
@@ -129,15 +140,32 @@ export default function PublicProfilePage() {
           </div>
         </div>
 
-        {/* Posts Grid */}
-        <div className="p-px">
-          {uploads.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-              <span className="text-5xl mb-4 opacity-30">🎭</span>
-              <p className="text-white/40 text-sm">No public submissions yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-px bg-white/5">
+        {/* Tabs */}
+        <div className="flex border-b border-white/10 sticky top-[60px] z-40 bg-[#050505]">
+          <button
+            onClick={() => setActiveTab("uploads")}
+            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === "uploads" ? "text-[#008751] border-b-2 border-[#008751] bg-[#008751]/5" : "text-white/40 hover:text-white hover:bg-white/5"}`}
+          >
+            Uploads ({uploads.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("quiz")}
+            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === "quiz" ? "text-[#008751] border-b-2 border-[#008751] bg-[#008751]/5" : "text-white/40 hover:text-white hover:bg-white/5"}`}
+          >
+            Quiz Stats
+          </button>
+        </div>
+
+        {/* Content Grid */}
+        <div className="p-px pb-28 md:pb-8">
+          {activeTab === "uploads" && (
+            uploads.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+                <span className="text-5xl mb-4 opacity-30">🎭</span>
+                <p className="text-white/40 text-sm">No public submissions yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-px bg-white/5">
               {uploads.map((item) => (
                 <Link
                   key={item.id}
@@ -178,6 +206,38 @@ export default function PublicProfilePage() {
                 </Link>
               ))}
             </div>
+            )
+          )}
+
+          {activeTab === "quiz" && (
+            quizHistoryLoading ? (
+              <div className="flex justify-center py-12">
+                <Spinner size={24} className="text-[#008751]" />
+              </div>
+            ) : quizHistory.length === 0 ? (
+              <div className="p-6 flex flex-col items-center justify-center text-center py-20">
+                <span className="text-6xl grayscale opacity-50 mb-4">🏆</span>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Quiz Stats</h3>
+                <p className="text-white/50 text-sm mb-6 max-w-[250px]">This user hasn't participated in any quizzes yet.</p>
+              </div>
+            ) : (
+              <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+                {quizHistory.map((historyItem, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-6 bg-[#111] border border-white/10 rounded-2xl hover:border-[#008751]/50 hover:bg-[#151515] transition-all shadow-xl group">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Quiz Session</span>
+                      <h4 className="font-black text-white text-lg sm:text-xl group-hover:text-[#008751] transition-colors">{historyItem.quiz_session_name}</h4>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Score</span>
+                      <span className="font-mono text-[#00b36b] font-black text-xl sm:text-2xl bg-[#008751]/20 border border-[#008751]/30 px-5 py-2 rounded-xl shrink-0 shadow-[0_0_15px_rgba(0,135,81,0.2)]">
+                        {historyItem.total_score}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>

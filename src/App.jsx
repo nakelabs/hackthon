@@ -34,6 +34,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPostsPage from "./pages/admin/AdminPostsPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminQuizPage from "./pages/admin/AdminQuizPage";
+import AdminQuizSessionsPage from "./pages/admin/AdminQuizSessionsPage";
 import AdminNomineesPage from "./pages/admin/AdminNomineesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 
@@ -96,7 +97,8 @@ export default function App() {
             <Route path="/control-deck/posts"     element={<ProtectedAdminPage><AdminPostsPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/users"     element={<ProtectedAdminPage><AdminUsersPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/categories" element={<ProtectedAdminPage><AdminCategoriesPage /></ProtectedAdminPage>} />
-            <Route path="/control-deck/quiz"      element={<ProtectedAdminPage><AdminQuizPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/quiz/builder" element={<ProtectedAdminPage><AdminQuizPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/quiz/sessions" element={<ProtectedAdminPage><AdminQuizSessionsPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/nominees"  element={<ProtectedAdminPage><AdminNomineesPage /></ProtectedAdminPage>} />
 
             {/* 404 catch-all */}

@@ -16,7 +16,13 @@ const NAV_ITEMS = [
   { label: "Post Approvals", href: "/control-deck/posts",    icon: FileCheck },
   { label: "User Search",  href: "/control-deck/users",      icon: Users },
   { label: "Categories",   href: "/control-deck/categories", icon: Tag },
-  { label: "Quiz Builder",  href: "/control-deck/quiz",      icon: HelpCircle },
+  { 
+    label: "Quiz", icon: HelpCircle,
+    subItems: [
+      { label: "Quiz Builder", href: "/control-deck/quiz/builder" },
+      { label: "All Sessions", href: "/control-deck/quiz/sessions" }
+    ]
+  },
   { label: "Nominees",      href: "/control-deck/nominees",  icon: Award },
 ];
 
@@ -46,22 +52,52 @@ export default function AdminLayout({ children }) {
 
         {/* Nav */}
         <nav className="flex-1 px-4 space-y-1">
-          {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-            <NavLink
-              key={href}
-              to={href}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-[#4f447a] text-white shadow-lg"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`
-              }
-            >
-              <Icon className="w-[18px] h-[18px] shrink-0" />
-              {label}
-            </NavLink>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            if (item.subItems) {
+              return (
+                <div key={item.label} className="py-2">
+                  <div className="flex items-center gap-3 px-4 py-2 text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">
+                    <item.icon className="w-[18px] h-[18px] shrink-0" />
+                    {item.label}
+                  </div>
+                  <div className="space-y-1 pl-4 border-l border-white/5 ml-[26px]">
+                    {item.subItems.map(sub => (
+                      <NavLink
+                        key={sub.href}
+                        to={sub.href}
+                        className={({ isActive }) =>
+                          `flex items-center px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-[#4f447a] text-white shadow-lg"
+                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`
+                        }
+                      >
+                        {sub.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            
+            return (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#4f447a] text-white shadow-lg"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`
+                }
+              >
+                <item.icon className="w-[18px] h-[18px] shrink-0" />
+                {item.label}
+              </NavLink>
+            );
+          })}
         </nav>
 
         {/* Bottom Actions */}

@@ -50,6 +50,32 @@ export default function SettingsPage() {
           
           <div className="mb-12">
             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6 border-b border-white/10 pb-4">My Referrals</h2>
+
+            {user.referral_code && (
+              <div className="bg-[#111] border border-[#008751]/30 shadow-[0_0_15px_rgba(0,135,81,0.1)] p-5 rounded-xl mb-8 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-[#008751]"></div>
+                <h3 className="text-xs font-bold text-[#00b36b] uppercase tracking-widest mb-2">Your Invite Link</h3>
+                <p className="text-sm text-white/60 mb-4">Share this link with your friends. They will be automatically referred by you when they sign up!</p>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={`${window.location.origin}/register?ref=${user.referral_code}`}
+                    className="flex-1 bg-black border border-white/10 rounded-lg px-4 py-3 text-sm text-white font-mono focus:outline-none truncate selection:bg-[#008751]/30"
+                  />
+                  <button 
+                    onClick={(e) => {
+                      navigator.clipboard.writeText(`${window.location.origin}/register?ref=${user.referral_code}`);
+                      e.currentTarget.innerText = "Copied!";
+                      setTimeout(() => { if (e.target) e.target.innerText = "Copy Link"; }, 2000);
+                    }}
+                    className="bg-[#008751] hover:bg-[#00b36b] text-white px-5 py-3 rounded-lg font-bold uppercase tracking-wider text-sm transition-colors shrink-0"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+            )}
             
             {loadingReferrals ? (
               <div className="flex justify-center py-8">
