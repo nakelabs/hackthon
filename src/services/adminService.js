@@ -24,6 +24,14 @@ export const getAdminSubmissions = async ({ status, skip = 0, limit = 100 } = {}
   return res.data; // TalentSubmissionListResponse
 };
 
+// ─── Search users ─────────────────────────────────────────────────────────────
+// GET /admin/users/search?q={query}&skip=0&limit=20
+export const adminSearchUsers = async (q, skip = 0, limit = 20) => {
+  if (DEMO_MODE) return { users: [], total: 0, skip, limit };
+  const res = await adminApi.get("/admin/users/search", { params: { q, skip, limit } });
+  return res.data;
+};
+
 // ─── Approve talent submission ────────────────────────────────────────────────
 // PATCH /admin/{submission_id}/approve
 export const approveTalent = async (submissionId) => {
@@ -79,5 +87,21 @@ export const approveCategory = async (categoryId) => {
 export const rejectCategory = async (categoryId) => {
   if (DEMO_MODE) return { id: categoryId, status: "rejected" };
   const res = await adminApi.patch(`/admin/categories/${categoryId}/reject`);
+  return res.data;
+};
+
+// ─── Create Quiz Session ─────────────────────────────────────────────────────
+// POST /quiz/sessions  body: { title, open_time, close_time }
+export const createQuizSession = async (sessionData) => {
+  if (DEMO_MODE) return { id: Date.now(), ...sessionData, status: "pending" };
+  const res = await adminApi.post("/quiz/sessions", sessionData);
+  return res.data;
+};
+
+// ─── Add Quiz Question ───────────────────────────────────────────────────────
+// POST /quiz/sessions/{session_id}/questions
+export const addQuizQuestion = async (sessionId, questionData) => {
+  if (DEMO_MODE) return { id: Date.now(), ...questionData, quiz_session_id: sessionId };
+  const res = await adminApi.post(`/quiz/sessions/${sessionId}/questions`, questionData);
   return res.data;
 };

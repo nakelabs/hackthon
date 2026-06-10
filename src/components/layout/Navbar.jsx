@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const NAV_LINKS = [
-  { href: "/#talent",      label: "Talent" },
-  { href: "/#votes",       label: "Votes" },
   { href: "/#quiz",        label: "Quiz" },
   { href: "/compendium",   label: "Compendium", isRoute: true },
   { href: "/#icons",       label: "Icons" },

@@ -1,16 +1,28 @@
 import { useState } from "react";
-import { Plus, Trash2, Save, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, Save, ChevronDown, ChevronUp, Calendar } from "lucide-react";
+import { createQuizSession, addQuizQuestion } from "../../services/adminService";
 
 const QUIZ_CATEGORIES = ["History", "Culture", "Sports", "Music", "Geography", "Government", "Science & Tech"];
 
-const BLANK_QUESTION = { question: "", options: ["", "", "", ""], answer: "", category: "History" };
+const BLANK_QUESTION = null; // Removed as we define it inline now
 
 export default function AdminQuizPage() {
   const [questions, setQuestions]   = useState([]);
-  const [form, setForm]             = useState(BLANK_QUESTION);
+  const [form, setForm]             = useState({ question: "", options: ["", "", "", ""], answer: "", category: "History", time_limit_seconds: 20 });
   const [formError, setFormError]   = useState("");
-  const [saved, setSaved]           = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+
+  // Session form state
+  const [sessionForm, setSessionForm] = useState({ title: "", open_time: "", close_time: "" });
+  const [creatingSession, setCreatingSession] = useState(false);
+  const [sessionError, setSessionError] = useState("");
+  const [sessionSuccess, setSessionSuccess] = useState(false);
+  
+  // Batch upload state
+  const [activeSessionId, setActiveSessionId] = useState(null);
+  const [uploadingQuestions, setUploadingQuestions] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const updateOption = (idx, val) => {
     const opts = [...form.options]; opts[idx] = val;
@@ -18,9 +30,10 @@ export default function AdminQuizPage() {
   };
 
   const validateForm = () => {
+    if (!form.session_id) return "Session ID is required.";
     if (!form.question.trim()) return "Question text is required.";
     const filled = form.options.filter(o => o.trim());
-    if (filled.length < 2) return "Please provide at least 2 answer options.";
+    if (filled.length < 4) return "Please provide all 4 answer options.";
     if (!form.answer.trim()) return "Please select the correct answer.";
     if (!form.options.includes(form.answer)) return "Correct answer must match one of the options.";
     return "";
@@ -31,30 +44,164 @@ export default function AdminQuizPage() {
     const err = validateForm();
     if (err) { setFormError(err); return; }
     setFormError("");
-    const newQ = { id: Date.now(), ...form, options: form.options.filter(o => o.trim()) };
+    
+    const newQ = { id: Date.now(), ...form, options: form.options };
     setQuestions([newQ, ...questions]);
-    setForm(BLANK_QUESTION);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    
+    // Reset form but keep time limit
+    setForm({ question: "", options: ["", "", "", ""], answer: "", category: "History", time_limit_seconds: form.time_limit_seconds });
   };
 
   const handleDelete = (id) => setQuestions(questions.filter(q => q.id !== id));
 
+  const handleCreateSession = async (e) => {
+    e.preventDefault();
+    setSessionError("");
+    if (!sessionForm.title.trim() || !sessionForm.open_time || !sessionForm.close_time) {
+      setSessionError("All fields are required.");
+      return;
+    }
+    setCreatingSession(true);
+    try {
+      const payload = {
+        title: sessionForm.title,
+        open_time: sessionForm.open_time.length === 16 ? `${sessionForm.open_time}:00` : sessionForm.open_time,
+        close_time: sessionForm.close_time.length === 16 ? `${sessionForm.close_time}:00` : sessionForm.close_time,
+      };
+      const sessionData = await createQuizSession(payload);
+      setActiveSessionId(sessionData.id);
+      setSessionSuccess(true);
+      setTimeout(() => setSessionSuccess(false), 3000);
+    } catch (err) {
+      setSessionError(err.response?.data?.detail || "Failed to create session.");
+    } finally {
+      setCreatingSession(false);
+    }
+  };
+
+  const handlePublishQuestions = async () => {
+    if (!activeSessionId) {
+      setUploadError("Please create a session first.");
+      return;
+    }
+    if (questions.length === 0) {
+      setUploadError("Add some questions to the bank first.");
+      return;
+    }
+    setUploadError("");
+    setUploadingQuestions(true);
+    
+    try {
+      // The API only accepts 1 question at a time, so we map and Promise.all or for-loop
+      // To ensure order, we can loop sequentially or rely on order_index
+      const reversed = [...questions].reverse(); // oldest first = order 1
+      for (let i = 0; i < reversed.length; i++) {
+        const q = reversed[i];
+        const correctIndex = q.options.indexOf(q.answer);
+        const letters = ["A", "B", "C", "D"];
+        const payload = {
+          question_text: q.question,
+          option_a: q.options[0],
+          option_b: q.options[1],
+          option_c: q.options[2],
+          option_d: q.options[3],
+          correct_option: letters[correctIndex],
+          time_limit_seconds: parseInt(q.time_limit_seconds, 10),
+          order_index: i + 1
+        };
+        await addQuizQuestion(activeSessionId, payload);
+      }
+      
+      setQuestions([]); // clear bank after successful publish
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 4000);
+    } catch (err) {
+      setUploadError("Failed to upload some questions. Please try again.");
+    } finally {
+      setUploadingQuestions(false);
+    }
+  };
+
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Quiz Builder</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage quiz questions for the platform.</p>
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto">
+      <div className="mb-10">
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Quiz Builder</h1>
+        <p className="text-base text-gray-500 mt-2">Create a new quiz session and add questions in a simple sequential flow.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 p-6 mb-8">
-        <div className="flex items-center gap-2 mb-5">
-          <div className="w-7 h-7 bg-[#008751] rounded-lg flex items-center justify-center">
-            <Plus className="w-4 h-4 text-white" />
+      <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 md:before:ml-8 before:-translate-x-px md:before:-translate-x-0.5 before:w-0.5 before:bg-gray-200">
+        
+        {/* --- Step 1: Create Quiz Session --- */}
+        <div className="relative flex items-start gap-4 md:gap-8">
+          <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-black text-white flex items-center justify-center font-black text-xl shrink-0 z-10 shadow-sm border-4 border-[#f4f5f7]">1</div>
+          <div className="flex-1 bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gray-100 text-black rounded-xl flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Create Session</h2>
+                <p className="text-sm text-gray-500">Define the title and active window for the new quiz.</p>
+              </div>
+            </div>
+            
+            <form onSubmit={handleCreateSession} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Session Title</label>
+            <input type="text" value={sessionForm.title} onChange={e => setSessionForm({...sessionForm, title: e.target.value})}
+              placeholder="e.g. Nigeria Independence Day Quiz"
+              className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
-          <h2 className="text-base font-bold text-gray-900">Add New Question</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Open Time</label>
+              <input type="datetime-local" value={sessionForm.open_time} onChange={e => setSessionForm({...sessionForm, open_time: e.target.value})}
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Close Time</label>
+              <input type="datetime-local" value={sessionForm.close_time} onChange={e => setSessionForm({...sessionForm, close_time: e.target.value})}
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            </div>
+          </div>
+          {sessionError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">{sessionError}</p>}
+          <div className="flex items-center gap-3 pt-1">
+            <button type="submit" disabled={creatingSession}
+              className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60">
+              <Calendar className="w-4 h-4" /> {creatingSession ? "Creating…" : "Create Session"}
+            </button>
+            {sessionSuccess && <span className="text-sm text-green-600 font-medium">✓ Session created successfully! (ID: {activeSessionId})</span>}
+          </div>
+        </form>
+          </div>
         </div>
-        <form onSubmit={handleAddQuestion} className="space-y-4">
+
+        {/* --- Step 2: Add New Question --- */}
+        <div className={`relative flex items-start gap-4 md:gap-8 transition-all duration-500 ${!activeSessionId ? "opacity-50 grayscale pointer-events-none translate-y-4" : "translate-y-0"}`}>
+          <div className={`w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center font-black text-xl shrink-0 z-10 shadow-sm border-4 border-[#f4f5f7] ${activeSessionId ? "bg-black text-white" : "bg-gray-200 text-gray-400"}`}>2</div>
+          <div className="flex-1 bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activeSessionId ? "bg-gray-100 text-black" : "bg-gray-100 text-gray-400"}`}>
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Add Questions</h2>
+                  <p className="text-sm text-gray-500">Build your question bank for Session {activeSessionId ? `#${activeSessionId}` : '...'}</p>
+                </div>
+              </div>
+              {!activeSessionId && <span className="hidden sm:inline-block text-xs font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">Locked</span>}
+            </div>
+            <form onSubmit={handleAddQuestion} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5" htmlFor="quiz-time-limit">Time Limit (sec)</label>
+              <input id="quiz-time-limit" type="number" value={form.time_limit_seconds}
+                onChange={(e) => setForm({ ...form, time_limit_seconds: e.target.value })}
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#008751]"
+              />
+            </div>
+          </div>
           <div>
             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5" htmlFor="quiz-question">Question</label>
             <textarea id="quiz-question" rows={2} value={form.question}
@@ -64,7 +211,7 @@ export default function AdminQuizPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Answer Options (min. 2)</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Answer Options (4 required)</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {form.options.map((opt, idx) => (
                 <div key={idx} className="flex items-center gap-2">
@@ -99,18 +246,51 @@ export default function AdminQuizPage() {
           </div>
           {formError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">{formError}</p>}
           <div className="flex items-center gap-3 pt-1">
-            <button type="submit" id="quiz-add-submit" className="flex items-center gap-2 bg-[#008751] hover:bg-[#006b40] text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors">
-              <Save className="w-4 h-4" /> Save Question
+            <button type="submit" id="quiz-add-submit" className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors">
+              <Plus className="w-4 h-4" /> Add to Bank
             </button>
-            {saved && <span className="text-sm text-green-600 font-medium">✓ Question saved!</span>}
           </div>
         </form>
-      </div>
+          </div>
+        </div>
 
-      <h2 className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4">Question Bank ({questions.length})</h2>
-      {questions.length === 0 && <p className="text-sm text-gray-400 text-center py-8">No questions added yet.</p>}
-      <div className="space-y-2">
-        {questions.map(q => (
+        {/* --- Step 3: Publish Questions --- */}
+        <div className={`relative flex items-start gap-4 md:gap-8 transition-all duration-500 ${questions.length === 0 ? "opacity-50 grayscale pointer-events-none translate-y-4" : "translate-y-0"}`}>
+          <div className={`w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center font-black text-xl shrink-0 z-10 shadow-sm border-4 border-[#f4f5f7] ${questions.length > 0 ? "bg-black text-white" : "bg-gray-200 text-gray-400"}`}>3</div>
+          <div className="flex-1 bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${questions.length > 0 ? "bg-gray-100 text-black" : "bg-gray-100 text-gray-400"}`}>
+                  <Save className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Review & Publish</h2>
+                  <p className="text-sm text-gray-500">You have {questions.length} question(s) ready in the bank.</p>
+                </div>
+              </div>
+              {questions.length > 0 && activeSessionId && (
+                <button 
+                  onClick={handlePublishQuestions}
+                  disabled={uploadingQuestions}
+                  className="flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 shrink-0"
+                >
+                  <Save className="w-4 h-4" /> 
+                  {uploadingQuestions ? "Publishing..." : "Publish to Session"}
+                </button>
+              )}
+            </div>
+            
+            {uploadError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6">{uploadError}</p>}
+            {uploadSuccess && <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6 font-medium">✓ All questions successfully published to Session {activeSessionId}!</p>}
+
+            {questions.length === 0 ? (
+              <div className="py-12 bg-gray-50 rounded-xl border border-gray-100 border-dashed flex flex-col items-center justify-center text-center">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm"><span className="text-xl opacity-40">📝</span></div>
+                <p className="text-sm text-gray-400 font-medium">No questions added yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {questions.map(q => (
           <div key={q.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1 min-w-0">
@@ -146,6 +326,10 @@ export default function AdminQuizPage() {
             )}
           </div>
         ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getUserById } from "../services/authService";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "../components/ui/SocialIcons";
 
 export default function PublicProfilePage() {
   const { userId } = useParams();
@@ -84,7 +85,7 @@ export default function PublicProfilePage() {
           <h2 className="text-xl font-black text-white mb-0.5">{displayName}</h2>
           <p className="text-white/50 text-sm mb-3">{username}</p>
 
-          <div className="flex gap-2 flex-wrap mb-5">
+          <div className="flex gap-2 flex-wrap mb-4">
             {profile.location && (
               <span className="px-3 py-1 bg-white/8 border border-white/10 text-[11px] font-mono text-white/70 uppercase rounded-full flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,6 +99,22 @@ export default function PublicProfilePage() {
               {profile.role || "Talent"}
             </span>
           </div>
+
+          {profile.bio && (
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              {profile.bio}
+            </p>
+          )}
+
+          {profile.social_media_links && Object.values(profile.social_media_links).some(link => link) && (
+            <div className="flex items-center gap-4 mb-6">
+              {profile.social_media_links.x && <a href={profile.social_media_links.x} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>}
+              {profile.social_media_links.instagram && <a href={profile.social_media_links.instagram} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-[#E1306C] transition-colors"><Instagram className="w-5 h-5" /></a>}
+              {profile.social_media_links.facebook && <a href={profile.social_media_links.facebook} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-[#1877F2] transition-colors"><Facebook className="w-5 h-5" /></a>}
+              {profile.social_media_links.youtube && <a href={profile.social_media_links.youtube} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-[#FF0000] transition-colors"><Youtube className="w-5 h-5" /></a>}
+              {profile.social_media_links.linkedin && <a href={profile.social_media_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-[#0A66C2] transition-colors"><Linkedin className="w-5 h-5" /></a>}
+            </div>
+          )}
 
           {/* Stats */}
           <div className="flex gap-0 border border-white/8 rounded-xl overflow-hidden">

@@ -268,7 +268,7 @@ export default function HomePage() {
 
               {/* Media */}
               {mediaUrl && mediaType === "video" ? (
-                <video src={mediaUrl} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline />
+                <video src={`${mediaUrl}#t=0.001`} preload="metadata" className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline />
               ) : mediaUrl && mediaType === "image" ? (
                 <img src={mediaUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
               ) : (
@@ -338,7 +338,7 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <span className="text-white/90 text-xs font-bold drop-shadow-md">
-                    {commentCount > 0 ? commentCount.toLocaleString() : "💬"}
+                    {commentCount.toLocaleString()}
                   </span>
                 </button>
 

@@ -18,7 +18,11 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import CompendiumPage from "./pages/CompendiumPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
 import UserSearchPage from "./pages/UserSearchPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
+import GoLivePage from "./pages/GoLivePage";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
+import ScrollToTop from "./components/ui/ScrollToTop";
 
 // ── Admin ──────────────────────────────────────────────────────────────────────
 import { AdminAuthProvider } from "./context/AdminAuthContext";
@@ -30,6 +34,7 @@ import AdminPostsPage from "./pages/admin/AdminPostsPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminQuizPage from "./pages/admin/AdminQuizPage";
 import AdminNomineesPage from "./pages/admin/AdminNomineesPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
 
 // Thin wrapper: wraps a page in the shared admin sidebar layout + guard
 function ProtectedAdminPage({ children }) {
@@ -46,9 +51,9 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
-  const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/leaderboard"].includes(location.pathname);
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard"].includes(location.pathname);
 
   return (
     <AdminAuthProvider>
@@ -59,6 +64,7 @@ export default function App() {
         
         <main className="flex-1">
           <ErrorBoundary>
+            <ScrollToTop />
             <Routes>
             {/* ── Public routes ──────────────────────────────────────────── */}
             <Route path="/"            element={<LandingPage />} />
@@ -72,10 +78,13 @@ export default function App() {
             <Route path="/home"        element={<HomePage />} />
             <Route path="/map"         element={<MapPage />} />
             <Route path="/upload"      element={<UploadPage />} />
+            <Route path="/go-live"     element={<GoLivePage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/compendium"  element={<CompendiumPage />} />
             <Route path="/search"      element={<UserSearchPage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
+            <Route path="/privacy"     element={<PrivacyPolicyPage />} />
+            <Route path="/terms"       element={<TermsOfServicePage />} />
 
             {/* ── Admin routes (obfuscated URL) ──────────────────────────── */}
             {/* Login page — accessible without a token */}
@@ -83,6 +92,7 @@ export default function App() {
             {/* Protected pages — redirect to /404 if no admin token */}
             <Route path="/control-deck/dashboard" element={<ProtectedAdminPage><AdminDashboard /></ProtectedAdminPage>} />
             <Route path="/control-deck/posts"     element={<ProtectedAdminPage><AdminPostsPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/users"     element={<ProtectedAdminPage><AdminUsersPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/categories" element={<ProtectedAdminPage><AdminCategoriesPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/quiz"      element={<ProtectedAdminPage><AdminQuizPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/nominees"  element={<ProtectedAdminPage><AdminNomineesPage /></ProtectedAdminPage>} />
