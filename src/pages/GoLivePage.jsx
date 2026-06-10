@@ -28,8 +28,9 @@ function BroadcastRoom({ channelName, token, onLeave }) {
     uid: null // Let Agora assign a UID
   });
 
-  // Publish local tracks (mic and camera)
-  usePublish([localMicrophoneTrack, localCameraTrack]);
+  // Publish local tracks (mic and camera) only when they are ready
+  const tracks = [localMicrophoneTrack, localCameraTrack].filter(Boolean);
+  usePublish(tracks);
 
   // Clean up tracks when unmounting to turn off the camera light
   useEffect(() => {
@@ -52,7 +53,6 @@ function BroadcastRoom({ channelName, token, onLeave }) {
         <LocalVideoTrack track={localCameraTrack} play={true} className="w-full h-full object-cover" />
         
         {/* Stream Overlay UI */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
         
         <div className="absolute top-0 left-0 right-0 p-5 flex justify-between items-center z-10 pointer-events-auto">
           <div className="flex items-center gap-3">

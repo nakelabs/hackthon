@@ -15,7 +15,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(LS_TOKEN_KEY);
+    let token = localStorage.getItem(LS_TOKEN_KEY);
+    if (!token) token = localStorage.getItem(ADMIN_TOKEN_KEY); // Fallback for admins browsing public pages
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -27,7 +28,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem(LS_TOKEN_KEY);
-      if (window.location.pathname !== "/login") window.location.href = "/login";
+      const hasAdminToken = !!localStorage.getItem(ADMIN_TOKEN_KEY);
+      if (!hasAdminToken && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

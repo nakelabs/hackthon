@@ -5,8 +5,7 @@ import AgoraRTC, {
   useRTCClient, 
   useJoin,
   useRemoteUsers,
-  RemoteVideoTrack,
-  RemoteAudioTrack
+  RemoteUser
 } from "agora-rtc-react";
 import { useAuth } from "../context/AuthContext";
 import { fetchStreamingToken } from "../services/liveService";
@@ -27,29 +26,22 @@ function ViewerRoom({ channelName, token, onLeave }) {
   });
 
   // The host is a remote user who is publishing video
-  // We take the first remote user who has a video track
-  const hostUser = remoteUsers.find(user => user.hasVideo || user.hasAudio);
+  // We take the first remote user in the channel (usually the host in a 1-to-many broadcast)
+  const hostUser = remoteUsers[0];
 
   return (
     <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col">
       <div className="flex-1 w-full h-full relative flex items-center justify-center bg-[#050505]">
         
         {hostUser ? (
-          <>
-            {hostUser.hasVideo ? (
-              <RemoteVideoTrack track={hostUser.videoTrack} play={true} className="w-full h-full object-contain" />
-            ) : (
-              <div className="text-white/50 flex flex-col items-center">
-                <span className="text-4xl mb-2">🎙️</span>
-                <p className="text-sm">Audio Only</p>
-              </div>
-            )}
-            {hostUser.hasAudio && <RemoteAudioTrack track={hostUser.audioTrack} play={true} />}
-          </>
+          <div className="w-full h-full relative">
+            <RemoteUser user={hostUser} playVideo={true} playAudio={true} className="w-full h-full" />
+          </div>
         ) : (
           <div className="text-white/50 flex flex-col items-center">
             <Spinner size={32} className="text-[#008751] mb-4" />
             <p className="text-sm tracking-widest uppercase">Waiting for Host...</p>
+            <p className="text-xs text-white/30 mt-2">({remoteUsers.length} users in channel)</p>
           </div>
         )}
         
