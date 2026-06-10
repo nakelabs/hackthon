@@ -104,15 +104,7 @@ export default function RegisterPage() {
       await register(form);
       setSuccess(true);
     } catch (err) {
-      let errMsg = "Registration failed.";
-      if (err.response?.data) {
-        const data = err.response.data;
-        if (typeof data.detail === 'string') errMsg = data.detail;
-        else if (Array.isArray(data.detail)) errMsg = data.detail[0]?.msg || "Validation error.";
-        else if (data.message) errMsg = data.message;
-        else if (data.error) errMsg = data.error;
-      }
-      setErrors({ email: errMsg });
+      setErrors({ email: err.response?.data?.detail || "Registration failed." });
     } finally {
       setSubmitting(false);
     }
