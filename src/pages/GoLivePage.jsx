@@ -12,23 +12,38 @@ import AgoraRTC, {
 import { useAuth } from "../context/AuthContext";
 import { startLivestream, endStreamSession } from "../services/liveService";
 
-// Agora App ID from env variables. If missing, we'll prompt the user.
-const APP_ID = import.meta.env.VITE_AGORA_APP_ID || "";
+// Agora App ID from env variables, with a hardcoded fallback to correct the known stale typo
+const envAppId = import.meta.env.VITE_AGORA_APP_ID;
+const APP_ID = envAppId === "f0526e8c3760498e6080c4765866ec" ? "f0526e8c376047b98e6080c4765866ec" : (envAppId || "f0526e8c376047b98e6080c4765866ec");
 
-function BroadcastRoom({ channelName, token, onLeave }) {
+function BroadcastRoom({ channelName, token, user, onLeave }) {
   const client = useRTCClient();
   const { localMicrophoneTrack } = useLocalMicrophoneTrack();
   const { localCameraTrack } = useLocalCameraTrack();
   
+  useEffect(() => {
+    // Agora Web SDK requires setting the role explicitly for live mode
+    client.setClientRole("host").catch(console.error);
+  }, [client]);
+
   useJoin({
     appid: APP_ID,
     channel: channelName,
     token: token,
-    uid: 0 // Explicitly 0 so Agora assigns a dynamic UID
+    uid: user?.id
   });
 
-  // Publish local tracks (mic and camera) only when they are ready
-  const tracks = [localMicrophoneTrack, localCameraTrack].filter(Boolean);
+  // Publish local tracks (mic and camera)
+  const tracks = [localMicrophoneTrack, localCameraTrack];
+  
+  useEffect(() => {
+    console.log("Media Tracks Status:", { 
+      mic: !!localMicrophoneTrack, 
+      cam: !!localCameraTrack, 
+      totalTracksToPublish: tracks.length 
+    });
+  }, [localMicrophoneTrack, localCameraTrack]);
+
   usePublish(tracks);
 
   // Clean up tracks when unmounting to turn off the camera light
@@ -114,19 +129,29 @@ export default function GoLivePage() {
 
     setLoading(true);
     try {
-      // 1. Start broadcast and get token from backend
+      // 1. Start broadcast
       const res = await startLivestream({
         channel_name: channelName.trim(),
         description: description.trim() || "Live broadcast",
         category_id: categoryId,
       });
       
-      // 2. Start broadcast
-      setToken(res.token);
+      // 2. Get the token (fallback to GET /streaming/token if not returned in POST)
+      let streamToken = res.token || res.access_token || res.streaming_token;
+      if (!streamToken) {
+        const tokenRes = await fetchStreamingToken(channelName.trim());
+        streamToken = typeof tokenRes === "string" ? tokenRes : (tokenRes.token || tokenRes.access_token || tokenRes.streaming_token || Object.values(tokenRes).find(v => typeof v === 'string'));
+      }
+      
+      if (!streamToken) {
+        throw new Error("Could not retrieve streaming token from backend.");
+      }
+      
+      setToken(streamToken);
       setIsLive(true);
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch streaming token. Make sure your backend endpoint is correct.");
+      setError(err.message || "Failed to fetch streaming token. Make sure your backend endpoint is correct.");
     } finally {
       setLoading(false);
     }
@@ -147,7 +172,7 @@ export default function GoLivePage() {
   if (isLive && token) {
     return (
       <AgoraRTCProvider client={client}>
-        <BroadcastRoom channelName={channelName.trim()} token={token} onLeave={handleLeave} />
+        <BroadcastRoom channelName={channelName.trim()} token={token} user={user} onLeave={handleLeave} />
       </AgoraRTCProvider>
     );
   }

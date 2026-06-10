@@ -11,9 +11,10 @@ import { useAuth } from "../context/AuthContext";
 import { fetchStreamingToken } from "../services/liveService";
 import Spinner from "../components/ui/Spinner";
 
-const APP_ID = import.meta.env.VITE_AGORA_APP_ID || "";
+const envAppId = import.meta.env.VITE_AGORA_APP_ID;
+const APP_ID = envAppId === "f0526e8c3760498e6080c4765866ec" ? "f0526e8c376047b98e6080c4765866ec" : (envAppId || "f0526e8c376047b98e6080c4765866ec");
 
-function ViewerRoom({ channelName, token, onLeave }) {
+function ViewerRoom({ channelName, token, user, onLeave }) {
   const client = useRTCClient();
   const remoteUsers = useRemoteUsers();
   
@@ -21,7 +22,7 @@ function ViewerRoom({ channelName, token, onLeave }) {
     appid: APP_ID,
     channel: channelName,
     token: token,
-    uid: 0 // Explicitly 0 so Agora assigns a dynamic UID
+    uid: user?.id
   });
 
   // The host is a remote user who is publishing video
@@ -104,8 +105,16 @@ export default function ViewStreamPage() {
     const getToken = async () => {
       try {
         const res = await fetchStreamingToken(channelName);
+        console.log("RAW TOKEN RESPONSE:", res);
+        
         // The backend might return { token: "..." } or a raw string
-        const tokenString = typeof res === "string" ? res : (res.token || res.access_token || res.streaming_token);
+        const tokenString = typeof res === "string" ? res : (res.token || res.access_token || res.streaming_token || Object.values(res).find(v => typeof v === 'string'));
+        console.log("EXTRACTED TOKEN:", tokenString);
+        
+        if (!tokenString) {
+          throw new Error("Token string could not be extracted from response: " + JSON.stringify(res));
+        }
+        
         setToken(tokenString);
       } catch (err) {
         console.error("Failed to fetch token:", err);
@@ -149,7 +158,7 @@ export default function ViewStreamPage() {
 
   return (
     <AgoraRTCProvider client={client}>
-      <ViewerRoom channelName={channelName} token={token} onLeave={handleLeave} />
+      <ViewerRoom channelName={channelName} token={token} user={user} onLeave={handleLeave} />
     </AgoraRTCProvider>
   );
 }
