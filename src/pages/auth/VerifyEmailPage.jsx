@@ -26,8 +26,22 @@ export default function VerifyEmailPage() {
         await verifyEmail(token);
         setStatus("success");
       } catch (err) {
+        const errorData = err.response?.data;
+        const detail = errorData?.detail || errorData?.message;
+        
+        // If the backend says the user is already verified, just show success!
+        if (typeof detail === "string" && (detail.toLowerCase().includes("already") || detail.toLowerCase().includes("verified"))) {
+          setStatus("success");
+          return;
+        }
+
         setStatus("error");
-        setErrorMsg(err.response?.data?.detail || "Invalid or expired verification link.");
+        
+        if (detail) {
+          setErrorMsg(typeof detail === "string" ? detail : JSON.stringify(detail));
+        } else {
+          setErrorMsg(err.message || "Invalid or expired verification link.");
+        }
       }
     };
 
