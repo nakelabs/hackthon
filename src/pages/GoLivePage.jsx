@@ -20,12 +20,11 @@ function BroadcastRoom({ channelName, token, onLeave }) {
   const { localMicrophoneTrack } = useLocalMicrophoneTrack();
   const { localCameraTrack } = useLocalCameraTrack();
   
-  // Join the channel
   useJoin({
     appid: APP_ID,
     channel: channelName,
     token: token,
-    uid: null // Let Agora assign a UID
+    uid: 0 // Explicitly 0 so Agora assigns a dynamic UID
   });
 
   // Publish local tracks (mic and camera) only when they are ready

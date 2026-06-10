@@ -17,12 +17,11 @@ function ViewerRoom({ channelName, token, onLeave }) {
   const client = useRTCClient();
   const remoteUsers = useRemoteUsers();
   
-  // Join the channel as audience
   useJoin({
     appid: APP_ID,
     channel: channelName,
     token: token,
-    uid: null // Let Agora assign a UID
+    uid: 0 // Explicitly 0 so Agora assigns a dynamic UID
   });
 
   // The host is a remote user who is publishing video
@@ -104,8 +103,10 @@ export default function ViewStreamPage() {
 
     const getToken = async () => {
       try {
-        const fetchedToken = await fetchStreamingToken(channelName);
-        setToken(fetchedToken);
+        const res = await fetchStreamingToken(channelName);
+        // The backend might return { token: "..." } or a raw string
+        const tokenString = typeof res === "string" ? res : (res.token || res.access_token || res.streaming_token);
+        setToken(tokenString);
       } catch (err) {
         console.error("Failed to fetch token:", err);
         setError("Failed to join stream. The stream may have ended or does not exist.");
