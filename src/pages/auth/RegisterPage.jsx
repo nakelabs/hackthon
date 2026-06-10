@@ -52,6 +52,7 @@ export default function RegisterPage() {
     location: "",
     password: "",
     confirmPassword: "",
+    referralCode: searchParams.get("ref") || "",
     agreed: false,
   });
 
@@ -125,10 +126,6 @@ export default function RegisterPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-sm px-5 py-16">
           <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Claim Your Spot</h1>
-
-          {referralCode && (
-            <p className="text-xs text-white mb-6">Referral: {referralCode}</p>
-          )}
 
           {success ? (
             <div className="bg-[#008751]/10 border border-[#008751] rounded-lg p-5 text-center mt-4">
@@ -215,6 +212,9 @@ export default function RegisterPage() {
                   </select>
                   {errors.location && <p className="text-xs text-red-400 mt-0.5">{errors.location}</p>}
                 </div>
+
+                <Input id="reg-referral" name="referralCode" label="Referral Code (Optional)" placeholder="e.g. a1b2c3d4"
+                  value={form.referralCode} onChange={update} error={errors.referralCode} />
 
                 <PasswordField id="reg-password" name="password" label="Password"
                   value={form.password} onChange={update} error={errors.password} />

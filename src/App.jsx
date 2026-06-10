@@ -10,6 +10,7 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import MyArenaPage from "./pages/dashboard/MyArenaPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
@@ -51,8 +52,8 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
   const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard"].includes(location.pathname);
 
   return (
@@ -74,6 +75,7 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password"  element={<ResetPasswordPage />} />
             <Route path="/my-arena"    element={<MyArenaPage />} />
+            <Route path="/my-arena/settings" element={<SettingsPage />} />
             <Route path="/quiz"        element={<QuizPage />} />
             <Route path="/home"        element={<HomePage />} />
             <Route path="/map"         element={<MapPage />} />

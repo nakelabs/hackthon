@@ -13,7 +13,7 @@ export default function AdminQuizPage() {
   const [expandedId, setExpandedId] = useState(null);
 
   // Session form state
-  const [sessionForm, setSessionForm] = useState({ title: "", open_time: "", close_time: "" });
+  const [sessionForm, setSessionForm] = useState({ title: "", description: "", open_time: "", close_time: "" });
   const [creatingSession, setCreatingSession] = useState(false);
   const [sessionError, setSessionError] = useState("");
   const [sessionSuccess, setSessionSuccess] = useState(false);
@@ -30,7 +30,6 @@ export default function AdminQuizPage() {
   };
 
   const validateForm = () => {
-    if (!form.session_id) return "Session ID is required.";
     if (!form.question.trim()) return "Question text is required.";
     const filled = form.options.filter(o => o.trim());
     if (filled.length < 4) return "Please provide all 4 answer options.";
@@ -57,7 +56,7 @@ export default function AdminQuizPage() {
   const handleCreateSession = async (e) => {
     e.preventDefault();
     setSessionError("");
-    if (!sessionForm.title.trim() || !sessionForm.open_time || !sessionForm.close_time) {
+    if (!sessionForm.title.trim() || !sessionForm.description.trim() || !sessionForm.open_time || !sessionForm.close_time) {
       setSessionError("All fields are required.");
       return;
     }
@@ -65,6 +64,7 @@ export default function AdminQuizPage() {
     try {
       const payload = {
         title: sessionForm.title,
+        description: sessionForm.description,
         open_time: sessionForm.open_time.length === 16 ? `${sessionForm.open_time}:00` : sessionForm.open_time,
         close_time: sessionForm.close_time.length === 16 ? `${sessionForm.close_time}:00` : sessionForm.close_time,
       };
@@ -152,6 +152,12 @@ export default function AdminQuizPage() {
               placeholder="e.g. Nigeria Independence Day Quiz"
               className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Description</label>
+            <textarea rows="2" value={sessionForm.description} onChange={e => setSessionForm({...sessionForm, description: e.target.value})}
+              placeholder="e.g. A quiz testing your knowledge of Nigeria's history and milestones."
+              className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none" />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Open Time</label>
@@ -221,7 +227,7 @@ export default function AdminQuizPage() {
                   <input id={`quiz-option-${idx}`} type="text" value={opt}
                     onChange={(e) => updateOption(idx, e.target.value)}
                     placeholder={`Option ${String.fromCharCode(65 + idx)}`}
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#008751]"
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#008751]"
                   />
                 </div>
               ))}
@@ -231,7 +237,7 @@ export default function AdminQuizPage() {
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5" htmlFor="quiz-correct">Correct Answer</label>
               <select id="quiz-correct" value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#008751]">
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#008751]">
                 <option value="">— Select correct option —</option>
                 {form.options.filter(o => o.trim()).map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)}
               </select>
@@ -239,7 +245,7 @@ export default function AdminQuizPage() {
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5" htmlFor="quiz-category">Category</label>
               <select id="quiz-category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#008751]">
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#008751]">
                 {QUIZ_CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>

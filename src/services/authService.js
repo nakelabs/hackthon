@@ -26,6 +26,7 @@ export const register = async (data) => {
     location:  data.location,
     email:     data.email,
     password:  data.password,
+    referral_code: data.referralCode,
   });
   // Immediately fetch real profile after registering
   const token = res.data.access_token;
@@ -78,6 +79,18 @@ export const getMe = async () => {
   if (DEMO_MODE) return makeMockUser({});
   const res = await api.get("/auth/me");
   return res.data; // { id, username, full_name, email, location, role, ... }
+};
+
+// ─── getMyReferrals ────────────────────────────────────────────────────────────
+// GET /auth/me/referrals
+export const getMyReferrals = async () => {
+  if (DEMO_MODE) return {
+    referrals: [],
+    total_referred: 0,
+    total_referred_with_approved_submissions: 0
+  };
+  const res = await api.get("/auth/me/referrals");
+  return res.data;
 };
 
 // ─── updateProfile ────────────────────────────────────────────────────────────
