@@ -28,11 +28,9 @@ export const register = async (data) => {
     password:  data.password,
     referral_code: data.referralCode,
   });
-  // Immediately fetch real profile after registering
-  const token = res.data.access_token;
-  localStorage.setItem(LS_TOKEN_KEY, token);
-  const user = await getMe();
-  return { access_token: token, user };
+  // The API returns a message for verification, not an access token.
+  // We just return the response data.
+  return res.data;
 };
 
 // ─── login ────────────────────────────────────────────────────────────────────
