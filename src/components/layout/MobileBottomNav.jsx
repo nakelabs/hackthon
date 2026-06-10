@@ -26,6 +26,15 @@ export default function MobileBottomNav() {
       )
     },
     {
+      name: "Live",
+      path: "/live",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    {
       name: "Upload",
       path: "/upload",
       isUpload: true,
@@ -66,7 +75,7 @@ export default function MobileBottomNav() {
               <button 
                 key="upload-btn"
                 onClick={() => setShowCreateMenu(true)}
-                className="flex flex-col items-center justify-center w-[20%] transition-transform hover:scale-110"
+                className="flex flex-col items-center justify-center flex-1 transition-transform hover:scale-110"
               >
                 <div className="mb-1">{item.icon}</div>
               </button>
@@ -77,7 +86,7 @@ export default function MobileBottomNav() {
             <Link 
               key={item.name} 
               to={item.path}
-              className={`flex flex-col items-center justify-center w-[20%] transition-colors ${
+              className={`flex flex-col items-center justify-center flex-1 transition-colors ${
                 isActive ? "text-white" : "text-white/40 hover:text-white"
               }`}
             >

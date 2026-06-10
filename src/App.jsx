@@ -22,6 +22,8 @@ import UserSearchPage from "./pages/UserSearchPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import GoLivePage from "./pages/GoLivePage";
+import LiveStreamsPage from "./pages/LiveStreamsPage";
+import ViewStreamPage from "./pages/ViewStreamPage";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import ScrollToTop from "./components/ui/ScrollToTop";
 
@@ -53,8 +55,8 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/");
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
   const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard"].includes(location.pathname);
 
   return (
@@ -82,6 +84,8 @@ export default function App() {
             <Route path="/map"         element={<MapPage />} />
             <Route path="/upload"      element={<UploadPage />} />
             <Route path="/go-live"     element={<GoLivePage />} />
+            <Route path="/live"        element={<LiveStreamsPage />} />
+            <Route path="/live/:channelName" element={<ViewStreamPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/compendium"  element={<CompendiumPage />} />
             <Route path="/search"      element={<UserSearchPage />} />

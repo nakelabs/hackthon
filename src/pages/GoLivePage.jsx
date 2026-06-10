@@ -10,7 +10,7 @@ import AgoraRTC, {
   LocalVideoTrack 
 } from "agora-rtc-react";
 import { useAuth } from "../context/AuthContext";
-import { fetchStreamingToken, killStreamSession } from "../services/liveService";
+import { startLivestream, endStreamSession } from "../services/liveService";
 
 // Agora App ID from env variables. If missing, we'll prompt the user.
 const APP_ID = import.meta.env.VITE_AGORA_APP_ID || "";
@@ -84,6 +84,8 @@ export default function GoLivePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [channelName, setChannelName] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState(1);
   const [isLive, setIsLive] = useState(false);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -113,11 +115,15 @@ export default function GoLivePage() {
 
     setLoading(true);
     try {
-      // 1. Fetch token from backend
-      const fetchedToken = await fetchStreamingToken(channelName.trim());
+      // 1. Start broadcast and get token from backend
+      const res = await startLivestream({
+        channel_name: channelName.trim(),
+        description: description.trim() || "Live broadcast",
+        category_id: categoryId,
+      });
       
       // 2. Start broadcast
-      setToken(fetchedToken);
+      setToken(res.token);
       setIsLive(true);
     } catch (err) {
       console.error(err);
@@ -129,13 +135,14 @@ export default function GoLivePage() {
 
   const handleLeave = async () => {
     try {
-      await killStreamSession(channelName.trim());
+      await endStreamSession(channelName.trim());
     } catch (err) {
-      console.error("Failed to kill streaming session:", err);
+      console.error("Failed to end streaming session:", err);
     }
     setIsLive(false);
     setToken(null);
     setChannelName("");
+    setDescription("");
   };
 
   if (isLive && token) {
@@ -148,7 +155,7 @@ export default function GoLivePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="w-full max-w-[450px] min-h-[100dvh] bg-[#050505] border-x border-white/5 shadow-2xl relative flex flex-col">
+      <div className="w-full max-w-[450px] min-h-screen bg-[#050505] border-x border-white/5 shadow-2xl relative flex flex-col">
         {/* Header */}
         <div className="px-5 py-5 flex items-center gap-4 border-b border-white/10 sticky top-0 bg-black/80 backdrop-blur-md z-50">
           <button onClick={() => navigate(-1)} className="text-white/60 hover:text-white transition-colors">
@@ -160,38 +167,59 @@ export default function GoLivePage() {
         </div>
 
         {/* Form */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <span className="text-6xl mb-6 opacity-80">📡</span>
-          <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Start a Broadcast</h2>
-          <p className="text-white/50 text-sm mb-8 max-w-xs">
-            Connect with your audience in real-time. What are we streaming today?
-          </p>
+        <div className="flex-1 flex flex-col items-center px-6 py-10 text-center pb-24">
+          <div className="w-full max-w-sm flex flex-col items-center">
+            <span className="text-6xl mb-6 opacity-80">📡</span>
+            <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Start a Broadcast</h2>
+            <p className="text-white/50 text-sm mb-8 max-w-xs">
+              Connect with your audience in real-time. What are we streaming today?
+            </p>
 
-          <form onSubmit={handleStartStream} className="w-full max-w-sm space-y-6">
-            <div>
-              <input
-                type="text"
-                placeholder="Enter stream name (e.g. My Awesome Show)"
-                value={channelName}
-                onChange={(e) => setChannelName(e.target.value)}
-                className="w-full bg-transparent border border-white/20 text-white text-base px-5 py-4 focus:outline-none focus:border-[#008751] transition-colors text-center"
-              />
-            </div>
-
-            {error && (
-              <div className="text-xs font-bold text-red-400 bg-red-400/10 border border-red-400/20 px-4 py-3 rounded text-left">
-                {error}
+            <form onSubmit={handleStartStream} className="w-full space-y-6">
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Enter stream name (e.g. My Awesome Show)"
+                  value={channelName}
+                  onChange={(e) => setChannelName(e.target.value)}
+                  className="w-full bg-transparent border border-white/20 text-white text-base px-5 py-4 focus:outline-none focus:border-[#008751] transition-colors text-center"
+                />
+                <input
+                  type="text"
+                  placeholder="Brief description of your stream"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full bg-transparent border border-white/20 text-white text-base px-5 py-4 focus:outline-none focus:border-[#008751] transition-colors text-center"
+                />
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(parseInt(e.target.value))}
+                  className="w-full bg-[#050505] border border-white/20 text-white/70 text-base px-5 py-4 focus:outline-none focus:border-[#008751] transition-colors text-center appearance-none"
+                >
+                  <option value={1}>Music / Songs</option>
+                  <option value={2}>Comedy Skits</option>
+                  <option value={3}>Tech Innovation</option>
+                  <option value={4}>Artwork</option>
+                  <option value={5}>Fashion Showcase</option>
+                  <option value={6}>Other</option>
+                </select>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary py-4 text-sm tracking-widest uppercase"
-            >
-              {loading ? "Connecting..." : "Go Live Now"}
-            </button>
-          </form>
+              {error && (
+                <div className="text-xs font-bold text-red-400 bg-red-400/10 border border-red-400/20 px-4 py-3 rounded text-left">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-primary py-4 text-sm tracking-widest uppercase"
+              >
+                {loading ? "Connecting..." : "Go Live Now"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
