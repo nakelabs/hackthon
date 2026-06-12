@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getSessions, getSessionQuestions, submitAnswers } from "../services/quizService";
 import Spinner from "../components/ui/Spinner";
 
 import { getSessionLeaderboard } from "../services/quizService";
 
 export default function QuizPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const fromLanding = location.state?.fromLanding === true;
+
   const [phase, setPhase] = useState("lobby"); // lobby | playing | submitting | leaderboard | past_leaderboard
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
@@ -21,18 +25,25 @@ export default function QuizPage() {
   const [finalScoreData, setFinalScoreData] = useState(null);
   const [countdown, setCountdown] = useState({ hours: "00", minutes: "00", seconds: "00" });
   const [pastLeaderboardData, setPastLeaderboardData] = useState([]);
+  const [hasAlreadySubmitted, setHasAlreadySubmitted] = useState(false);
   
   const submittedAnswersRef = useRef([]);
 
-  const pastSessions = sessions.filter(s => s.id !== activeSession?.id);
+  // A session is joinable only if it is live
+  const sessionIsJoinable = activeSession?.status === "live";
+  // All sessions that are closed/finished go to past sessions panel
+  const pastSessions = sessions.filter(s => s.status === "closed" || s.status === "finished" || s.status === "completed");
 
   // Fetch sessions on mount
   useEffect(() => {
     getSessions()
       .then(data => {
         setSessions(data);
+        // Priority: live first, then upcoming (open_time in the future), then nothing
         const live = data.find(s => s.status === "live");
-        setActiveSession(live || data[0] || null);
+        const upcoming = data.find(s => s.status === "upcoming" || s.status === "scheduled");
+        // Never fall back to a closed/finished session as the active one
+        setActiveSession(live || upcoming || null);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -89,6 +100,11 @@ export default function QuizPage() {
 
   const startGame = async () => {
     if (!activeSession) return;
+    // Guard: only allow joining live sessions
+    if (activeSession.status !== "live") {
+      alert("This session is not live yet. Please wait for it to start!");
+      return;
+    }
     setIsLoading(true);
     try {
       const qData = await getSessionQuestions(activeSession.id);
@@ -106,7 +122,12 @@ export default function QuizPage() {
       setIsChecking(false);
     } catch (e) {
       console.error(e);
-      alert("Failed to load questions.");
+      // Check if user already submitted
+      if (e.response?.status === 400) {
+        alert(e.response?.data?.detail || "You may have already submitted answers for this session.");
+      } else {
+        alert("Failed to load questions.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -147,20 +168,47 @@ export default function QuizPage() {
 
   if (phase === "lobby") {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col lg:flex-row relative pt-16">
+      <div className="h-screen bg-[#050505] flex flex-col lg:flex-row relative pt-16 overflow-hidden">
+        {fromLanding && (
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 rounded-full text-white/50 hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">Back</span>
+          </button>
+        )}
         {/* Abstract Background Elements */}
         <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#008751]/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-        {/* Left Side: Upcoming Quiz */}
-        <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 relative z-10 pb-24 lg:pb-16">
-          {isLoading ? (
+        {/* Left Side: Upcoming Quiz — stays fixed, no scroll */}
+        <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 relative z-10 overflow-hidden shrink-0 lg:h-full">
+        {isLoading ? (
             <div className="flex justify-center my-12">
               <Spinner size={32} className="text-[#008751]" />
             </div>
           ) : activeSession ? (
             <>
-              <div className="mb-12 text-center lg:text-left">
+              <div className="mb-8 text-center lg:text-left">
+                {/* Status Badge */}
+                <div className="inline-flex items-center gap-2 mb-4">
+                  {activeSession.status === "live" ? (
+                    <span className="flex items-center gap-2 bg-red-500/20 border border-red-500/50 text-red-400 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE NOW
+                    </span>
+                  ) : activeSession.status === "upcoming" || activeSession.status === "scheduled" ? (
+                    <span className="flex items-center gap-2 bg-[#008751]/20 border border-[#008751]/50 text-[#00b36b] text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
+                      <span className="w-2 h-2 rounded-full bg-[#008751] animate-pulse"></span> UPCOMING
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2 bg-white/5 border border-white/10 text-white/40 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
+                      CLOSED
+                    </span>
+                  )}
+                </div>
                 <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 leading-none">
                   {activeSession.title || "Next Quiz Session"}
                 </h1>
@@ -169,45 +217,56 @@ export default function QuizPage() {
                 </p>
               </div>
 
-              <p className="text-[#008751] font-mono tracking-[0.4em] uppercase text-sm mb-4 animate-pulse text-center lg:text-left">
-                {activeSession.status === "live" ? "Live Right Now!" : "Next Live Event"}
-              </p>
-              
-              {/* Massive Timer */}
-              {activeSession.status !== "live" && (
-                <div className="flex justify-center lg:justify-start gap-4 sm:gap-6 mb-12 text-center">
-                  <div className="flex flex-col">
-                    <span className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tighter" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.1)" }}>{countdown.hours}</span>
-                    <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Hours</span>
+              {/* Countdown — only for upcoming sessions */}
+              {(activeSession.status === "upcoming" || activeSession.status === "scheduled") && (
+                <>
+                  <p className="text-[#008751] font-mono tracking-[0.4em] uppercase text-sm mb-4 animate-pulse text-center lg:text-left">Next Live Event</p>
+                  <div className="flex justify-center lg:justify-start gap-4 sm:gap-6 mb-12 text-center">
+                    <div className="flex flex-col">
+                      <span className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tighter" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.1)" }}>{countdown.hours}</span>
+                      <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Hours</span>
+                    </div>
+                    <span className="text-5xl sm:text-7xl font-black text-[#008751] leading-none animate-pulse">:</span>
+                    <div className="flex flex-col">
+                      <span className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tighter">{countdown.minutes}</span>
+                      <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Mins</span>
+                    </div>
+                    <span className="text-5xl sm:text-7xl font-black text-[#008751] leading-none animate-pulse hidden sm:block">:</span>
+                    <div className="flex flex-col hidden sm:flex">
+                      <span className="text-5xl sm:text-7xl font-black text-white/50 leading-none tracking-tighter">{countdown.seconds}</span>
+                      <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Secs</span>
+                    </div>
                   </div>
-                  <span className="text-5xl sm:text-7xl font-black text-[#008751] leading-none animate-pulse">:</span>
-                  <div className="flex flex-col">
-                    <span className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tighter">{countdown.minutes}</span>
-                    <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Mins</span>
-                  </div>
-                  <span className="text-5xl sm:text-7xl font-black text-[#008751] leading-none animate-pulse hidden sm:block">:</span>
-                  <div className="flex flex-col hidden sm:flex">
-                    <span className="text-5xl sm:text-7xl font-black text-white/50 leading-none tracking-tighter">{countdown.seconds}</span>
-                    <span className="text-white/40 font-mono tracking-widest text-[10px] mt-2 uppercase">Secs</span>
-                  </div>
-                </div>
+                </>
+              )}
+
+              {/* Live — show enter button only when live */}
+              {activeSession.status === "live" && (
+                <p className="text-[#008751] font-mono tracking-[0.4em] uppercase text-sm mb-8 animate-pulse text-center lg:text-left">Live Right Now!</p>
               )}
 
               <div className="flex justify-center lg:justify-start">
-                <button onClick={startGame} className="btn-primary text-lg px-10 py-5 hover:scale-105 transition-transform uppercase tracking-widest w-full sm:w-auto">
-                  {activeSession.status === "live" ? "Enter The Arena" : "Join Waitlist"}
-                </button>
+                {activeSession.status === "live" ? (
+                  <button onClick={startGame} className="btn-primary text-lg px-10 py-5 hover:scale-105 transition-transform uppercase tracking-widest w-full sm:w-auto">
+                    Enter The Arena
+                  </button>
+                ) : activeSession.status === "upcoming" || activeSession.status === "scheduled" ? (
+                  <button disabled className="opacity-50 cursor-not-allowed btn-outline text-lg px-10 py-5 uppercase tracking-widest w-full sm:w-auto">
+                    Waiting for session to go live…
+                  </button>
+                ) : null}
               </div>
             </>
           ) : (
             <div className="text-center lg:text-left">
               <h1 className="text-4xl font-black text-white/30 uppercase tracking-tighter mb-4">No Active Sessions</h1>
+              <p className="text-white/30 text-sm">Check back soon for the next quiz session!</p>
             </div>
           )}
         </div>
 
-        {/* Right Side: Past Sessions */}
-        <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col bg-[#0a0a0a] relative z-10 min-h-[500px] pb-32 lg:pb-16">
+        {/* Right Side: Past Sessions — only this panel scrolls */}
+        <div className="w-full lg:w-1/2 p-8 lg:p-16 flex flex-col bg-[#0a0a0a] relative z-10 lg:h-full overflow-hidden">
           <div className="flex flex-col h-full animate-in slide-in-from-left duration-300">
             <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-widest mb-8 flex items-center gap-3">
               <span className="text-white/20">/</span> Past Sessions
@@ -380,42 +439,22 @@ export default function QuizPage() {
     );
   }
 
-  // Leaderboard Phase (Post-game)
+  // Score Phase (Post-game)
   return (
     <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center pt-24 px-4 pb-24 overflow-y-auto">
       <p className="text-white/50 font-mono uppercase tracking-[0.3em] mb-4">Quiz Complete</p>
       <h1 className="text-5xl sm:text-7xl font-black text-white uppercase tracking-tighter mb-12 text-center">
-        Final <span className="text-[#008751]">Results</span>
+        Your <span className="text-[#008751]">Score</span>
       </h1>
 
-      <div className="flex items-end justify-center gap-4 sm:gap-6 w-full max-w-4xl h-80 mb-16">
-        {/* 2nd Place */}
-        <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.4s" }}>
-          <p className="text-white/70 font-bold text-xl mb-2">Shadow</p>
-          <p className="text-[#008751] font-mono mb-4 text-sm">---%</p>
-          <div className="w-full bg-[#111] border border-white/20 h-40 flex justify-center items-start pt-4 shadow-[8px_8px_0px_rgba(255,255,255,0.1)]">
-            <span className="text-white/30 font-black text-4xl">2</span>
-          </div>
-        </div>
-
-        {/* 1st Place */}
-        <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          <p className="text-white font-black text-3xl mb-2">YOU</p>
-          <p className="text-[#008751] font-mono mb-4 font-bold text-lg">
-            {finalScoreData?.total_score?.toLocaleString() || 0}%
-          </p>
-          <div className="w-full bg-[#0a0a0a] border border-[#008751] h-64 flex justify-center items-start pt-4 shadow-[12px_12px_0px_rgba(0,135,81,0.5)] z-10 relative">
-            <span className="text-white font-black text-6xl">1</span>
-            <div className="absolute -top-4 bg-white text-black px-3 py-1 font-bold text-xs uppercase tracking-widest">Participant</div>
-          </div>
-        </div>
-
-        {/* 3rd Place */}
-        <div className="w-1/3 flex flex-col items-center animate-slide-up" style={{ animationDelay: "0.6s" }}>
-          <p className="text-white/70 font-bold text-xl mb-2">Ghost</p>
-          <p className="text-[#008751] font-mono mb-4 text-sm">---%</p>
-          <div className="w-full bg-[#111] border border-white/20 h-32 flex justify-center items-start pt-4 shadow-[8px_8px_0px_rgba(255,255,255,0.1)]">
-            <span className="text-white/30 font-black text-4xl">3</span>
+      <div className="flex flex-col items-center justify-center mb-16 animate-in slide-in-from-bottom-8 duration-700">
+        <div className="relative flex items-center justify-center w-64 h-64 rounded-full border-4 border-[#008751]/20 bg-[#0a0a0a] shadow-[0_0_50px_rgba(0,135,81,0.2)]">
+          <div className="absolute inset-0 rounded-full border-t-4 border-[#008751] animate-spin" style={{ animationDuration: "3s" }}></div>
+          <div className="flex flex-col items-center">
+            <span className="text-6xl sm:text-7xl font-black text-white drop-shadow-[0_0_15px_rgba(0,135,81,0.5)]">
+              {finalScoreData?.total_score?.toLocaleString() || 0}%
+            </span>
+            <span className="text-white/50 font-mono text-sm tracking-widest mt-2 uppercase">Accuracy</span>
           </div>
         </div>
       </div>

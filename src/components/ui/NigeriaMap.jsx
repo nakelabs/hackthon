@@ -5,20 +5,38 @@ import { scaleLinear } from "d3-scale";
 export default function NigeriaMap({ leaderboardData, onStateClick }) {
   const [tooltip, setTooltip] = useState(null);
 
+  const normalizeStateName = (name) => {
+    if (!name) return "";
+    let n = name.toLowerCase()
+      .replace(/\bstate\b/gi, "") // remove " state"
+      .replace(/[^a-z]/g, "");    // remove spaces, hyphens
+      
+    if (n.includes("fct") || n.includes("abuja") || n.includes("federalcapitalterritory")) {
+      return "fct";
+    }
+    if (n === "nasarawa" || n === "nassarawa") {
+      return "nasarawa";
+    }
+    return n;
+  };
+
   // Map leaderboard to a dictionary for fast lookup
   const dataMap = useMemo(() => {
     const map = {};
     leaderboardData.forEach((state) => {
-      // Highcharts topojson might have names like "Federal Capital Territory" instead of "FCT"
-      let searchName = state.state;
-      if (searchName === "FCT") searchName = "Federal Capital Territory";
+      let searchName = normalizeStateName(state.state);
       
       let pts = 0;
       if (state.score) {
-        pts = parseFloat(state.score.replace('K', '')) * 1000;
+        const cleanScore = state.score.toString().replace(/,/g, '');
+        if (cleanScore.toUpperCase().includes('K')) {
+          pts = parseFloat(cleanScore.toUpperCase().replace('K', '')) * 1000;
+        } else {
+          pts = parseFloat(cleanScore);
+        }
       }
       
-      map[searchName.toLowerCase()] = { ...state, pts };
+      map[searchName] = { ...state, pts };
     });
     return map;
   }, [leaderboardData]);
@@ -65,8 +83,7 @@ export default function NigeriaMap({ leaderboardData, onStateClick }) {
             {({ geographies }) =>
               geographies.map((geo) => {
                 const geoName = geo.properties.name || "";
-                let lookupName = geoName.toLowerCase();
-                if (lookupName === "federal capital territory") lookupName = "fct";
+                let lookupName = normalizeStateName(geoName);
                 
                 const stateData = dataMap[lookupName];
                 const fillColor = stateData ? colorScale(stateData.pts) : "#111111";

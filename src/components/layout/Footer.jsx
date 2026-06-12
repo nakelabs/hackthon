@@ -52,8 +52,7 @@ export default function Footer() {
             <h4 className="text-[10px] font-bold text-[#818cf8] tracking-[0.2em] uppercase">Explore</h4>
             <div className="flex flex-col gap-4">
               <Link to="/home" className="text-sm text-white/80 hover:text-white transition-colors">Home</Link>
-              <a href="/#talent" className="text-sm text-white/80 hover:text-white transition-colors">Talent Zone</a>
-              <Link to="/leaderboard" className="text-sm text-white/80 hover:text-white transition-colors">Leaderboard</Link>
+              <Link to="/leaderboard" state={{ fromLanding: true }} className="text-sm text-white/80 hover:text-white transition-colors">Leaderboard</Link>
               <a href="/#quiz" className="text-sm text-white/80 hover:text-white transition-colors">Live Quiz</a>
             </div>
           </div>

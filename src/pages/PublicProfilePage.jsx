@@ -63,8 +63,8 @@ export default function PublicProfilePage() {
   const totalPosts  = profile.posts?.total ?? uploads.length;
 
   return (
-    <div className="bg-black min-h-screen flex justify-center">
-      <div className="w-full max-w-[450px] bg-[#050505] min-h-screen border-x border-white/5 shadow-2xl shadow-black">
+    <div className="bg-black min-h-screen flex justify-center pb-20 md:pb-0">
+      <div className="w-full max-w-[450px] md:max-w-none lg:max-w-6xl xl:max-w-7xl bg-[#050505] min-h-screen border-x border-white/5 shadow-2xl shadow-black relative flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 w-full px-5 py-4 z-50 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/10">
@@ -83,20 +83,20 @@ export default function PublicProfilePage() {
         </div>
 
         {/* Avatar + Info */}
-        <div className="px-6 pb-6 relative -mt-14 border-b border-white/5">
+        <div className="px-6 pb-6 relative -mt-14 border-b border-white/5 md:px-12 md:-mt-20 md:pb-12">
           {/* Avatar */}
-          <div className="w-24 h-24 rounded-full border-4 border-[#050505] overflow-hidden bg-[#111] flex items-center justify-center mb-4 ring-2 ring-[#008751]/50">
+          <div className="w-24 h-24 md:w-40 md:h-40 rounded-full border-4 border-[#050505] overflow-hidden bg-[#111] flex items-center justify-center mb-4 ring-2 ring-[#008751]/50">
             {profile.profile_picture_url ? (
               <img src={profile.profile_picture_url} alt={displayName} className="w-full h-full object-cover object-center" />
             ) : (
-              <span className="text-3xl font-black text-white">{initial}</span>
+              <span className="text-3xl md:text-6xl font-black text-white">{initial}</span>
             )}
           </div>
 
-          <h2 className="text-xl font-black text-white mb-0.5">{displayName}</h2>
-          <p className="text-white/50 text-sm mb-3">{username}</p>
+          <h2 className="text-xl md:text-4xl font-black text-white mb-0.5 md:mb-2">{displayName}</h2>
+          <p className="text-white/50 text-sm md:text-base mb-3 md:mb-5">{username}</p>
 
-          <div className="flex gap-2 flex-wrap mb-4">
+          <div className="flex gap-2 flex-wrap mb-4 md:mb-6">
             {profile.location && (
               <span className="px-3 py-1 bg-white/8 border border-white/10 text-[11px] font-mono text-white/70 uppercase rounded-full flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +165,7 @@ export default function PublicProfilePage() {
                 <p className="text-white/40 text-sm">No public submissions yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-px bg-white/5">
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-[2px] bg-transparent p-1">
               {uploads.map((item) => (
                 <Link
                   key={item.id}
@@ -173,11 +173,21 @@ export default function PublicProfilePage() {
                   className="aspect-[3/4] bg-[#111] relative group overflow-hidden block"
                 >
                   {item.image_url || item.video_url ? (
-                    <img
-                      src={item.image_url || item.video_url}
-                      alt={item.title}
-                      className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    />
+                    item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                      />
+                    ) : (
+                      <video
+                        src={`${item.video_url}#t=0.001`}
+                        className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    )
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#008751]/20 to-black/80 flex items-center justify-center">
                       <span className="text-3xl opacity-40">🎤</span>

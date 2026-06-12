@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Award, ThumbsUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getNominees, voteForNominee } from "../services/compendiumService";
@@ -7,6 +7,8 @@ import { getNominees, voteForNominee } from "../services/compendiumService";
 export default function CompendiumPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromLanding = location.state?.fromLanding === true;
 
   const [nominees, setNominees]   = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -72,25 +74,36 @@ export default function CompendiumPage() {
   );
 
   return (
-    <div className="min-h-screen bg-black pt-20 pb-20">
+    <div className="min-h-screen bg-black pt-20 pb-20 relative">
+      {fromLanding && (
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-6 left-6 z-50 flex items-center gap-2 text-white/50 hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">Back</span>
+        </button>
+      )}
       <div className="container-main">
         {/* Hero */}
         <div className="text-center mb-16 animate-fade-in">
           <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Nigeria @65 <span className="text-[#008751]">Compendium</span></p>
-          <h1 className="heading text-4xl md:text-6xl mb-6">Global <span className="text-[#008751]">Icons</span></h1>
+          <h1 className="heading text-4xl md:text-6xl mb-6">Nominated <span className="text-[#008751]">Global Icons</span></h1>
           <p className="text-white/80 max-w-2xl mx-auto leading-relaxed">
-            As Nigeria approaches its 65th Independence anniversary, we are compiling the ultimate compendium of individuals who have shaped our nation. Vote for your heroes to ensure they secure their place in history.
+            These are the talented individuals nominated by the community on this platform — each one a global icon in their own right. Browse their profiles, learn their stories, and vote for the ones you believe deserve a place in Nigeria's hall of excellence.
           </p>
           {!user && (
             <p className="text-white/40 text-xs mt-4">
-              <a href="/login" className="text-[#008751] hover:underline">Sign in</a> to vote for your favourite icons.
+              <a href="/login" className="text-[#008751] hover:underline">Sign in</a> to vote for your favourite nominated icons.
             </p>
           )}
         </div>
 
         {nominees.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-white/30 text-sm">No nominees yet. Check back soon — the compendium is being curated.</p>
+            <p className="text-white/30 text-sm">No nominees yet. Check back soon — the community is curating the next generation of global icons.</p>
           </div>
         ) : (
           <>

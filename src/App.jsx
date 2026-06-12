@@ -54,10 +54,12 @@ export default function App() {
   
   const isAdminRoute = location.pathname.startsWith("/control-deck");
 
+  const fromLanding = location.state?.fromLanding === true;
+
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
-  const showBottomNav = !isAdminRoute && ["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live", "/leaderboard"].includes(location.pathname);
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
+  const showBottomNav = !isAdminRoute && (["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live"].includes(location.pathname) || (["/live", "/leaderboard", "/compendium"].includes(location.pathname) && !fromLanding));
 
   return (
     <AdminAuthProvider>

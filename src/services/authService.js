@@ -79,15 +79,23 @@ export const getMe = async () => {
   return res.data; // { id, username, full_name, email, location, role, ... }
 };
 
+// ─── changePassword ───────────────────────────────────────────────────────────
+// POST /auth/change-password
+export const changePassword = async (data) => {
+  if (DEMO_MODE) return { message: "Password updated successfully in demo mode." };
+  const res = await api.post("/auth/change-password", data);
+  return res.data;
+};
+
 // ─── getMyReferrals ────────────────────────────────────────────────────────────
-// GET /auth/me/referrals
+// GET /referrals/me
 export const getMyReferrals = async () => {
   if (DEMO_MODE) return {
     referrals: [],
     total_referred: 0,
     total_referred_with_approved_submissions: 0
   };
-  const res = await api.get("/auth/me/referrals");
+  const res = await api.get("/referrals/me");
   return res.data;
 };
 

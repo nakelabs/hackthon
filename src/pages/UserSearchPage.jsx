@@ -252,7 +252,7 @@ export default function SearchPage() {
 
   return (
     <div className="bg-black min-h-screen flex justify-center">
-      <div className="w-full max-w-[450px] bg-[#050505] min-h-screen border-x border-white/5 shadow-2xl shadow-black flex flex-col">
+      <div className="w-full max-w-full md:max-w-5xl lg:max-w-6xl xl:max-w-7xl bg-[#050505] min-h-screen border-x border-white/5 shadow-2xl shadow-black flex flex-col">
 
         {/* ── Header ── */}
         <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
@@ -370,7 +370,7 @@ export default function SearchPage() {
                   <PostCard
                     key={`${post.id}-${i}`}
                     post={post}
-                    onClick={() => navigate(`/profile/${post.user_id}`)}
+                    onClick={() => navigate('/home', { state: { initialPost: post } })}
                   />
                 ))}
               </div>

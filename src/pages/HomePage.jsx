@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { TALENT_CATEGORIES } from "../utils/constants";
 import { getApprovedTalents, castVote, removeVote } from "../services/talentService";
@@ -46,9 +46,135 @@ function PostAvatar({ post, onClick }) {
   );
 }
 
+// ── Feed Media Components ───────────────────────────────────────────────────
+function FeedVideo({ src, isActive, isMuted, toggleMute }) {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showMuteAnim, setShowMuteAnim] = useState(false);
+  const prevMuted = useRef(isMuted);
+  
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (isActive) {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    } else {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    if (prevMuted.current !== isMuted && isActive) {
+      setShowMuteAnim(true);
+      const timer = setTimeout(() => setShowMuteAnim(false), 800);
+      prevMuted.current = isMuted;
+      return () => clearTimeout(timer);
+    }
+  }, [isMuted, isActive]);
+
+  const handleTogglePlay = (e) => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  };
+
+  return (
+    <>
+      <video 
+        ref={videoRef}
+        src={`${src}#t=0.001`} 
+        preload="metadata" 
+        className="absolute inset-0 w-full h-full object-cover cursor-pointer" 
+        muted={isMuted} 
+        loop 
+        playsInline 
+        onClick={handleTogglePlay}
+        onDoubleClick={toggleMute}
+      />
+      {!isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div className="bg-black/50 backdrop-blur-sm rounded-full p-6 text-white transition-opacity">
+            <svg className="w-16 h-16 pl-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      )}
+      {/* Temporary Mute Animation */}
+      {showMuteAnim && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="bg-black/60 backdrop-blur-md rounded-full p-8 text-white animate-fade-in shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+            {isMuted ? (
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+            ) : (
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function FeedAudio({ src, isActive, gradient, category }) {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    if (isActive) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    } else {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  }, [isActive]);
+
+  const handleTogglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  };
+
+  return (
+    <>
+      <audio ref={audioRef} src={src} loop className="hidden" />
+      <div 
+        className={`absolute inset-0 bg-gradient-to-br ${gradient} to-black flex flex-col items-center justify-center cursor-pointer`}
+        onClick={handleTogglePlay}
+      >
+        {/* Animated vinyl record */}
+        <div className={`w-48 h-48 rounded-full border-4 border-white/10 flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] transition-transform duration-1000 ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`} style={{ background: 'radial-gradient(circle, #333 10%, #111 90%)' }}>
+          <div className="w-16 h-16 bg-black rounded-full border-2 border-white/20"></div>
+        </div>
+        
+        <span className="text-3xl font-black text-white uppercase tracking-widest drop-shadow-lg mb-6">
+          {category}
+        </span>
+        
+        {!isPlaying && (
+          <div className="bg-black/50 backdrop-blur-sm rounded-full p-5 text-white transition-opacity absolute">
+            <svg className="w-12 h-12 pl-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 export default function HomePage() {
   const { user }  = useAuth();
   const navigate  = useNavigate();
+  const location  = useLocation();
+  const containerRef = useRef(null);
 
   // ── Feed state ────────────────────────────────────────────────────────────
   const [feed, setFeed]               = useState([]);
@@ -57,12 +183,13 @@ export default function HomePage() {
   const [error, setError]             = useState(null);
   const [skip, setSkip]               = useState(0);
   const [hasMore, setHasMore]         = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
   const LIMIT = 20;
 
   // ── Filter / Search state ─────────────────────────────────────────────────
-  const [searchQuery, setSearchQuery]       = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [isFilterOpen, setIsFilterOpen]     = useState(false);
+  const [isMuted, setIsMuted]               = useState(true);
 
   // ── Vote state ────────────────────────────────────────────────────────────
   // voteCounts tracks real-time vote count per post; hasVotedMap tracks voted state
@@ -86,10 +213,15 @@ export default function HomePage() {
 
     try {
       const catParam = activeCategory !== "All"
-        ? TALENT_CATEGORIES.find(c => c.label === activeCategory)?.id
+        ? TALENT_CATEGORIES.find(c => c.label === activeCategory)?.dbName
         : undefined;
       const data = await getApprovedTalents({ category: catParam, skip: currentSkip, limit: LIMIT });
-      const newItems = data.talents || [];
+      let newItems = data.talents || [];
+
+      if (reset && location.state?.initialPost) {
+        newItems = newItems.filter(p => p.id !== location.state.initialPost.id);
+        newItems = [location.state.initialPost, ...newItems];
+      }
 
       // Seed vote state from API response
       const newVoteCounts  = {};
@@ -132,8 +264,9 @@ export default function HomePage() {
         setHasVotedMap(prev => ({ ...prev, [postId]: true }));
         setVoteCounts(prev  => ({ ...prev, [postId]: (prev[postId] || 0) + 1 }));
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      const msg = err.response?.data?.detail;
+      if (msg) alert(msg);
     } finally {
       setVotingId(null);
     }
@@ -174,20 +307,43 @@ export default function HomePage() {
     }
   };
 
-  // ── Client-side search filter ─────────────────────────────────────────────
-  const filteredFeed = useMemo(() => {
-    if (!searchQuery) return feed;
-    const q = searchQuery.toLowerCase();
-    return feed.filter(p =>
-      p.title?.toLowerCase().includes(q) ||
-      p.description?.toLowerCase().includes(q) ||
-      p.category?.toLowerCase().includes(q)
-    );
-  }, [feed, searchQuery]);
+  // ── Scroll Tracking & Keyboard Navigation ───────────────────────────────
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    let timeout;
+    const handleScroll = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const idx = Math.round(el.scrollTop / window.innerHeight);
+        setActiveIndex(idx);
+      }, 50); // slight debounce for performance
+    };
+    el.addEventListener("scroll", handleScroll);
+
+    const handleKeyDown = (e) => {
+      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        el.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        el.scrollBy({ top: -window.innerHeight, behavior: "smooth" });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timeout);
+    };
+  }, []);
 
   return (
     <div className="bg-black min-h-screen flex justify-center relative overflow-hidden">
-      <div className="w-full max-w-[450px] h-[100dvh] bg-[#050505] relative overflow-y-scroll snap-y snap-mandatory hide-scrollbar border-x border-white/5 shadow-2xl shadow-black">
+      <div ref={containerRef} className="w-full max-w-[450px] h-[100dvh] bg-[#050505] relative overflow-y-scroll snap-y snap-mandatory hide-scrollbar border-x border-white/5 shadow-2xl shadow-black">
 
         {/* Top Nav */}
         <div className="absolute top-0 w-full px-5 py-5 z-50 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
@@ -206,7 +362,7 @@ export default function HomePage() {
             <button
               onClick={() => setIsFilterOpen(true)}
               className={`p-3 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center ${
-                (searchQuery || activeCategory !== "All")
+                (activeCategory !== "All")
                   ? "bg-[#008751] text-white"
                   : "bg-black/40 text-white hover:bg-black/60"
               }`}
@@ -240,13 +396,13 @@ export default function HomePage() {
         )}
 
         {/* Empty state */}
-        {!loading && !error && filteredFeed.length === 0 && (
+        {!loading && !error && feed.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050505] z-10 px-6 text-center">
             <span className="text-6xl mb-4 grayscale opacity-50">🕵️</span>
             <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">No Talent Found</h2>
             <p className="text-white/50 text-sm max-w-xs mx-auto">Try a different category or check back soon.</p>
             <button
-              onClick={() => { setSearchQuery(""); setActiveCategory("All"); }}
+              onClick={() => setActiveCategory("All")}
               className="mt-6 text-xs font-bold px-4 py-2 border border-white/20 bg-white/5 hover:bg-white/10 text-white uppercase tracking-widest transition-colors pointer-events-auto z-20"
             >
               Clear Filters
@@ -255,7 +411,7 @@ export default function HomePage() {
         )}
 
         {/* ── The Feed ── */}
-        {filteredFeed.map((post, idx) => {
+        {feed.map((post, idx) => {
           const alreadyVoted = hasVotedMap[post.id] ?? false;
           const voteCount    = voteCounts[post.id]  ?? post.vote_count ?? 0;
           const commentCount = post.comment_count   ?? 0;
@@ -268,7 +424,14 @@ export default function HomePage() {
 
               {/* Media */}
               {mediaUrl && mediaType === "video" ? (
-                <video src={`${mediaUrl}#t=0.001`} preload="metadata" className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline />
+                <FeedVideo 
+                  src={mediaUrl} 
+                  isActive={idx === activeIndex} 
+                  isMuted={isMuted} 
+                  toggleMute={() => setIsMuted(!isMuted)} 
+                />
+              ) : mediaUrl && mediaType === "audio" ? (
+                <FeedAudio src={mediaUrl} isActive={idx === activeIndex} gradient={gradient} category={post.category} />
               ) : mediaUrl && mediaType === "image" ? (
                 <img src={mediaUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
               ) : (
@@ -277,9 +440,6 @@ export default function HomePage() {
                     {post.category}
                   </span>
                 </div>
-              )}
-              {mediaUrl && mediaType === "audio" && (
-                <audio src={mediaUrl} autoPlay loop className="hidden" />
               )}
 
               {/* Dark overlay */}
@@ -359,7 +519,7 @@ export default function HomePage() {
         })}
 
         {/* Load more sentinel */}
-        {!loading && hasMore && filteredFeed.length > 0 && (
+        {!loading && hasMore && feed.length > 0 && (
           <div className="w-full h-[100dvh] snap-start snap-always flex items-center justify-center bg-[#050505]">
             <button
               onClick={() => loadFeed(false)}
@@ -386,25 +546,13 @@ export default function HomePage() {
           </div>
           <div className="px-6 pb-4 flex items-center justify-between border-b border-white/5">
             <h2 className="text-2xl font-black text-white uppercase tracking-tight">Filter</h2>
-            {(searchQuery || activeCategory !== "All") && (
-              <button onClick={() => { setSearchQuery(""); setActiveCategory("All"); }} className="text-xs font-bold text-[#008751] uppercase tracking-widest">
+            {activeCategory !== "All" && (
+              <button onClick={() => setActiveCategory("All")} className="text-xs font-bold text-[#008751] uppercase tracking-widest">
                 Clear All
               </button>
             )}
           </div>
           <div className="flex-1 overflow-y-auto px-6 py-6 hide-scrollbar">
-            <div className="mb-8 relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text" placeholder="Search posts…"
-                value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#111] border border-white/10 text-white text-base rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-[#008751] transition-all placeholder:text-white/30"
-              />
-            </div>
             <div className="mb-6">
               <h3 className="text-xs text-white/50 uppercase tracking-[0.2em] mb-4 font-bold">Talent Category</h3>
               <select

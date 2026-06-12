@@ -306,8 +306,12 @@ export default function MyArenaPage() {
                   return (
                     <div key={item.id} className="aspect-[3/4] bg-[#111] relative group cursor-pointer overflow-hidden">
                       {/* Media or gradient bg */}
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                      {item.image_url || item.video_url ? (
+                        item.image_url ? (
+                          <img src={item.image_url} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                          <video src={`${item.video_url}#t=0.001`} className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity pointer-events-none" muted playsInline preload="metadata" />
+                        )
                       ) : (
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradient} to-black/80 opacity-60 group-hover:opacity-100 transition-opacity`} />
                       )}

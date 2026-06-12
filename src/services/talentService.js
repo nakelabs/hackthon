@@ -70,6 +70,14 @@ export const removeVote = async (submissionId) => {
   await api.delete(`/votes/cast/${submissionId}`);
 };
 
+// ─── Get User Voted Posts ──────────────────────────────────────────────────────
+// GET /votes/user/{user_id}/voted-posts
+export const getUserVotedPosts = async (userId) => {
+  if (DEMO_MODE) return [];
+  const res = await api.get(`/votes/user/${userId}/voted-posts`);
+  return res.data;
+};
+
 // ─── Leaderboard (category or global) ─────────────────────────────────────────
 // GET /votes/leaderboard?category=&location=&skip=0&limit=50
 export const getCategoryLeaderboard = async (category, { location, skip = 0, limit = 50 } = {}) => {

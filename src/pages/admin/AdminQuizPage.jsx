@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Plus, Trash2, Save, ChevronDown, ChevronUp, Calendar, Sparkles, X } from "lucide-react";
+import { Plus, Trash2, Save, ChevronDown, ChevronUp, Calendar, Sparkles, X, Pencil } from "lucide-react";
 import { createQuizSession, addQuizQuestion, generateAIQuestions } from "../../services/adminService";
 
-const QUIZ_CATEGORIES = ["History", "Culture", "Sports", "Music", "Geography", "Government", "Science & Tech"];
+const QUIZ_CATEGORIES = ["History", "Culture", "Sports", "Music", "Geography", "Government", "Science & Tech", "AI Generated"];
 
 const BLANK_QUESTION = null; // Removed as we define it inline now
 
@@ -58,6 +58,18 @@ export default function AdminQuizPage() {
   };
 
   const handleDelete = (id) => setQuestions(questions.filter(q => q.id !== id));
+
+  const handleEdit = (q) => {
+    setForm({
+      question: q.question,
+      options: [...q.options],
+      answer: q.answer,
+      category: q.category,
+      time_limit_seconds: q.time_limit_seconds || 20
+    });
+    setQuestions(questions.filter(item => item.id !== q.id));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleCreateSession = async (e) => {
     e.preventDefault();
@@ -364,6 +376,10 @@ export default function AdminQuizPage() {
                 <button onClick={() => setExpandedId(expandedId === q.id ? null : q.id)}
                   className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                   {expandedId === q.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                <button onClick={() => handleEdit(q)}
+                  className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                  <Pencil className="w-4 h-4" />
                 </button>
                 <button onClick={() => handleDelete(q.id)} id={`delete-question-${q.id}`}
                   className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">

@@ -523,10 +523,10 @@ export function StateLeaderboard() {
   return (
     <section id="leaderboard" className="section border-t border-white/8 overflow-hidden relative">
       <div className="w-full max-w-[1400px] mx-auto px-5 sm:px-8">
-        <div className="flex flex-col xl:flex-row items-center gap-10 xl:gap-20">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16 xl:gap-20">
           
           {/* Left Side: Interactive Map */}
-          <div className="w-full xl:w-2/3 order-2 xl:order-1 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="w-full lg:w-2/3 order-2 lg:order-1 animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <NigeriaMap 
               leaderboardData={stateData.map((e, i) => ({ rank: i + 1, state: e.state, score: e.vote_count.toLocaleString(), tag: "Votes" }))} 
               onStateClick={(stateData) => openModal(stateData.state)} 
@@ -534,7 +534,7 @@ export function StateLeaderboard() {
           </div>
 
           {/* Right Side: Text & Podium */}
-          <div className="w-full xl:w-1/3 order-1 xl:order-2">
+          <div className="w-full lg:w-1/3 order-1 lg:order-2">
             <div className="text-left mb-12">
               <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Rep Your <span className="text-[color:#008751]">State</span></p>
               <h2 className="heading text-4xl sm:text-5xl lg:text-6xl leading-tight mb-4">State <span className="text-[color:#008751]">Leaderboard</span></h2>

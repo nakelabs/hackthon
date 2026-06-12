@@ -48,6 +48,7 @@ export default function Navbar() {
               {isRoute ? (
                 <Link
                   to={href}
+                  state={{ fromLanding: true }}
                   className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
                 >
                   {label}
@@ -124,6 +125,7 @@ export default function Navbar() {
               <Link
                 key={href}
                 to={href}
+                state={{ fromLanding: true }}
                 onClick={() => setOpen(false)}
                 className="py-2.5 px-3 text-sm text-white hover:text-white transition-colors rounded"
               >

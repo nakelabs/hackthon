@@ -11,17 +11,17 @@ export const APP_TAGLINE = "One Nation. Infinite Talent. Endless Pride.";
 
 // ─── Talent Categories ────────────────────────────────────────────────────────
 export const TALENT_CATEGORIES = [
-  { id: "music", label: "Music / Songs", emoji: "🎵", description: "Singing, rap, spoken word, instrumentals" },
-  { id: "football", label: "Football Freestyle", emoji: "⚽", description: "Football juggling and tricks" },
-  { id: "basketball", label: "Basketball Freestyle", emoji: "🏀", description: "Basketball handling and tricks" },
-  { id: "comedy", label: "Comedy Skits", emoji: "😂", description: "Stand-up, skits, and satirical content" },
-  { id: "artwork", label: "Artwork (Handmade Only)", emoji: "🎨", description: "Pencil drawings, paintings, sculptures, beadwork, traditional craft (no digital art)" },
-  { id: "hair", label: "Hair Artistry", emoji: "✂️", description: "Braiding, styling, creative hair designs, short styling videos" },
-  { id: "fashion", label: "Fashion Showcase", emoji: "👗", description: "Style, design, modelling & fashion" },
-  { id: "film", label: "My Nigeria Story (Short Film)", emoji: "🎬", description: "Short films and cinematic storytelling" },
-  { id: "photography", label: "Photography", emoji: "📸", description: "Capturing Nigeria through the lens" },
-  { id: "tech", label: "Tech Innovation", emoji: "💻", description: "Innovation, coding & tech entrepreneurship" },
-  { id: "logo", label: "Logo Design", emoji: "💡", description: "Original logos, branding concepts, mockups, optional explanation videos" },
+  { id: "music", label: "Music / Songs", dbName: "Music", emoji: "🎵", description: "Singing, rap, spoken word, instrumentals" },
+  { id: "football", label: "Football Freestyle", dbName: "Football Freestyle", emoji: "⚽", description: "Football juggling and tricks" },
+  { id: "basketball", label: "Basketball Freestyle", dbName: "Basketball Freestyle", emoji: "🏀", description: "Basketball handling and tricks" },
+  { id: "comedy", label: "Comedy Skits", dbName: "Comedy Skits", emoji: "😂", description: "Stand-up, skits, and satirical content" },
+  { id: "artwork", label: "Artwork (Handmade Only)", dbName: "Handmade Artwork", emoji: "🎨", description: "Pencil drawings, paintings, sculptures, beadwork, traditional craft (no digital art)" },
+  { id: "hair", label: "Hair Artistry", dbName: "Hair Artistry", emoji: "✂️", description: "Braiding, styling, creative hair designs, short styling videos" },
+  { id: "fashion", label: "Fashion Showcase", dbName: "Fashion", emoji: "👗", description: "Style, design, modelling & fashion" },
+  { id: "film", label: "My Nigeria Story (Short Film)", dbName: "Short Film", emoji: "🎬", description: "Short films and cinematic storytelling" },
+  { id: "photography", label: "Photography", dbName: "Photography", emoji: "📸", description: "Capturing Nigeria through the lens" },
+  { id: "tech", label: "Tech Innovation", dbName: "Tech Innovation", emoji: "💻", description: "Innovation, coding & tech entrepreneurship" },
+  { id: "logo", label: "Logo Design", dbName: "Logo Design", emoji: "💡", description: "Original logos, branding concepts, mockups, optional explanation videos" },
 ];
 
 // ─── Quiz Config ──────────────────────────────────────────────────────────────
