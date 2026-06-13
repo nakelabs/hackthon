@@ -36,7 +36,7 @@ export default function AdminLayout({ children }) {
   };
 
   return (
-    <div className="h-screen bg-[#1c1c24] flex p-3 font-sans overflow-hidden">
+    <div className="h-screen bg-black flex p-3 font-sans overflow-hidden">
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside className="w-64 bg-transparent flex flex-col shrink-0 text-white pb-4 pr-3">
@@ -68,7 +68,7 @@ export default function AdminLayout({ children }) {
                         className={({ isActive }) =>
                           `flex items-center px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
                             isActive
-                              ? "bg-[#4f447a] text-white shadow-lg"
+                              ? "bg-[#008751] text-white shadow-[0_0_15px_rgba(0,135,81,0.3)]"
                               : "text-gray-400 hover:text-white hover:bg-white/5"
                           }`
                         }
@@ -88,7 +88,7 @@ export default function AdminLayout({ children }) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-[#4f447a] text-white shadow-lg"
+                      ? "bg-[#008751] text-white shadow-[0_0_15px_rgba(0,135,81,0.3)]"
                       : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`
                 }

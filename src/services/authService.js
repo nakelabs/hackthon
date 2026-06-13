@@ -12,6 +12,7 @@ const makeMockUser = (data) => ({
   location:  data.location || "Lagos",
   role:      "user",
   is_demo:   true,
+  submitted_categories: ["Football Freestyle"],
 });
 
 // ─── register ─────────────────────────────────────────────────────────────────
@@ -93,7 +94,8 @@ export const getMyReferrals = async () => {
   if (DEMO_MODE) return {
     referrals: [],
     total_referred: 0,
-    total_referred_with_approved_submissions: 0
+    total_referred_with_approved_submissions: 0,
+    referral_reward: 0
   };
   const res = await api.get("/referrals/me");
   return res.data;

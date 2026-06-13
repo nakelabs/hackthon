@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getSessions, getSessionQuestions, submitAnswers } from "../services/quizService";
 import Spinner from "../components/ui/Spinner";
-
+import { usePopup } from "../context/PopupContext";
 import { getSessionLeaderboard } from "../services/quizService";
 
 export default function QuizPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const fromLanding = location.state?.fromLanding === true;
+  const { showAlert } = usePopup();
 
   const [phase, setPhase] = useState("lobby"); // lobby | playing | submitting | leaderboard | past_leaderboard
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -102,14 +103,14 @@ export default function QuizPage() {
     if (!activeSession) return;
     // Guard: only allow joining live sessions
     if (activeSession.status !== "live") {
-      alert("This session is not live yet. Please wait for it to start!");
+      showAlert("This session is not live yet. Please wait for it to start!");
       return;
     }
     setIsLoading(true);
     try {
       const qData = await getSessionQuestions(activeSession.id);
       if (!qData || qData.length === 0) {
-        alert("No questions found for this session!");
+        showAlert("No questions found for this session!");
         setIsLoading(false);
         return;
       }
@@ -124,9 +125,9 @@ export default function QuizPage() {
       console.error(e);
       // Check if user already submitted
       if (e.response?.status === 400) {
-        alert(e.response?.data?.detail || "You may have already submitted answers for this session.");
+        showAlert(e.response?.data?.detail || "You may have already submitted answers for this session.");
       } else {
-        alert("Failed to load questions.");
+        showAlert("Failed to load questions.");
       }
     } finally {
       setIsLoading(false);
@@ -159,7 +160,7 @@ export default function QuizPage() {
           setPhase("leaderboard");
         } catch (e) {
           console.error(e);
-          alert("Failed to submit answers");
+          showAlert("Failed to submit answers");
           setPhase("lobby");
         }
       }

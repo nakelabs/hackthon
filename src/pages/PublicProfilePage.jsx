@@ -93,7 +93,17 @@ export default function PublicProfilePage() {
             )}
           </div>
 
-          <h2 className="text-xl md:text-4xl font-black text-white mb-0.5 md:mb-2">{displayName}</h2>
+          <h2 className="text-xl md:text-4xl font-black text-white mb-0.5 md:mb-2 flex items-center gap-2 md:gap-3 flex-wrap">
+            <span>{displayName}</span>
+            {profile.submitted_categories && profile.submitted_categories.length > 0 && (
+              <>
+                <span className="text-white/30 text-lg md:text-2xl hidden sm:inline">•</span>
+                <span className="text-sm md:text-lg text-[#008751] font-bold tracking-widest uppercase mt-1">
+                  {profile.submitted_categories.join(", ")}
+                </span>
+              </>
+            )}
+          </h2>
           <p className="text-white/50 text-sm md:text-base mb-3 md:mb-5">{username}</p>
 
           <div className="flex gap-2 flex-wrap mb-4 md:mb-6">
@@ -169,7 +179,7 @@ export default function PublicProfilePage() {
               {uploads.map((item) => (
                 <Link
                   key={item.id}
-                  to="/home"
+                  to={`/post/${item.id}`}
                   className="aspect-[3/4] bg-[#111] relative group overflow-hidden block"
                 >
                   {item.image_url || item.video_url ? (

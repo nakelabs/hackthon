@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { getAdminCategories, approveCategory, rejectCategory } from "../../services/adminService";
+import { usePopup } from "../../context/PopupContext";
 
 const STATUS_PILL = {
   pending:  "bg-amber-100 text-amber-700",
@@ -12,6 +13,7 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [actionId, setActionId]     = useState(null);
+  const { showAlert } = usePopup();
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -33,7 +35,7 @@ export default function AdminCategoriesPage() {
       const updated = action === "approved" ? await approveCategory(id) : await rejectCategory(id);
       setCategories(prev => prev.map(c => c.id === id ? { ...c, status: updated.status } : c));
     } catch {
-      alert("Action failed. Please try again.");
+      showAlert("Action failed. Please try again.");
     } finally {
       setActionId(null);
     }

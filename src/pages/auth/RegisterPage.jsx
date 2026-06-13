@@ -123,7 +123,11 @@ export default function RegisterPage() {
       </div>
 
       {/* Right side: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center">
+      <div className="w-full lg:w-1/2 flex items-center justify-center relative">
+        <button onClick={() => navigate(-1)} className="absolute top-6 left-6 text-white/50 hover:text-white flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-colors z-10">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+          Back
+        </button>
         <div className="w-full max-w-sm px-5 py-16">
           <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Claim Your Spot</h1>
 

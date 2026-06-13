@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { TALENT_CATEGORIES } from "../utils/constants";
 import { getApprovedTalents, castVote, removeVote } from "../services/talentService";
 import { getComments, createComment } from "../services/commentService";
+import { usePopup } from "../context/PopupContext";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const CARD_GRADIENTS = [
@@ -172,6 +173,7 @@ function FeedAudio({ src, isActive, gradient, category }) {
 
 export default function HomePage() {
   const { user }  = useAuth();
+  const { showAlert } = usePopup();
   const navigate  = useNavigate();
   const location  = useLocation();
   const containerRef = useRef(null);
@@ -249,7 +251,7 @@ export default function HomePage() {
 
   // ── Vote ──────────────────────────────────────────────────────────────────
   const handleVote = async (postId) => {
-    if (!user) { alert("Please sign in to vote."); return; }
+    if (!user) { showAlert("Please sign in to vote."); return; }
     if (votingId === postId) return;
     setVotingId(postId);
 
@@ -266,7 +268,7 @@ export default function HomePage() {
       }
     } catch (err) {
       const msg = err.response?.data?.detail;
-      if (msg) alert(msg);
+      if (msg) showAlert(msg);
     } finally {
       setVotingId(null);
     }
@@ -288,7 +290,7 @@ export default function HomePage() {
   };
 
   const handlePostComment = async () => {
-    if (!user) { alert("Please sign in to comment."); return; }
+    if (!user) { showAlert("Please sign in to comment."); return; }
     if (!newComment.trim() || !activePostId || postingComment) return;
     setPostingComment(true);
     try {

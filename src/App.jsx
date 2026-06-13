@@ -18,6 +18,7 @@ import UploadPage from "./pages/UploadPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import CompendiumPage from "./pages/CompendiumPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
+import SinglePostPage from "./pages/SinglePostPage";
 import UserSearchPage from "./pages/UserSearchPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
@@ -29,6 +30,7 @@ import ScrollToTop from "./components/ui/ScrollToTop";
 
 // ── Admin ──────────────────────────────────────────────────────────────────────
 import { AdminAuthProvider } from "./context/AdminAuthContext";
+import { PopupProvider } from "./context/PopupContext";
 import AdminGuard from "./pages/admin/AdminGuard";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -57,15 +59,16 @@ export default function App() {
   const fromLanding = location.state?.fromLanding === true;
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/");
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
   const showBottomNav = !isAdminRoute && (["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live"].includes(location.pathname) || (["/live", "/leaderboard", "/compendium"].includes(location.pathname) && !fromLanding));
 
   return (
+    <PopupProvider>
     <AdminAuthProvider>
       <div className="flex flex-col min-h-screen">
-        {/* Custom cursor only on non-admin routes */}
-        {!isAdminRoute && <CustomCursor />}
+        {/* Custom cursor only on landing page */}
+        {location.pathname === "/" && <CustomCursor />}
         {!hideNavbar && <Navbar />}
         
         <main className="flex-1">
@@ -92,6 +95,7 @@ export default function App() {
             <Route path="/compendium"  element={<CompendiumPage />} />
             <Route path="/search"      element={<UserSearchPage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
+            <Route path="/post/:postId" element={<SinglePostPage />} />
             <Route path="/privacy"     element={<PrivacyPolicyPage />} />
             <Route path="/terms"       element={<TermsOfServicePage />} />
 
@@ -124,5 +128,6 @@ export default function App() {
         {!hideFooter && <Footer />}
       </div>
     </AdminAuthProvider>
+    </PopupProvider>
   );
 }

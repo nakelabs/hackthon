@@ -6,6 +6,7 @@ import { updateProfile, uploadProfilePicture } from "../../services/authService"
 import { getUserQuizHistory } from "../../services/quizService";
 import Spinner from "../../components/ui/Spinner";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "../../components/ui/SocialIcons";
+import { usePopup } from "../../context/PopupContext";
 
 const GRADIENT_FOR_CAT = {
   music: "from-blue-900", artwork: "from-purple-900", comedy: "from-red-900",
@@ -15,6 +16,7 @@ const GRADIENT_FOR_CAT = {
 
 export default function MyArenaPage() {
   const { user, loading, loginUser } = useAuth();
+  const { showAlert, showConfirm } = usePopup();
   const navigate = useNavigate();
   const [activeTab, setActiveTab]   = useState("uploads");
 
@@ -80,20 +82,21 @@ export default function MyArenaPage() {
       const updatedUser = await uploadProfilePicture(file);
       loginUser({ access_token: localStorage.getItem("nc_auth_token"), user: updatedUser });
     } catch (err) {
-      alert("Failed to upload profile picture. Try again.");
+      showAlert("Failed to upload profile picture. Try again.");
     } finally {
       setUploadingPic(false);
     }
   };
 
   const handleDeleteUpload = async (id) => {
-    if (!window.confirm("Delete this submission? This cannot be undone.")) return;
+    const confirmed = await showConfirm("Delete this submission? This cannot be undone.");
+    if (!confirmed) return;
     setDeletingId(id);
     try {
       await deleteTalent(id);
       setUploads(prev => prev.filter(u => u.id !== id));
     } catch {
-      alert("Could not delete submission.");
+      showAlert("Could not delete submission.");
     } finally {
       setDeletingId(null);
     }
@@ -203,7 +206,17 @@ export default function MyArenaPage() {
             className="hidden" 
           />
           <div className="flex flex-col items-start flex-1 w-full text-left mt-0 md:mt-4">
-            <h2 className="text-xl md:text-4xl font-black text-white mb-2 md:mb-4 leading-tight">{displayName}</h2>
+            <h2 className="text-xl md:text-4xl font-black text-white mb-2 md:mb-4 leading-tight flex items-center gap-2 md:gap-3 flex-wrap">
+              <span>{displayName}</span>
+              {user.submitted_categories && user.submitted_categories.length > 0 && (
+                <>
+                  <span className="text-white/30 text-lg md:text-2xl hidden sm:inline">•</span>
+                  <span className="text-sm md:text-lg text-[#008751] font-bold tracking-widest uppercase mt-1">
+                    {user.submitted_categories.join(", ")}
+                  </span>
+                </>
+              )}
+            </h2>
             <div className="flex flex-wrap gap-2 items-center justify-start mb-3 md:mb-4">
               {user.location && (
                 <span className="px-2 py-1 md:px-3 md:py-1.5 bg-white/10 border border-white/20 text-[10px] md:text-sm font-mono text-white uppercase rounded-full shadow-lg">{user.location}</span>
@@ -304,7 +317,7 @@ export default function MyArenaPage() {
                   const gradient = GRADIENT_FOR_CAT[item.category] || "from-gray-800";
                   const statusColor = item.is_approved === "approved" ? "text-green-400" : item.is_approved === "rejected" ? "text-red-400" : "text-amber-400";
                   return (
-                    <div key={item.id} className="aspect-[3/4] bg-[#111] relative group cursor-pointer overflow-hidden">
+                    <Link to={`/post/${item.id}`} key={item.id} className="aspect-[3/4] bg-[#111] relative group cursor-pointer overflow-hidden block">
                       {/* Media or gradient bg */}
                       {item.image_url || item.video_url ? (
                         item.image_url ? (
@@ -329,14 +342,18 @@ export default function MyArenaPage() {
                       {/* Hover delete */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all z-20">
                         <button
-                          onClick={() => handleDeleteUpload(item.id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteUpload(item.id);
+                          }}
                           disabled={deletingId === item.id}
                           className="bg-red-600/90 text-white text-[10px] md:text-xs font-bold px-3 py-1.5 md:px-4 md:py-2 uppercase rounded hover:bg-red-500 transition-colors"
                         >
                           {deletingId === item.id ? "…" : "Delete"}
                         </button>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

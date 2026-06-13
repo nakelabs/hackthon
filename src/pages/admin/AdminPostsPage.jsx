@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle, XCircle, Eye, Filter, RefreshCw } from "lucide-react";
 import { getAdminSubmissions, approveTalent, rejectTalent } from "../../services/adminService";
+import { usePopup } from "../../context/PopupContext";
 
 const CATEGORY_OPTIONS = ["All", "music", "tech", "comedy", "fashion", "artwork", "hair", "football", "basketball", "film", "photography", "logo"];
 const STATUS_OPTIONS   = ["All", "Pending", "Approved", "Rejected"];
@@ -25,6 +26,7 @@ export default function AdminPostsPage() {
   const [filterStatus,   setFilterStatus]   = useState("All");
   const [filterCategory, setFilterCategory] = useState("All");
   const [preview, setPreview] = useState(null);
+  const { showAlert } = usePopup();
 
   const fetchPosts = async (status) => {
     setLoading(true);
@@ -48,7 +50,7 @@ export default function AdminPostsPage() {
       setPosts(prev => prev.map(p => p.id === id ? { ...p, is_approved: updated.is_approved } : p));
       setPreview(null);
     } catch {
-      alert("Action failed. Please try again.");
+      showAlert("Action failed. Please try again.");
     } finally {
       setActionId(null);
     }

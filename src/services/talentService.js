@@ -26,6 +26,16 @@ export const getMyTalents = async ({ status, skip = 0, limit = 20 } = {}) => {
 // ─── Get a single talent by ID ────────────────────────────────────────────────
 // GET /talents/{submission_id}
 export const getTalentById = async (submissionId) => {
+  if (DEMO_MODE) return {
+    id: submissionId,
+    title: "Demo Submission",
+    description: "This is a demo submission.",
+    category: "Comedy",
+    vote_count: 42,
+    owner_fullname: "Demo User",
+    owner_username: "demouser",
+    image_url: "https://via.placeholder.com/600x800?text=Demo+Post"
+  };
   const res = await api.get(`/talents/${submissionId}`);
   return res.data; // TalentSubmissionResponse
 };
@@ -33,6 +43,9 @@ export const getTalentById = async (submissionId) => {
 // ─── Delete own talent ─────────────────────────────────────────────────────────
 // DELETE /talents/{submission_id}
 export const deleteTalent = async (submissionId) => {
+  if (DEMO_MODE) {
+    return new Promise(resolve => setTimeout(resolve, 500));
+  }
   await api.delete(`/talents/${submissionId}`);
 };
 

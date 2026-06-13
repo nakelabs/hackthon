@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { UserPlus, Star } from "lucide-react";
 import { nominateIcon, toggleNomineeFeatured } from "../../services/adminService";
 import { getNominees } from "../../services/compendiumService";
+import { usePopup } from "../../context/PopupContext";
 
 const BLANK_NOMINEE  = { name: "", bio: "", photo: null };
 
 export default function AdminNomineesPage() {
+  const { showAlert } = usePopup();
   const [nomineeForm, setNomineeForm]   = useState(BLANK_NOMINEE);
   const [nominees, setNominees]         = useState([]);
   const [nomineesLoading, setNomineesLoading] = useState(true);
@@ -123,7 +125,7 @@ export default function AdminNomineesPage() {
                   try {
                     const updated = await toggleNomineeFeatured(n.id);
                     setNominees(prev => prev.map(x => x.id === n.id ? updated : x));
-                  } catch { alert("Failed to toggle featured."); }
+                  } catch { showAlert("Failed to toggle featured."); }
                 }}
                 className={`text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${
                   n.is_featured

@@ -56,7 +56,7 @@ export default function SettingsPage() {
     // Fetch Referrals
     getMyReferrals()
       .then(data => setReferralsData(data))
-      .catch(() => setReferralsData({ referrals: [], total_referred: 0, total_referred_with_approved_submissions: 0 }))
+      .catch(() => setReferralsData({ referrals: [], total_referred: 0, total_referred_with_approved_submissions: 0, referral_reward: 0 }))
       .finally(() => setLoadingReferrals(false));
 
     // Fetch Voted Posts
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-white/5 p-6 rounded-xl flex flex-col items-center justify-center text-center shadow-lg">
                         <span className="text-4xl font-black text-white mb-2">{referralsData?.total_referred || 0}</span>
                         <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Total Referred</span>
@@ -205,6 +205,10 @@ export default function SettingsPage() {
                       <div className="bg-gradient-to-br from-[#111] to-[#050505] border border-[#008751]/20 p-6 rounded-xl flex flex-col items-center justify-center text-center shadow-[0_4px_20px_rgba(0,135,81,0.05)]">
                         <span className="text-4xl font-black text-[#008751] mb-2">{referralsData?.total_referred_with_approved_submissions || 0}</span>
                         <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">With Approved Submissions</span>
+                      </div>
+                      <div className="bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-yellow-500/20 p-6 rounded-xl flex flex-col items-center justify-center text-center shadow-lg shadow-yellow-500/5">
+                        <span className="text-4xl font-black text-yellow-500 mb-2">₦{(referralsData?.referral_reward || 0).toLocaleString()}</span>
+                        <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Total Reward</span>
                       </div>
                     </div>
 
@@ -242,7 +246,7 @@ export default function SettingsPage() {
                 ) : votedPosts.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {votedPosts.map((post, idx) => (
-                      <div key={idx} className="bg-[#111] border border-white/5 hover:border-[#008751]/50 p-5 rounded-xl transition-colors group cursor-default">
+                      <Link to={`/post/${post.submission_id || post.post_id || post.id}`} key={idx} className="bg-[#111] border border-white/5 hover:border-[#008751]/50 p-5 rounded-xl transition-colors group block cursor-pointer">
                         <div className="flex items-start justify-between mb-3">
                           <span className="text-[10px] font-black uppercase tracking-widest text-white/40 bg-white/5 px-2 py-1 rounded">
                             {post.category}
@@ -251,7 +255,7 @@ export default function SettingsPage() {
                         </div>
                         <h3 className="text-white font-bold text-base mb-1 group-hover:text-[#008751] transition-colors line-clamp-1">{post.post_name}</h3>
                         <p className="text-white/50 text-xs">By <span className="text-white/80 font-semibold">{post.owner_fullname}</span></p>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (

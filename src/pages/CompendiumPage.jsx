@@ -3,9 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Award, ThumbsUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getNominees, voteForNominee } from "../services/compendiumService";
+import { usePopup } from "../context/PopupContext";
 
 export default function CompendiumPage() {
   const { user } = useAuth();
+  const { showAlert } = usePopup();
   const navigate = useNavigate();
   const location = useLocation();
   const fromLanding = location.state?.fromLanding === true;
@@ -39,7 +41,7 @@ export default function CompendiumPage() {
       setNominees(prev => prev.map(n => n.id === id ? { ...n, vote_count: updated.vote_count } : n));
       setVotedIds(prev => new Set([...prev, id]));
     } catch {
-      alert("Could not cast vote. You may have already voted for this nominee.");
+      showAlert("Could not cast vote. You may have already voted for this nominee.");
     } finally {
       setVotingId(null);
     }
