@@ -72,6 +72,23 @@ export const loginWithGoogle = async (idToken) => {
   return { access_token: token, user };
 };
 
+// ─── loginWithFacebook ────────────────────────────────────────────────────────
+// POST /auth/facebook — body: { access_token }
+export const loginWithFacebook = async (accessToken) => {
+  if (DEMO_MODE) {
+    const token = "demo-facebook-jwt-token";
+    localStorage.setItem(LS_TOKEN_KEY, token);
+    const user = await getMe();
+    return { access_token: token, user };
+  }
+
+  const res = await api.post("/auth/facebook", { access_token: accessToken });
+  const token = res.data.access_token;
+  localStorage.setItem(LS_TOKEN_KEY, token);
+  const user = await getMe();
+  return { access_token: token, user };
+};
+
 // ─── getMe ────────────────────────────────────────────────────────────────────
 // GET /auth/me — returns UserResponse
 export const getMe = async () => {

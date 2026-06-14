@@ -5,7 +5,7 @@ import { validateLoginForm } from "../../utils/validators";
 import Input from "../../components/ui/Input";
 import Spinner from "../../components/ui/Spinner";
 import { GoogleLogin } from "@react-oauth/google";
-import { login, loginWithGoogle } from "../../services/authService";
+import { login, loginWithGoogle, loginWithFacebook } from "../../services/authService";
 
 export default function LoginPage() {
   const { loginUser } = useAuth();
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
+  const [fbSubmitting, setFbSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -82,6 +83,75 @@ export default function LoginPage() {
               width="100%"
             />
             {googleSubmitting && <p className="text-xs text-white/50 mt-2">Authenticating with Google...</p>}
+          </div>
+
+          {/* Facebook Login Button */}
+          <div className="flex flex-col items-center mb-4">
+            <button
+              id="facebook-login-btn"
+              type="button"
+              disabled={fbSubmitting}
+              onClick={async () => {
+                setFbSubmitting(true);
+                try {
+                  // Load FB SDK on demand
+                  await new Promise((resolve, reject) => {
+                    if (window.FB) return resolve();
+                    const script = document.createElement("script");
+                    script.src = "https://connect.facebook.net/en_US/sdk.js";
+                    script.async = true;
+                    script.defer = true;
+                    script.onload = () => {
+                      window.FB.init({
+                        appId: import.meta.env.VITE_FACEBOOK_APP_ID || "YOUR_FACEBOOK_APP_ID",
+                        cookie: true,
+                        xfbml: false,
+                        version: "v20.0",
+                      });
+                      resolve();
+                    };
+                    script.onerror = reject;
+                    document.body.appendChild(script);
+                  });
+
+                  // Trigger Facebook login dialog
+                  window.FB.login(
+                    async (response) => {
+                      if (response.authResponse) {
+                        try {
+                          const data = await loginWithFacebook(response.authResponse.accessToken);
+                          loginUser(data);
+                          navigate(redirectUrl);
+                        } catch (err) {
+                          setErrors({ email: err.response?.data?.detail || "Facebook login failed." });
+                        }
+                      } else {
+                        setErrors({ email: "Facebook sign in was cancelled or failed." });
+                      }
+                      setFbSubmitting(false);
+                    },
+                    { scope: "public_profile,email" }
+                  );
+                } catch {
+                  setErrors({ email: "Could not load Facebook SDK. Please try again." });
+                  setFbSubmitting(false);
+                }
+              }}
+              className="flex items-center justify-center gap-3 w-full py-2.5 px-4 rounded-full bg-[#1877F2] hover:bg-[#166FE5] active:bg-[#1565D8] text-white text-sm font-semibold transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
+              style={{ minWidth: 220 }}
+            >
+              {fbSubmitting ? (
+                <svg className="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+                </svg>
+              )}
+              {fbSubmitting ? "Connecting…" : "Continue with Facebook"}
+            </button>
           </div>
 
           <div className="flex items-center gap-4 mb-6">
