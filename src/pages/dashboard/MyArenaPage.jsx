@@ -329,6 +329,13 @@ export default function MyArenaPage() {
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradient} to-black/80 opacity-60 group-hover:opacity-100 transition-opacity`} />
                       )}
 
+                      {/* Category badge */}
+                      {item.category && (
+                        <div className="absolute top-1 left-1 z-10 px-1.5 py-0.5 bg-[#008751]/80 backdrop-blur-sm text-white text-[7px] md:text-[9px] font-black uppercase tracking-wider rounded-sm leading-tight max-w-[60%] truncate">
+                          {item.category}
+                        </div>
+                      )}
+
                       {/* Status badge */}
                       <div className={`absolute top-1 right-1 text-[8px] font-black uppercase ${statusColor} bg-black/70 px-1 py-0.5 z-10`}>
                         {item.is_approved}

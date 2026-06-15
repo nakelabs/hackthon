@@ -96,7 +96,7 @@ export default function LeaderboardPage() {
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div>
-          <p className="text-[9px] text-white/30 uppercase tracking-[0.25em] font-bold leading-none mb-0.5">Nigeria Celebrates</p>
+          <img src="/new.png" alt="Nigeria Celebrates Logo" className="h-12 w-auto object-contain transform scale-[2] origin-left flex-shrink-0 mb-3 opacity-90" />
           <h1 className="text-base font-black text-white tracking-widest uppercase leading-none">Leaderboard</h1>
         </div>
       </div>

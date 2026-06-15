@@ -36,9 +36,9 @@ export default function Navbar() {
           to="/"
           id="navbar-logo"
           onClick={() => setOpen(false)}
-          className="text-sm font-semibold text-white tracking-tight"
+          className="absolute left-0 md:left-0 top-2 h-14 flex items-center z-50"
         >
-          Nigeria Celebrates
+          <img src="/new.png" alt="Nigeria Celebrates Logo" className="h-20 w-auto object-contain transform scale-[2] md:scale-[3] origin-left flex-shrink-0" />
         </Link>
 
         {/* Desktop links */}

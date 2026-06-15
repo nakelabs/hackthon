@@ -44,7 +44,7 @@ export default function AdminLayout({ children }) {
         <div className="p-6 mb-2">
           <div className="flex items-center gap-3">
             <div>
-              <p className="text-[13px] font-bold text-white leading-tight">Nigeria Celebrates</p>
+              <img src="/new.png" alt="Nigeria Celebrates Logo" className="h-16 w-auto object-contain transform scale-[2.5] origin-left -ml-2 mb-6 flex-shrink-0" />
               <p className="text-[10px] text-gray-400">Admin Portal</p>
             </div>
           </div>
