@@ -61,11 +61,8 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <h4 className="text-[10px] font-bold text-[#818cf8] tracking-[0.2em] uppercase">Socials</h4>
             <div className="flex items-center gap-3">
-              <a href="#" aria-label="Instagram" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
+              <a href="https://www.instagram.com/nigeria_celebrate/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-              </a>
-              <a href="#" aria-label="LinkedIn" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
               </a>
             </div>
           </div>
@@ -75,7 +72,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-4">
           <p className="text-sm text-white/50">
-            © {new Date().getFullYear()} nakelabs. All rights reserved.
+            © {new Date().getFullYear()} nigeria celebrate's. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link to="/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link>
