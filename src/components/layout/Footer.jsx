@@ -37,7 +37,6 @@ export default function Footer() {
             <h4 className="text-[10px] font-bold text-[#818cf8] tracking-[0.2em] uppercase">Contact</h4>
             <div className="flex flex-col gap-4">
               <a href="mailto:hello@nigeriacelebrates.com" className="text-sm text-white font-bold hover:text-[#008751] transition-colors">
-                hello@nigeriacelebrates.com
               </a>
               <p className="text-sm text-white/80 leading-relaxed font-bold">
                 Federal Secretariat Complex,<br />
