@@ -76,8 +76,8 @@ export default function AdminLoginPage() {
           Home
         </Link>
         <div className="w-full max-w-sm px-5 py-16">
-          <div className="flex items-center gap-2 mb-6">
-            <span className="w-6 h-6 bg-[#008751] flex items-center justify-center text-white font-black text-[10px]">NC</span>
+          <div className="flex flex-col mb-6">
+            <img src="/new.png" alt="Nigeria Celebrates Logo" className="w-64 object-contain mb-2" />
             <span className="text-[10px] font-bold text-[#008751] uppercase tracking-widest">Staff Portal</span>
           </div>
 

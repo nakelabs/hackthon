@@ -41,8 +41,8 @@ export default function Navbar() {
           <img src="/new.png" alt="Nigeria Celebrates Logo" className="h-20 w-auto object-contain transform scale-[2] md:scale-[3] origin-left flex-shrink-0" />
         </Link>
 
-        {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-0.5">
+        {/* Desktop links - absolutely centered */}
+        <ul className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
           {NAV_LINKS.map(({ href, label, isRoute }) => (
             <li key={href}>
               {isRoute ? (
@@ -66,7 +66,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop auth */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2 ml-auto">
           {user ? (
             <>
               <Link to="/my-arena" id="nav-my-arena" className="btn-ghost text-sm py-1.5 px-3">
@@ -94,7 +94,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
-          className="md:hidden p-2 text-white hover:text-white transition-colors"
+          className="md:hidden p-2 text-white hover:text-white transition-colors ml-auto"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             {open ? (
