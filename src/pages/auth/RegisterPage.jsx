@@ -62,6 +62,24 @@ export default function RegisterPage() {
   const [fbSubmitting, setFbSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Load FB SDK on mount so FB.login() can be called synchronously on click
+  useEffect(() => {
+    if (window.FB) return;
+    const script = document.createElement("script");
+    script.src = "https://connect.facebook.net/en_US/sdk.js";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      window.FB.init({
+        appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+        cookie: true,
+        xfbml: false,
+        version: "v20.0",
+      });
+    };
+    document.body.appendChild(script);
+  }, []);
+
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
@@ -190,49 +208,30 @@ export default function RegisterPage() {
                   id="facebook-signup-btn"
                   type="button"
                   disabled={fbSubmitting}
-                  onClick={async () => {
-                    setFbSubmitting(true);
-                    try {
-                      await new Promise((resolve, reject) => {
-                        if (window.FB) return resolve();
-                        const script = document.createElement("script");
-                        script.src = "https://connect.facebook.net/en_US/sdk.js";
-                        script.async = true;
-                        script.defer = true;
-                        script.onload = () => {
-                          window.FB.init({
-                            appId: import.meta.env.VITE_FACEBOOK_APP_ID || "YOUR_FACEBOOK_APP_ID",
-                            cookie: true,
-                            xfbml: false,
-                            version: "v20.0",
-                          });
-                          resolve();
-                        };
-                        script.onerror = reject;
-                        document.body.appendChild(script);
-                      });
-
-                      window.FB.login(
-                        async (response) => {
-                          if (response.authResponse) {
-                            try {
-                              const data = await loginWithFacebook(response.authResponse.accessToken);
-                              loginUser(data);
-                              navigate(redirectUrl);
-                            } catch (err) {
-                              setErrors({ email: err.response?.data?.detail || "Facebook sign up failed." });
-                            }
-                          } else {
-                            setErrors({ email: "Facebook sign up was cancelled or failed." });
-                          }
-                          setFbSubmitting(false);
-                        },
-                        { scope: "public_profile,email" }
-                      );
-                    } catch {
-                      setErrors({ email: "Could not load Facebook SDK. Please try again." });
-                      setFbSubmitting(false);
+                  onClick={() => {
+                    if (!window.FB) {
+                      setErrors({ email: "Facebook SDK is still loading. Please try again in a moment." });
+                      return;
                     }
+                    setFbSubmitting(true);
+                    // FB.login must be called synchronously inside a click handler
+                    window.FB.login(
+                      async (response) => {
+                        if (response.authResponse) {
+                          try {
+                            const data = await loginWithFacebook(response.authResponse.accessToken);
+                            loginUser(data);
+                            navigate(redirectUrl);
+                          } catch (err) {
+                            setErrors({ email: err.response?.data?.detail || "Facebook sign up failed." });
+                          }
+                        } else {
+                          setErrors({ email: "Facebook sign up was cancelled or failed." });
+                        }
+                        setFbSubmitting(false);
+                      },
+                      { scope: "public_profile,email" }
+                    );
                   }}
                   className="flex items-center justify-center gap-3 w-full py-2.5 px-4 rounded-full bg-[#1877F2] hover:bg-[#166FE5] active:bg-[#1565D8] text-white text-sm font-semibold transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
                   style={{ minWidth: 220 }}
