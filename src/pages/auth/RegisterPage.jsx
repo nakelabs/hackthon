@@ -216,19 +216,21 @@ export default function RegisterPage() {
                     setFbSubmitting(true);
                     // FB.login must be called synchronously inside a click handler
                     window.FB.login(
-                      async (response) => {
+                      (response) => {
                         if (response.authResponse) {
-                          try {
-                            const data = await loginWithFacebook(response.authResponse.accessToken);
-                            loginUser(data);
-                            navigate(redirectUrl);
-                          } catch (err) {
-                            setErrors({ email: err.response?.data?.detail || "Facebook sign up failed." });
-                          }
+                          loginWithFacebook(response.authResponse.accessToken)
+                            .then((data) => {
+                              loginUser(data);
+                              navigate(redirectUrl);
+                            })
+                            .catch((err) => {
+                              setErrors({ email: err.response?.data?.detail || "Facebook sign up failed." });
+                            })
+                            .finally(() => setFbSubmitting(false));
                         } else {
                           setErrors({ email: "Facebook sign up was cancelled or failed." });
+                          setFbSubmitting(false);
                         }
-                        setFbSubmitting(false);
                       },
                       { scope: "public_profile,email" }
                     );

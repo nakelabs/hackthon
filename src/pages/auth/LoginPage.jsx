@@ -117,19 +117,21 @@ export default function LoginPage() {
                 setFbSubmitting(true);
                 // FB.login must be called synchronously inside a click handler
                 window.FB.login(
-                  async (response) => {
+                  (response) => {
                     if (response.authResponse) {
-                      try {
-                        const data = await loginWithFacebook(response.authResponse.accessToken);
-                        loginUser(data);
-                        navigate(redirectUrl);
-                      } catch (err) {
-                        setErrors({ email: err.response?.data?.detail || "Facebook login failed." });
-                      }
+                      loginWithFacebook(response.authResponse.accessToken)
+                        .then((data) => {
+                          loginUser(data);
+                          navigate(redirectUrl);
+                        })
+                        .catch((err) => {
+                          setErrors({ email: err.response?.data?.detail || "Facebook login failed." });
+                        })
+                        .finally(() => setFbSubmitting(false));
                     } else {
                       setErrors({ email: "Facebook sign in was cancelled or failed." });
+                      setFbSubmitting(false);
                     }
-                    setFbSubmitting(false);
                   },
                   { scope: "public_profile,email" }
                 );
