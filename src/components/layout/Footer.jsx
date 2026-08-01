@@ -12,8 +12,8 @@ export default function Footer() {
           style={{ maxHeight: '120px', filter: 'invert(34%) sepia(85%) saturate(2972%) hue-rotate(134deg) brightness(96%) contrast(101%)' }}
         />
       </div>
-      <footer className="px-4 pb-8 bg-black">
-      <div className="max-w-[1200px] mx-auto bg-[#111] rounded-[2.5rem] px-8 sm:px-16 pt-16 pb-10">
+      <footer className="bg-[#111] w-full">
+      <div className="max-w-[1200px] mx-auto px-8 sm:px-16 pt-16 pb-10">
 
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16 border-b border-white/10 pb-16">
@@ -74,6 +74,12 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <a href="https://www.instagram.com/nigeria_celebrate/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+              </a>
+              <a href="https://x.com/9jacelebratesHQ" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+              <a href="https://www.youtube.com/shorts/RVo42HXQ4n8" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.18a3.02 3.02 0 0 0-2.12-2.13C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.18C0 8.07 0 12 0 12s0 3.93.5 5.82a3.02 3.02 0 0 0 2.12 2.13c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.13C24 15.93 24 12 24 12s0-3.93-.5-5.82zM9.54 15.57V8.43L15.82 12l-6.28 3.57z"/></svg>
               </a>
             </div>
           </div>
