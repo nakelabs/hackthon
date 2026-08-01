@@ -50,20 +50,25 @@ export const deleteTalent = async (submissionId) => {
 };
 
 // ─── Submit a talent (multipart) ───────────────────────────────────────────────
-// POST /talents/submit?title=&description=&category=&tools_used=
-// Body: multipart/form-data with audio_file | video_file | image_file
+// POST /talents/submit
+// Body: multipart/form-data with title, description, category, tools_used + audio_file | video_file | image_file
 export const submitTalent = async ({ title, description, category, tools_used, file, fileType }) => {
   if (DEMO_MODE) return { id: 999, title, category, is_approved: "pending" };
 
   const formData = new FormData();
+
+  // Text fields — now sent as form body fields, not query params
+  formData.append("title", title);
+  formData.append("description", description);
+  formData.append("category", category);
+  if (tools_used) formData.append("tools_used", tools_used);
+
+  // File field
   if (fileType === "audio") formData.append("audio_file", file);
   else if (fileType === "video") formData.append("video_file", file);
   else formData.append("image_file", file);
 
-  const params = new URLSearchParams({ title, description, category });
-  if (tools_used) params.append("tools_used", tools_used);
-
-  const res = await api.post(`/talents/submit?${params.toString()}`, formData, {
+  const res = await api.post(`/talents/submit`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data; // TalentSubmissionResponse

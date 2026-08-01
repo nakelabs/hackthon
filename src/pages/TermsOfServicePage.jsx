@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
           
           <section>
             <h2 className="text-xl font-bold text-white mb-3">6. Contact Information</h2>
-            <p>For any questions regarding these terms, please contact us at hello@nigeriacelebrates.com.</p>
+            <p>For any questions regarding these terms, please contact us at contact@nigeriacelebrates.com.</p>
           </section>
         </div>
       </div>

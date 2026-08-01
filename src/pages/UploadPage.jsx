@@ -4,7 +4,7 @@ import { submitTalent, submitCategory } from "../services/talentService";
 import api from "../services/api";
 import {
   Music, Medal, Volleyball, Laugh, Palette,
-  Scissors, Shirt, Clapperboard, Camera, Laptop, Brush,
+  Scissors, Shirt, Clapperboard, Camera, Laptop, Flame, Shield,
   ChevronDown, CheckCircle, AlertCircle
 } from "lucide-react";
 
@@ -22,13 +22,14 @@ const ICON_MAP = {
   "short film":           Clapperboard,
   "photography":          Camera,
   "tech innovation":      Laptop,
-  "logo design":          Brush,
+  "dance":                Flame,
+  "security":             Shield,
 };
 
 const getIcon = (name = "") => ICON_MAP[name.toLowerCase()] || Music;
 
 // Categories whose uploads benefit from a "tools used" field
-const TOOLS_CATEGORIES = ["handmade artwork", "artwork", "logo design", "hair artistry"];
+const TOOLS_CATEGORIES = ["handmade artwork", "artwork", "hair artistry"];
 
 // Detect file type from MIME
 function detectFileType(file) {
@@ -58,7 +59,7 @@ export default function UploadPage() {
         const fallback = [
           "Music", "Football Freestyle", "Basketball Freestyle",
           "Comedy Skits", "Handmade Artwork", "Hair Artistry",
-          "Fashion", "Short Film", "Photography", "Tech Innovation", "Logo Design",
+          "Fashion", "Short Film", "Photography", "Tech Innovation", "Dance", "Security",
         ].map((name, i) => ({ id: i + 1, name, status: "approved" }));
         setCategories(fallback);
         setCategory(fallback[0].name);
@@ -96,8 +97,37 @@ export default function UploadPage() {
   const handleFileChange = (e) => {
     const f = e.target.files[0];
     if (!f) return;
-    setFile(f);
-    setFileType(detectFileType(f));
+    
+    const type = detectFileType(f);
+    if (type === "video") {
+      setApiError(null);
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        if (video.duration > 60) {
+          setApiError(`Video duration is ${Math.round(video.duration)} seconds. Videos must be 60 seconds or shorter.`);
+          setFile(null);
+          setFileType(null);
+          if (e.target) e.target.value = "";
+        } else {
+          setFile(f);
+          setFileType(type);
+          setApiError(null);
+        }
+      };
+      video.onerror = () => {
+        window.URL.revokeObjectURL(video.src);
+        // Fallback: accept the file if loading metadata fails
+        setFile(f);
+        setFileType(type);
+      };
+      video.src = URL.createObjectURL(f);
+    } else {
+      setFile(f);
+      setFileType(type);
+      setApiError(null);
+    }
   };
 
   const handleUpload = async (e) => {
@@ -187,11 +217,19 @@ export default function UploadPage() {
                     <line x1="12" x2="12" y1="3" y2="15" />
                   </svg>
                 </div>
-                <span className="text-sm font-bold text-white/70 group-hover:text-white transition-colors">
+                <span className="text-sm font-bold text-white/70 group-hover:text-white transition-colors text-center px-4 line-clamp-1">
                   {file ? file.name : "Tap to select media"}
                 </span>
-                {!file && <span className="text-[10px] text-white/40 mt-1 uppercase tracking-widest">Video, Image or Audio · Max 50MB</span>}
+                {!file && <span className="text-[10px] text-white/40 mt-1 uppercase tracking-widest text-center px-4">Video (max 60s), Image or Audio · Max 50MB</span>}
               </label>
+              {fileType === "video" && (
+                <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 p-3 mt-1 rounded-sm">
+                  <span className="text-sm">⚠️</span>
+                  <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">
+                    Disclaimer: Videos should not exceed 60 seconds in duration.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Title */}

@@ -3,7 +3,16 @@ import { APP_NAME } from "../../utils/constants";
 
 export default function Footer() {
   return (
-    <footer className="px-4 py-8 bg-black">
+    <>
+      <div className="w-full overflow-hidden flex items-end justify-center select-none pointer-events-none bg-black pt-8">
+        <img 
+          src="https://assets.jijistatic.net/static/svg/footer/footer-nigeria-new.svg" 
+          alt="Nigeria Skyline" 
+          className="w-full h-auto object-cover object-bottom"
+          style={{ maxHeight: '120px', filter: 'invert(34%) sepia(85%) saturate(2972%) hue-rotate(134deg) brightness(96%) contrast(101%)' }}
+        />
+      </div>
+      <footer className="px-4 pb-8 bg-black">
       <div className="max-w-[1200px] mx-auto bg-[#111] rounded-[2.5rem] px-8 sm:px-16 pt-16 pb-10">
 
         {/* Top Section */}
@@ -20,7 +29,7 @@ export default function Footer() {
               Join Free
             </Link>
             <a
-              href="mailto:hello@nigeriacelebrates.com"
+              href="mailto:contact@nigeriacelebrates.com"
               className="inline-flex items-center justify-center gap-2 bg-black text-white font-black text-sm px-8 py-4 border border-white/20 hover:border-white/40 hover:bg-[#0a0a0a] tracking-widest uppercase transition-all w-full sm:w-auto"
               style={{ clipPath: 'polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px)' }}
             >
@@ -36,13 +45,16 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <h4 className="text-[10px] font-bold text-[#818cf8] tracking-[0.2em] uppercase">Contact</h4>
             <div className="flex flex-col gap-4">
-              <a href="mailto:hello@nigeriacelebrates.com" className="text-sm text-white font-bold hover:text-[#008751] transition-colors">
-              </a>
               <p className="text-sm text-white/80 leading-relaxed font-bold">
-                Federal Secretariat Complex,<br />
-                Phase 1, Ahmadu Bello Way,<br />
-                Abuja, Nigeria
+                AUST INSPIRE INNOVATION HUB,<br />
+                AFRICAN UNIVERSITY OF SCIENCE AND TECHNOLOGY.
               </p>
+              <div className="text-xs text-white/60 leading-relaxed">
+                <span className="font-bold text-white block uppercase tracking-wider text-[10px] text-[#818cf8] mb-1">Enquiries &amp; Sponsorships</span>
+                Call: 09058416810<br />
+                WhatsApp (only): 08186097119<br />
+                Email: contact@nigeriacelebrates.com
+              </div>
             </div>
           </div>
 
@@ -81,5 +93,6 @@ export default function Footer() {
 
       </div>
     </footer>
+    </>
   );
 }

@@ -6,7 +6,7 @@ import { getStateLeaderboard, getCategoryLeaderboard } from "../services/talentS
 import api from "../services/api";
 import {
   Music, Medal, Volleyball, Laugh, Palette,
-  Scissors, Shirt, Clapperboard, Camera, Laptop, Brush
+  Scissors, Shirt, Clapperboard, Camera, Laptop, Flame, Shield
 } from "lucide-react";
 
 const CATEGORY_ICONS = {
@@ -20,7 +20,8 @@ const CATEGORY_ICONS = {
   film: Clapperboard,
   photography: Camera,
   tech: Laptop,
-  logo: Brush,
+  dance: Flame,
+  security: Shield,
 };
 
 // ─── Hero ──────────────────────────────────────────────────────────────────────
@@ -490,7 +491,7 @@ export function StateLeaderboard() {
         setApiCategories([
           "Music", "Football Freestyle", "Basketball Freestyle",
           "Comedy Skits", "Handmade Artwork", "Hair Artistry",
-          "Fashion", "Short Film", "Photography", "Tech Innovation", "Logo Design",
+          "Fashion", "Short Film", "Photography", "Tech Innovation", "Dance", "Security",
         ].map((name, i) => ({ id: i + 1, name, status: "approved" })));
       });
   }, []);
@@ -607,7 +608,8 @@ export function StateLeaderboard() {
                                   : cat.name.toLowerCase().includes("film") ? "film"
                                   : cat.name.toLowerCase().includes("photo") ? "photography"
                                   : cat.name.toLowerCase().includes("tech") ? "tech"
-                                  : cat.name.toLowerCase().includes("logo") ? "logo"
+                                  : cat.name.toLowerCase().includes("dance") ? "dance"
+                                  : cat.name.toLowerCase().includes("security") ? "security"
                                   : "artwork";
                     const Icon = CATEGORY_ICONS[iconKey] || Music;
                     return (
@@ -675,11 +677,37 @@ export function StateLeaderboard() {
   );
 }
 
+// ─── About Us ──────────────────────────────────────────────────────────────────
+function AboutUs() {
+  return (
+    <section id="about" className="section border-t border-black/8" style={{ backgroundColor: '#F7F7F2' }}>
+      <div className="container-main">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-xs text-gray-700 uppercase tracking-[0.2em] mb-3">About Us</p>
+            <h2 className="heading text-4xl sm:text-5xl font-black text-gray-900 leading-tight mb-6">
+              One Nation.<br />
+              One Voice.<br />
+              One Celebration.
+            </h2>
+          </div>
+          <div className="bg-white p-8 md:p-10 border border-black/10 shadow-[8px_8px_0px_#008751] relative">
+            <p className="text-gray-700 text-base leading-relaxed">
+              <strong>Nigeria Celebrates (NGC) @66</strong> is a national digital platform by De Ambassadors Global Network, in partnership with the African University of Science and Technology, Abuja, connecting Nigerians to celebrate talent, innovation, excellence, culture, and national pride through participation, recognition, and rewards.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Landing Page (Composed) ──────────────────────────────────────────────────
 export default function LandingPage() {
   return (
     <>
       <Hero />
+      <AboutUs />
       <Pillars />
       <TalentCategories />
       <StateLeaderboard />

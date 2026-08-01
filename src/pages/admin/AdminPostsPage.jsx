@@ -4,7 +4,7 @@ import { CheckCircle, XCircle, Eye, Filter, RefreshCw } from "lucide-react";
 import { getAdminSubmissions, approveTalent, rejectTalent } from "../../services/adminService";
 import { usePopup } from "../../context/PopupContext";
 
-const CATEGORY_OPTIONS = ["All", "music", "tech", "comedy", "fashion", "artwork", "hair", "football", "basketball", "film", "photography", "logo"];
+const CATEGORY_OPTIONS = ["All", "music", "tech", "comedy", "fashion", "artwork", "hair", "football", "basketball", "film", "photography", "dance", "security"];
 const STATUS_OPTIONS   = ["All", "Pending", "Approved", "Rejected"];
 
 const MEDIA_BADGE = {

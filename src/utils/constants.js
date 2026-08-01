@@ -21,7 +21,8 @@ export const TALENT_CATEGORIES = [
   { id: "film", label: "My Nigeria Story (Short Film)", dbName: "Short Film", emoji: "🎬", description: "Short films and cinematic storytelling" },
   { id: "photography", label: "Photography", dbName: "Photography", emoji: "📸", description: "Capturing Nigeria through the lens" },
   { id: "tech", label: "Tech Innovation", dbName: "Tech Innovation", emoji: "💻", description: "Innovation, coding & tech entrepreneurship" },
-  { id: "logo", label: "Logo Design", dbName: "Logo Design", emoji: "💡", description: "Original logos, branding concepts, mockups, optional explanation videos" },
+  { id: "dance", label: "Dance", dbName: "Dance", emoji: "💃", description: "Choreography, cultural dance, hip-hop, traditional and modern styles" },
+  { id: "security", label: "Security", dbName: "Security", emoji: "🛡️", description: "Cybersecurity hacks, safety demonstrations, physical defense, security innovations" },
 ];
 
 // ─── Quiz Config ──────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ import { getCategoryLeaderboard } from "../services/talentService";
 import api from "../services/api";
 import {
   Music, Medal, Volleyball, Laugh, Palette,
-  Scissors, Shirt, Clapperboard, Camera, Laptop, Brush,
+  Scissors, Shirt, Clapperboard, Camera, Laptop, Flame, Shield,
   ChevronLeft, Star, Trophy
 } from "lucide-react";
 
@@ -22,7 +22,8 @@ const ICON_MAP = {
   "short film":           Clapperboard,
   "photography":          Camera,
   "tech innovation":      Laptop,
-  "logo design":          Brush,
+  "dance":                Flame,
+  "security":             Shield,
 };
 
 const getIcon = (name = "") => ICON_MAP[name.toLowerCase()] || Trophy;
@@ -50,7 +51,7 @@ export default function LeaderboardPage() {
         setApiCategories([
           "Music", "Football Freestyle", "Basketball Freestyle",
           "Comedy Skits", "Handmade Artwork", "Hair Artistry",
-          "Fashion", "Short Film", "Photography", "Tech Innovation", "Logo Design",
+          "Fashion", "Short Film", "Photography", "Tech Innovation", "Dance", "Security",
         ].map((name, i) => ({ id: i + 1, name, status: "approved" })));
       });
   }, []);

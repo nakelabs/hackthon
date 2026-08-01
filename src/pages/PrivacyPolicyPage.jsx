@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
           
           <section>
             <h2 className="text-xl font-bold text-white mb-3">5. Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy, please contact us at hello@nigeriacelebrates.com.</p>
+            <p>If you have any questions about this Privacy Policy, please contact us at contact@nigeriacelebrates.com.</p>
           </section>
         </div>
       </div>
