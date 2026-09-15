@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
+import api from "../../services/api";
 
 export default function PostJob() {
   const { employerToken, loading } = useEmployerAuth();
@@ -50,16 +51,7 @@ export default function PostJob() {
     }
 
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${employerToken}`
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      if (!response.ok) throw new Error(`Failed to post ${type}`);
+      await api.post(endpoint, payload);
       
       // Successfully posted
       navigate('/employer/dashboard');

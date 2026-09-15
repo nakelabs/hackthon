@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../../../services/api";
 
 export default function EmployerRegisterPage() {
   const [formData, setFormData] = useState({ 
@@ -22,27 +23,17 @@ export default function EmployerRegisterPage() {
     }
     
     try {
-      // TODO: Replace with actual API call to POST /api/auth/register
-      /*
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyName: formData.companyName,
-          email: formData.email,
-          password: formData.password
-        })
+      await api.post("/auth/register", {
+        full_name: formData.companyName, // Backend seems to map full_name generically
+        company_name: formData.companyName,
+        email: formData.email,
+        password: formData.password
       });
-      if (!response.ok) throw new Error("Registration failed");
-      */
       
-      // Scaffold simulation
-      setTimeout(() => {
-        navigate("/employer/login");
-      }, 1000);
+      navigate("/employer/login");
       
     } catch (err) {
-      setError("Failed to register. Please try again.");
+      setError(err.response?.data?.detail || "Failed to register. Please try again.");
       setIsSubmitting(false);
     }
   };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
+import api from "../../services/api";
 
 export default function ApplicantsModal({ job, onClose }) {
   const { employerToken } = useEmployerAuth();
@@ -10,13 +11,12 @@ export default function ApplicantsModal({ job, onClose }) {
     const fetchApplicants = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/${job.type}s/${job.id}/applicants`, {
+        const response = await api.get(`/${job.type}s/${job.id}/applicants`, {
           headers: {
             'Authorization': `Bearer ${employerToken}`
           }
         });
-        if (!response.ok) throw new Error("Failed to fetch applicants");
-        const data = await response.json();
+        const data = response.data;
         setApplicants(data);
       } catch (err) {
         console.error(err);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import ApplicationModal from "../../components/opportunities/ApplicationModal";
 
 export default function JobDetails() {
@@ -13,10 +14,8 @@ export default function JobDetails() {
     const fetchJobDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/${type}s/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch details");
-        const data = await response.json();
-        setJob(data);
+        const response = await api.get(`/${type}s/${id}`);
+        setJob(response.data);
       } catch (error) {
         console.error("Error fetching job:", error);
         setJob(null);
@@ -133,19 +132,8 @@ export default function JobDetails() {
           job={job} 
           onClose={() => setShowApplyModal(false)} 
           onSubmit={async (formData) => {
-            const response = await fetch(`/api/${type}s/${job.id}/apply`, {
-              method: 'POST',
-              // NOTE: Do NOT set Content-Type header manually when sending FormData,
-              // the browser automatically sets it to multipart/form-data with the correct boundary
-              body: formData
-            });
-            
-            if (!response.ok) {
-              const errorText = await response.text();
-              throw new Error(`Failed to submit application: ${errorText}`);
-            }
-            
-            const data = await response.json();
+            const response = await api.post(`/${type}s/${job.id}/apply`, formData);
+            const data = response.data;
             console.log("Application submitted:", data);
           }}
         />

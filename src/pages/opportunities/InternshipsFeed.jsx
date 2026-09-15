@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import api from "../../services/api";
 import InternshipCard from "../../components/opportunities/InternshipCard";
 
 export default function InternshipsFeed() {
@@ -25,25 +26,19 @@ export default function InternshipsFeed() {
         
         const qs = params.toString();
         const endpoints = [];
-        if (!typeFilter || typeFilter === "job") endpoints.push(`/api/jobs?${qs}`);
-        if (!typeFilter || typeFilter === "internship") endpoints.push(`/api/internships?${qs}`);
-        if (!typeFilter || typeFilter === "grant") endpoints.push(`/api/grants?${qs}`);
+        if (!typeFilter || typeFilter === "job") endpoints.push(`/jobs?${qs}`);
+        if (!typeFilter || typeFilter === "internship") endpoints.push(`/internships?${qs}`);
+        if (!typeFilter || typeFilter === "grant") endpoints.push(`/grants?${qs}`);
 
-        const responses = await Promise.all(endpoints.map(ep => fetch(ep)));
-        
-        // Throw if any fail
-        for (const res of responses) {
-          if (!res.ok) throw new Error(`Failed to fetch from ${res.url}`);
-        }
-
-        const dataArrays = await Promise.all(responses.map(res => res.json()));
+        const responses = await Promise.all(endpoints.map(ep => api.get(ep)));
+        const dataArrays = responses.map(res => res.data);
         
         // Map the type into the data for the UI to use
         let combined = [];
         dataArrays.forEach((arr, index) => {
            let type = 'job';
-           if (endpoints[index].includes('/api/internships')) type = 'internship';
-           if (endpoints[index].includes('/api/grants')) type = 'grant';
+           if (endpoints[index].includes('/internships')) type = 'internship';
+           if (endpoints[index].includes('/grants')) type = 'grant';
            
            const typedArr = arr.map(item => ({ ...item, type }));
            combined = [...combined, ...typedArr];

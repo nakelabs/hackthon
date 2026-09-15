@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import api from "../../services/api";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
 import ApplicantsModal from "../../components/opportunities/ApplicantsModal";
 
@@ -17,16 +18,15 @@ export default function EmployerDashboard() {
         const headers = { 'Authorization': `Bearer ${employerToken}` };
         const endpoints = ['/api/jobs', '/api/internships', '/api/grants'];
         
-        const responses = await Promise.all(endpoints.map(ep => fetch(ep, { headers })));
+        const responses = await Promise.all(endpoints.map(ep => api.get(ep, { headers })));
         
-        const dataArrays = await Promise.all(responses.map(async (res, i) => {
-          if (!res.ok) return []; // Or throw, depending on strictness
-          const data = await res.json();
+        const dataArrays = responses.map((res, i) => {
+          const data = res.data;
           let type = 'job';
           if (endpoints[i].includes('internships')) type = 'internship';
           if (endpoints[i].includes('grants')) type = 'grant';
           return data.map(item => ({ ...item, type }));
-        }));
+        });
         
         const combined = dataArrays.flat().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setPostings(combined);
@@ -46,12 +46,9 @@ export default function EmployerDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/${postType}s/${postId}`, {
-        method: 'DELETE',
+      await api.delete(`/${postType}s/${postId}`, {
         headers: { 'Authorization': `Bearer ${employerToken}` }
       });
-
-      if (!response.ok) throw new Error("Failed to delete posting");
 
       // Remove the deleted post from state
       setPostings(prev => prev.filter(post => post.id !== postId));

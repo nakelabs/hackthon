@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
+import api from "../../services/api";
 
 export default function EditJob() {
   const { type, id } = useParams();
@@ -22,11 +23,13 @@ export default function EditJob() {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const response = await fetch(`/api/${type}s/${id}`, {
+        // The api instance handles authorization headers automatically if we are using nc_admin_token or normal token
+        // Wait, employer token is separate? We might need to pass it explicitly if api.js doesn't attach employerToken.
+        // Let's pass it just in case.
+        const response = await api.get(`/${type}s/${id}`, {
           headers: { 'Authorization': `Bearer ${employerToken}` }
         });
-        if (!response.ok) throw new Error("Job not found");
-        const data = await response.json();
+        const data = response.data;
         
         // Format date for input field
         const dateObj = new Date(data.deadline);
@@ -117,16 +120,11 @@ export default function EditJob() {
     }
 
     try {
-      const response = await fetch(`/api/${type}s/${id}`, {
-        method: 'PUT',
+      await api.put(`/${type}s/${id}`, payload, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${employerToken}`
-        },
-        body: JSON.stringify(payload)
+        }
       });
-      
-      if (!response.ok) throw new Error("Failed to update opportunity");
       
       // Successfully updated
       navigate('/employer/dashboard');

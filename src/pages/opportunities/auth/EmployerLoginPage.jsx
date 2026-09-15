@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useEmployerAuth } from "../../../context/EmployerAuthContext";
+import api from "../../../services/api";
 
 export default function EmployerLoginPage() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -16,32 +17,19 @@ export default function EmployerLoginPage() {
     setError("");
     
     try {
-      // TODO: Replace with actual API call to POST /api/auth/token
-      /*
-      const response = await fetch('/api/auth/token', { 
-        method: 'POST', 
+      const params = new URLSearchParams();
+      params.append("username", formData.username);
+      params.append("password", formData.password);
+
+      const response = await api.post("/auth/token", params, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({
-          username: formData.username,
-          password: formData.password
-        }) 
       });
       
-      if (!response.ok) throw new Error("Invalid username or password");
-      
-      const data = await response.json();
-      employerLogin(data.access_token);
+      employerLogin(response.data.access_token);
       navigate("/employer/dashboard");
-      return; // Exit here if using real API
-      */
       
-      // Scaffold simulation
-      setTimeout(() => {
-        employerLogin("mock_employer_jwt_token");
-        navigate("/employer/dashboard");
-      }, 1000);
       
     } catch (err) {
       setError("Invalid username or password.");
