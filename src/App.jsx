@@ -28,6 +28,16 @@ import ViewStreamPage from "./pages/ViewStreamPage";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import ScrollToTop from "./components/ui/ScrollToTop";
 
+// ── Opportunities ─────────────────────────────────────────────────────────────
+import InternshipsFeed from "./pages/opportunities/InternshipsFeed";
+import JobDetails from "./pages/opportunities/JobDetails";
+import EmployerDashboard from "./pages/opportunities/EmployerDashboard";
+import PostJob from "./pages/opportunities/PostJob";
+import EditJob from "./pages/opportunities/EditJob";
+import EmployerLoginPage from "./pages/opportunities/auth/EmployerLoginPage";
+import EmployerRegisterPage from "./pages/opportunities/auth/EmployerRegisterPage";
+import { EmployerAuthProvider } from "./context/EmployerAuthContext";
+
 // ── Admin ──────────────────────────────────────────────────────────────────────
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { PopupProvider } from "./context/PopupContext";
@@ -59,13 +69,14 @@ export default function App() {
   const fromLanding = location.state?.fromLanding === true;
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
-  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
+  const hideNavbar    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live", "/employer/login", "/employer/register"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
+  const hideFooter    = isAdminRoute || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium", "/employer/login", "/employer/register"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
   const showBottomNav = !isAdminRoute && (["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live"].includes(location.pathname) || (["/live", "/leaderboard", "/compendium"].includes(location.pathname) && !fromLanding));
 
   return (
     <PopupProvider>
     <AdminAuthProvider>
+    <EmployerAuthProvider>
       <div className="flex flex-col min-h-screen">
         {/* Custom cursor only on landing page */}
         {location.pathname === "/" && <CustomCursor />}
@@ -100,6 +111,15 @@ export default function App() {
             <Route path="/privacy"     element={<PrivacyPolicyPage />} />
             <Route path="/terms"       element={<TermsOfServicePage />} />
 
+            {/* ── Opportunities routes ───────────────────────────────────── */}
+            <Route path="/opportunities" element={<InternshipsFeed />} />
+            <Route path="/opportunities/:type/:id" element={<JobDetails />} />
+            <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+            <Route path="/employer/post" element={<PostJob />} />
+            <Route path="/employer/edit/:type/:id" element={<EditJob />} />
+            <Route path="/employer/login" element={<EmployerLoginPage />} />
+            <Route path="/employer/register" element={<EmployerRegisterPage />} />
+
             {/* ── Admin routes (obfuscated URL) ──────────────────────────── */}
             {/* Login page — accessible without a token */}
             <Route path="/control-deck"           element={<AdminLoginPage />} />
@@ -128,6 +148,7 @@ export default function App() {
         {showBottomNav && <MobileBottomNav />}
         {!hideFooter && <Footer />}
       </div>
+    </EmployerAuthProvider>
     </AdminAuthProvider>
     </PopupProvider>
   );

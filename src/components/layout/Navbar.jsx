@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const NAV_LINKS = [
   { href: "/live",         label: "Live", isRoute: true },
+  { href: "/opportunities",label: "Opportunities", isRoute: true },
   { href: "/#quiz",        label: "Quiz" },
   { href: "/compendium",   label: "Compendium", isRoute: true },
   { href: "/#icons",       label: "Icons" },
