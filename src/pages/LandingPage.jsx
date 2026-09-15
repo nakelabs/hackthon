@@ -27,105 +27,94 @@ const CATEGORY_ICONS = {
 // ─── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section id="hero" className="min-h-screen flex flex-col justify-center pt-14 relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col justify-center relative overflow-hidden bg-black px-5 md:px-12 pt-20">
+      {/* Cinematic gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#008751]/20 via-transparent to-black/90 pointer-events-none"></div>
       
-      {/* 3D Flag Ribbon */}
-      <div className="absolute -top-10 -left-10 md:-top-20 md:-left-20 w-full max-w-lg md:max-w-3xl pointer-events-none animate-slide-up" style={{ animationDuration: '1.2s' }}>
-        <img 
-          src="/flag-ribbon.png" 
-          alt="Nigerian Flag Ribbon" 
-          className="w-full opacity-90 animate-float mix-blend-lighten"
-        />
-      </div>
-
-      <div className="container-main py-24 md:py-32 relative z-10">
-        {/* Overline */}
-        <p 
-          className="text-xs text-white uppercase tracking-[0.2em] mb-8 animate-fade-in font-black ml-8 sm:ml-32"
-          style={{ textShadow: "0 2px 10px rgba(0,0,0,1)" }}
-        >
-          Nigeria's <span className="text-[color:#008751]">Celebration</span> Platform
-        </p>
-
+      <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col items-center text-center">
         {/* Headline */}
         <h1 
-          className="font-bold text-5xl sm:text-6xl md:text-8xl leading-[1.05] tracking-tight mb-8 animate-slide-up text-white"
-          style={{ textShadow: "0 0 40px rgba(0,0,0,0.8)" }}
+          className="font-black text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[1.05] tracking-tight mb-8 animate-slide-up text-white uppercase max-w-5xl"
         >
-          One <span style={{ color: "#008751" }}>Nation.</span><br />
-          Infinite <span style={{ color: "#008751" }}>Talent.</span><br />
-          Endless <span style={{ color: "#008751" }}>Pride.</span>
+          Building the digital infrastructure for Nigerian <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008751] to-emerald-300">excellence</span>, <span className="text-white/60">heritage & opportunity</span>
         </h1>
 
-        {/* Body copy */}
-        <p 
-          className="text-white text-base sm:text-lg max-w-xl mb-12 leading-relaxed animate-slide-up font-medium" 
-          style={{ animationDelay: "0.1s", textShadow: "0 2px 10px rgba(0,0,0,1)" }}
-        >
-          Upload your talent, vote for Nigeria's finest, test your knowledge,
-          and discover the icons who shaped a great nation.
-        </p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-3 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          <Link to="/register" id="hero-upload" className="btn-primary">
-            Upload Your Talent
-          </Link>
-          <Link to="/home" id="hero-explore" className="btn-outline">
-            See Nigerian Talent
-          </Link>
-        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-// ─── Pillars / What We Celebrate ───────────────────────────────────────────────
-const PILLARS = [
+// ─── Flagship Initiatives ──────────────────────────────────────────────────────
+const INITIATIVES = [
+  {
+    id: "excellence",
+    index: "01",
+    title: "Compendium of Nigerian Global Excellence",
+    body: "Celebrating the outstanding achievements of Nigerians on the global stage across various industries and disciplines.",
+    cta: "Explore →",
+    href: "/#",
+  },
+  {
+    id: "documentary",
+    index: "02",
+    title: "Digital Documentary",
+    body: "Immersive storytelling capturing the rich history, diverse culture, and powerful journeys of the Nigerian people.",
+    cta: "Watch Now →",
+    href: "/#",
+  },
   {
     id: "talent",
-    index: "01",
+    index: "03",
     title: "Naija Talent Zone",
-    body: "Upload your talent across 11 categories — from music and dance to tech and entrepreneurship. Get discovered, get voted.",
+    body: "Upload your talent across multiple categories. Get discovered, get voted, and rise to national stardom.",
     cta: "Upload Now →",
     href: "/register",
   },
   {
-    id: "votes",
-    index: "02",
-    title: "Naija Votes",
-    body: "Vote for the most talented Nigerians. Rally your state, support your favourites, and watch stars rise.",
-    cta: "Start Voting →",
-    href: "/#talent",
+    id: "heritage",
+    index: "04",
+    title: "Nigerian Heritage & Ancestry",
+    body: "Dive deep into the roots of our nation. Discover the traditions, languages, and legacy of our ancestors.",
+    cta: "Discover →",
+    href: "/#",
   },
   {
-    id: "quiz",
-    index: "03",
-    title: "Weekly Live Quiz",
-    body: "Test your knowledge of Nigeria every week. Compete live, earn points, and climb the national leaderboard.",
-    cta: "Join Quiz →",
-    href: "/quiz",
+    id: "diaspora",
+    index: "05",
+    title: "Business & Diaspora Network",
+    body: "Connecting Nigerian professionals and entrepreneurs globally to foster collaboration, investment, and growth.",
+    cta: "Connect →",
+    href: "/#",
+  },
+  {
+    id: "innovation",
+    index: "06",
+    title: "Youth Talent & Innovation",
+    body: "Empowering the next generation of Nigerian innovators, creatives, and leaders to shape the future.",
+    cta: "Learn More →",
+    href: "/#",
   },
 ];
 
-function Pillars() {
+function Initiatives() {
   return (
-    <section id="pillars" className="section border-t border-white/8">
+    <section id="initiatives" className="section border-t border-white/8">
       <div className="container-main">
         <div className="mb-10">
           <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">What We <span className="text-[color:#008751]">Celebrate</span></p>
-          <h2 className="heading text-2xl sm:text-3xl">Three <span className="text-[color:#008751]">Pillars</span></h2>
+          <h2 className="heading text-2xl sm:text-3xl">Flagship <span className="text-[color:#008751]">Initiatives</span></h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/8">
-          {PILLARS.map(({ id, index, title, body, cta, href }) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/8">
+          {INITIATIVES.map(({ id, index, title, body, cta, href }) => (
             <article key={id} className="bg-black p-8 md:p-10 flex flex-col gap-6 group relative z-0 border border-transparent transition-all duration-300 hover:z-10 hover:-translate-y-2 hover:-translate-x-2 hover:border-[#008751] hover:shadow-[8px_8px_0px_#008751]">
               <p className="text-xs font-mono text-white group-hover:text-[#008751] transition-colors">{index}</p>
               <h3 className="font-semibold text-[color:#008751] text-lg leading-snug">{title}</h3>
               <p className="text-sm text-white leading-relaxed flex-1">{body}</p>
               <a
                 href={href}
-                id={`pillar-${id}`}
+                id={`initiative-${id}`}
                 className="text-sm text-white hover:text-white transition-colors inline-flex items-center gap-2"
               >
                 {cta}
@@ -677,25 +666,177 @@ export function StateLeaderboard() {
   );
 }
 
-// ─── About Us ──────────────────────────────────────────────────────────────────
-function AboutUs() {
+// ─── The Challenge ─────────────────────────────────────────────────────────────
+function Challenge() {
   return (
-    <section id="about" className="section border-t border-black/8" style={{ backgroundColor: '#F7F7F2' }}>
+    <section className="section bg-[#050505] py-24 md:py-32">
+      <div className="container-main max-w-4xl text-center">
+        <p className="text-xs text-[#008751] uppercase tracking-[0.3em] font-bold mb-6">The Challenge</p>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white/90 leading-tight font-medium">
+          Nigeria is rich in remarkable people, achievements, heritage, knowledge, businesses and stories. 
+          <span className="text-white font-black block mt-6">Yet most of this wealth remains scattered, under-documented and difficult to discover.</span>
+        </h2>
+        <p className="mt-12 text-white/50 text-base md:text-lg leading-relaxed max-w-3xl mx-auto font-medium">
+          NGC Global builds one living digital ecosystem that gathers these resources, preserves Nigeria's story, celebrates its people, and creates clear pathways for the next generation to find opportunity, build careers and drive sustainable development.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── One Ecosystem. Many Possibilities. ────────────────────────────────────────
+const ECOSYSTEM_ITEMS = [
+  { title: "Excellence", body: "Discover the Nigerians and achievements that define our progress." },
+  { title: "Heritage & Ancestry", body: "Preserve identity, history and ancestral connections." },
+  { title: "Knowledge", body: "Create a lasting, searchable record of Nigerian knowledge." },
+  { title: "Business", body: "Surface the companies building value and growing the economy." },
+  { title: "Diaspora", body: "Connect Nigerians at home with Nigeria's global community." },
+  { title: "Emerging Generation", body: "Discover and elevate young talent, creators, innovators and entrepreneurs." },
+  { title: "Stories", body: "Document people, places and experiences through documentaries, profiles and publications." },
+  { title: "Opportunities", body: "Link talent to mentors, investors, grants, employers and global networks." }
+];
+
+function Ecosystem() {
+  return (
+    <section className="section bg-[#020202] border-t border-white/5">
       <div className="container-main">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="text-center mb-16">
+          <h2 className="heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase leading-none">
+            One Ecosystem.<br />
+            <span className="text-[#008751]">Many Possibilities.</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ECOSYSTEM_ITEMS.map((item, idx) => (
+            <div key={idx} className="bg-white/5 border border-white/10 p-8 hover:border-[#008751]/50 hover:bg-white/10 transition-all group flex flex-col h-full cursor-default">
+              <span className="text-[#008751] font-mono text-xs font-bold mb-4 block group-hover:-translate-y-1 transition-transform">0{idx + 1}</span>
+              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3 group-hover:text-[#008751] transition-colors">{item.title}</h3>
+              <p className="text-white/60 text-sm leading-relaxed mt-auto">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── From Discovery to Opportunity ─────────────────────────────────────────────
+function DiscoveryPathway() {
+  return (
+    <section className="section bg-[#050505] border-t border-white/5 overflow-hidden">
+      <div className="container-main">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs text-gray-700 uppercase tracking-[0.2em] mb-3">About Us</p>
-            <h2 className="heading text-4xl sm:text-5xl font-black text-gray-900 leading-tight mb-6">
-              One Nation.<br />
-              One Voice.<br />
-              One Celebration.
+            <p className="text-xs text-[#008751] uppercase tracking-[0.3em] font-bold mb-4">The Pipeline</p>
+            <h2 className="heading text-4xl sm:text-5xl lg:text-6xl text-white uppercase mb-8 leading-[1.05]">
+              From Discovery<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008751] to-emerald-300">To Opportunity</span>
             </h2>
-          </div>
-          <div className="bg-white p-8 md:p-10 border border-black/10 shadow-[8px_8px_0px_#008751] relative">
-            <p className="text-gray-700 text-base leading-relaxed">
-              <strong>Nigeria Celebrates (NGC) @66</strong> is a national digital platform by De Ambassadors Global Network, in partnership with the African University of Science and Technology, Abuja, connecting Nigerians to celebrate talent, innovation, excellence, culture, and national pride through participation, recognition, and rewards.
+            <p className="text-white/70 text-base md:text-lg leading-relaxed mb-6">
+              We find what deserves to be known, document what must not be lost, preserve our heritage, celebrate excellence, and connect people and ideas to the resources that help them grow.
+            </p>
+            <p className="text-white/70 text-base md:text-lg leading-relaxed font-bold">
+              Through this ecosystem, young Nigerians are discovered, mentored, connected to employers, investors and funding, and supported to build sustainable livelihoods and enterprises.
             </p>
           </div>
+          <div className="relative py-10 pl-4 sm:pl-10">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#008751]/10 to-transparent blur-3xl -z-10"></div>
+            <div className="flex flex-col gap-10 border-l-2 border-[#008751]/30 pl-8">
+              {['Find & Document', 'Preserve & Celebrate', 'Connect & Grow', 'Fund & Build'].map((step, i) => (
+                <div key={i} className="relative group cursor-default">
+                  <div className="absolute -left-[41px] top-1.5 w-4 h-4 bg-[#050505] border-2 border-[#008751] rounded-full group-hover:bg-[#008751] group-hover:shadow-[0_0_15px_#008751] transition-all"></div>
+                  <h4 className="text-2xl font-black text-white uppercase tracking-wider group-hover:translate-x-2 transition-transform">{step}</h4>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Technology & Impact ───────────────────────────────────────────────────────
+function TechAndImpact() {
+  return (
+    <section className="section bg-black border-t border-white/5 py-0">
+      <div className="container-main max-w-full px-0 sm:px-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10 border-y sm:border border-white/10">
+          <div className="bg-[#050505] p-10 md:p-16 lg:p-24 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008751]/5 to-transparent pointer-events-none"></div>
+            <p className="text-xs text-[#008751] uppercase tracking-[0.3em] font-bold mb-6 relative z-10">Technology</p>
+            <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] mb-6 uppercase tracking-tight relative z-10">
+              The Infrastructure That Holds Everything Together
+            </h3>
+            <p className="text-white/60 text-base md:text-lg leading-relaxed font-medium relative z-10 max-w-lg">
+              Technology is the digital engine powering discovery, profiles, documentation, search, storytelling and the connections that turn raw potential into tangible opportunity.
+            </p>
+          </div>
+          <div className="bg-[#020202] p-10 md:p-16 lg:p-24 flex flex-col justify-center relative z-10">
+            <p className="text-xs text-[#008751] uppercase tracking-[0.3em] font-bold mb-8">Our Impact</p>
+            <ul className="space-y-8">
+              {[
+                "Preserving today's excellence.",
+                "Creating opportunity for this generation.",
+                "Discovering tomorrow's potential.",
+                "Connecting Nigeria to the world."
+              ].map((impact, i) => (
+                <li key={i} className="flex items-start gap-5 group">
+                  <span className="text-[#008751] font-black text-2xl mt-0 group-hover:translate-x-2 transition-transform">→</span>
+                  <span className="text-xl md:text-2xl lg:text-3xl font-bold text-white uppercase tracking-tight">{impact}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Partnership & Join Ecosystem ──────────────────────────────────────────────
+function Partnership() {
+  return (
+    <section className="py-10 bg-gradient-to-r from-[#006039] to-[#008751] text-white text-center px-5 border-y border-white/10 shadow-[0_10px_30px_rgba(0,135,81,0.2)] relative z-20">
+      <p className="text-sm md:text-base font-medium tracking-[0.1em] uppercase">
+        In partnership with the <span className="font-black">African University of Science and Technology (AUST)</span>, Abuja.
+      </p>
+    </section>
+  );
+}
+
+function JoinEcosystem() {
+  return (
+    <section className="pt-32 pb-40 bg-[#050505] text-center border-t border-white/5 relative z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#008751]/5 to-transparent pointer-events-none"></div>
+      <div className="container-main max-w-4xl relative z-10">
+        <h2 className="heading text-5xl sm:text-6xl md:text-8xl font-black text-white uppercase mb-8 leading-[0.95] tracking-tight">
+          Join The <br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008751] to-emerald-300">Ecosystem</span>
+        </h2>
+        <p className="text-lg md:text-2xl text-white/70 font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
+          Explore Nigeria. Discover excellence. Connect to opportunity. Be part of the living record of Nigerian excellence — and help turn discovery into lasting opportunity.
+        </p>
+        
+        {/* Flow equation */}
+        <div className="bg-black border border-white/10 p-6 md:p-10 rounded-2xl mb-12 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+          <p className="text-[#008751] font-mono text-sm md:text-base font-bold leading-loose flex flex-col md:inline-block items-center justify-center text-center">
+            <span className="text-white">Nigeria's wealth</span>
+            <span className="text-white/30 mx-3 rotate-90 md:rotate-0 inline-block my-1 md:my-0">→</span> documented & preserved
+            <span className="text-white/30 mx-3 rotate-90 md:rotate-0 inline-block my-1 md:my-0">→</span> discovered
+            <span className="text-white/30 mx-3 rotate-90 md:rotate-0 inline-block my-1 md:my-0">→</span> connected to opportunity
+            <span className="text-white/30 mx-3 rotate-90 md:rotate-0 inline-block my-1 md:my-0">→</span> <span className="text-white">young people empowered</span>
+            <span className="text-white/30 mx-3 rotate-90 md:rotate-0 inline-block my-1 md:my-0">→</span> sustainable development.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link to="/register" className="btn-primary py-4 px-10 text-lg font-bold shadow-[0_0_20px_rgba(0,135,81,0.3)] hover:shadow-[0_0_30px_rgba(0,135,81,0.5)]">
+            Upload Your Profile
+          </Link>
+          <Link to="/opportunities" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 py-4 px-10 text-lg font-bold rounded-full transition-all">
+            Explore Opportunities
+          </Link>
         </div>
       </div>
     </section>
@@ -705,13 +846,20 @@ function AboutUs() {
 // ─── Landing Page (Composed) ──────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <>
+    <div className="bg-[#050505] min-h-screen flex flex-col">
       <Hero />
-      <AboutUs />
-      <Pillars />
-      <TalentCategories />
-      <StateLeaderboard />
-      <GlobalIcons />
-    </>
+      <div className="bg-[#050505] border-t border-white/10">
+        <Challenge />
+        <Ecosystem />
+        <DiscoveryPathway />
+        <Initiatives />
+        <TalentCategories />
+        <StateLeaderboard />
+        <GlobalIcons />
+        <TechAndImpact />
+        <Partnership />
+        <JoinEcosystem />
+      </div>
+    </div>
   );
 }

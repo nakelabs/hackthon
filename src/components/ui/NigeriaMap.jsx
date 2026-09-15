@@ -78,58 +78,56 @@ export default function NigeriaMap({ leaderboardData, onStateClick }) {
         height={800}
         className="w-full h-full outline-none"
       >
-        <ZoomableGroup center={[8, 9]} zoom={1} minZoom={1} maxZoom={4}>
-          <Geographies geography="/nigeria-states.json">
-            {({ geographies }) =>
-              geographies.map((geo) => {
-                const geoName = geo.properties.name || "";
-                let lookupName = normalizeStateName(geoName);
-                
-                const stateData = dataMap[lookupName];
-                const fillColor = stateData ? colorScale(stateData.pts) : "#111111";
+        <Geographies geography="/nigeria-states.json">
+          {({ geographies }) =>
+            geographies.map((geo) => {
+              const geoName = geo.properties.name || "";
+              let lookupName = normalizeStateName(geoName);
+              
+              const stateData = dataMap[lookupName];
+              const fillColor = stateData ? colorScale(stateData.pts) : "#111111";
 
-                return (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    onMouseEnter={() => setTooltip({ name: geoName, data: stateData })}
-                    onMouseLeave={() => setTooltip(null)}
-                    onClick={() => {
-                      if (stateData && onStateClick) {
-                        onStateClick(stateData);
-                      }
-                    }}
-                    style={{
-                      default: {
-                        fill: fillColor,
-                        stroke: "rgba(255,255,255,0.2)",
-                        strokeWidth: 0.5,
-                        outline: "none",
-                        transition: "all 250ms",
-                      },
-                      hover: {
-                        fill: "#fff",
-                        stroke: "#008751",
-                        strokeWidth: 2,
-                        outline: "none",
-                        cursor: "pointer",
-                        transform: "translate(-2px, -2px)",
-                        filter: "drop-shadow(4px 4px 0px rgba(0,135,81,0.8))",
-                        zIndex: 10,
-                      },
-                      pressed: {
-                        fill: "#008751",
-                        stroke: "#fff",
-                        strokeWidth: 1,
-                        outline: "none",
-                      },
-                    }}
-                  />
-                );
-              })
-            }
-          </Geographies>
-        </ZoomableGroup>
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  onMouseEnter={() => setTooltip({ name: geoName, data: stateData })}
+                  onMouseLeave={() => setTooltip(null)}
+                  onClick={() => {
+                    if (stateData && onStateClick) {
+                      onStateClick(stateData);
+                    }
+                  }}
+                  style={{
+                    default: {
+                      fill: fillColor,
+                      stroke: "rgba(255,255,255,0.2)",
+                      strokeWidth: 0.5,
+                      outline: "none",
+                      transition: "all 250ms",
+                    },
+                    hover: {
+                      fill: "#fff",
+                      stroke: "#008751",
+                      strokeWidth: 2,
+                      outline: "none",
+                      cursor: "pointer",
+                      transform: "translate(-2px, -2px)",
+                      filter: "drop-shadow(4px 4px 0px rgba(0,135,81,0.8))",
+                      zIndex: 10,
+                    },
+                    pressed: {
+                      fill: "#008751",
+                      stroke: "#fff",
+                      strokeWidth: 1,
+                      outline: "none",
+                    },
+                  }}
+                />
+              );
+            })
+          }
+        </Geographies>
       </ComposableMap>
     </div>
   );

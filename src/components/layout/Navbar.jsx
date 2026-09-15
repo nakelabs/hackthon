@@ -38,9 +38,11 @@ export default function Navbar() {
             to="/"
             id="navbar-logo"
             onClick={() => setOpen(false)}
-            className="absolute left-0 md:left-0 top-2 h-14 flex items-center z-50"
+            className="absolute left-5 sm:left-8 top-0 h-14 flex items-center z-50 group"
           >
-            <img src="/new.png" alt="Nigeria Celebrates Logo" className="h-20 w-auto object-contain transform scale-[2] md:scale-[3] origin-left flex-shrink-0" />
+            <span className="text-sm md:text-base font-black text-white uppercase tracking-[0.25em] group-hover:text-[#008751] transition-colors">
+              NGC GLOBAL
+            </span>
           </Link>
 
           {/* Desktop links - absolutely centered */}
@@ -67,37 +69,39 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Desktop auth */}
-          <div className="hidden md:flex items-center gap-2 ml-auto">
-            {user ? (
-              <>
-                <Link to="/my-arena" id="nav-my-arena" className="btn-ghost text-sm py-1.5 px-3">
-                  My Arena
-                </Link>
-                <button id="nav-logout" onClick={handleLogout} className="btn-outline text-sm py-1.5 px-3">
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" id="nav-login" className="btn-ghost text-sm py-1.5 px-3">
-                  Sign In
-                </Link>
-                <Link to="/register" id="nav-register" className="btn-primary text-sm py-1.5 px-4">
-                  Join Free
-                </Link>
-              </>
-            )}
-          </div>
+          {/* Right side actions */}
+          <div className="absolute right-5 sm:right-8 top-0 h-14 flex items-center z-50">
+            {/* Desktop auth */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <>
+                  <Link to="/my-arena" id="nav-my-arena" className="btn-ghost text-sm py-1.5 px-3">
+                    My Arena
+                  </Link>
+                  <button id="nav-logout" onClick={handleLogout} className="btn-outline text-sm py-1.5 px-3">
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" id="nav-login" className="btn-ghost text-sm py-1.5 px-3">
+                    Sign In
+                  </Link>
+                  <Link to="/register" id="nav-register" className="btn-primary text-sm py-1.5 px-4">
+                    Join Free
+                  </Link>
+                </>
+              )}
+            </div>
 
-          {/* Mobile hamburger */}
-          <button
-            id="nav-hamburger"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((o) => !o)}
-            className="md:hidden p-2 text-white hover:text-white transition-colors ml-auto z-50"
-          >
+            {/* Mobile hamburger */}
+            <button
+              id="nav-hamburger"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+              className="md:hidden p-2 text-white hover:text-white transition-colors"
+            >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               {open ? (
                 <>
@@ -113,7 +117,8 @@ export default function Navbar() {
               )}
             </svg>
           </button>
-        </nav>
+        </div>
+      </nav>
       </header>
 
       {/* Mobile Drawer Backdrop */}
