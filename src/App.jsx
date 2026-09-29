@@ -25,8 +25,11 @@ import TermsOfServicePage from "./pages/TermsOfServicePage";
 import GoLivePage from "./pages/GoLivePage";
 import LiveStreamsPage from "./pages/LiveStreamsPage";
 import ViewStreamPage from "./pages/ViewStreamPage";
+import HeroesPage from "./pages/HeroesPage";
+import SingleHeroPage from "./pages/SingleHeroPage";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import ScrollToTop from "./components/ui/ScrollToTop";
+import AboutPage from "./pages/AboutPage";
 
 // ── Opportunities ─────────────────────────────────────────────────────────────
 import InternshipsFeed from "./pages/opportunities/InternshipsFeed";
@@ -51,6 +54,8 @@ import AdminQuizPage from "./pages/admin/AdminQuizPage";
 import AdminQuizSessionsPage from "./pages/admin/AdminQuizSessionsPage";
 import AdminNomineesPage from "./pages/admin/AdminNomineesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminOpportunitiesPage from "./pages/admin/AdminOpportunitiesPage";
+import AdminAchieversPage from "./pages/admin/AdminAchieversPage";
 
 // Thin wrapper: wraps a page in the shared admin sidebar layout + guard
 function ProtectedAdminPage({ children }) {
@@ -105,11 +110,14 @@ export default function App() {
             <Route path="/live/:channelName" element={<ViewStreamPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/compendium"  element={<CompendiumPage />} />
+            <Route path="/heroes"      element={<HeroesPage />} />
+            <Route path="/heroes/:id"  element={<SingleHeroPage />} />
             <Route path="/search"      element={<UserSearchPage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
             <Route path="/post/:postId" element={<SinglePostPage />} />
             <Route path="/privacy"     element={<PrivacyPolicyPage />} />
             <Route path="/terms"       element={<TermsOfServicePage />} />
+            <Route path="/about"       element={<AboutPage />} />
 
             {/* ── Opportunities routes ───────────────────────────────────── */}
             <Route path="/opportunities" element={<InternshipsFeed />} />
@@ -131,6 +139,8 @@ export default function App() {
             <Route path="/control-deck/quiz/builder" element={<ProtectedAdminPage><AdminQuizPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/quiz/sessions" element={<ProtectedAdminPage><AdminQuizSessionsPage /></ProtectedAdminPage>} />
             <Route path="/control-deck/nominees"  element={<ProtectedAdminPage><AdminNomineesPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/opportunities" element={<ProtectedAdminPage><AdminOpportunitiesPage /></ProtectedAdminPage>} />
+            <Route path="/control-deck/achievers" element={<ProtectedAdminPage><AdminAchieversPage /></ProtectedAdminPage>} />
 
             {/* 404 catch-all */}
             <Route path="*" element={

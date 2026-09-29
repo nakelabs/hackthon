@@ -28,18 +28,25 @@ const CATEGORY_ICONS = {
 function Hero() {
   return (
     <div className="min-h-screen w-full flex flex-col justify-center relative overflow-hidden bg-black px-5 md:px-12 pt-20">
+      {/* Background Flag Layer */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+        <img 
+          src="/flag-ribbon.png" 
+          alt="Nigeria Flag Background" 
+          className="w-full h-full object-cover opacity-60"
+        />
+      </div>
+
       {/* Cinematic gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#008751]/20 via-transparent to-black/90 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[#008751]/20 via-black/40 to-black pointer-events-none z-0"></div>
       
-      <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col items-center text-center mt-10">
         {/* Headline */}
         <h1 
-          className="font-black text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[1.05] tracking-tight mb-8 animate-slide-up text-white uppercase max-w-5xl"
+          className="font-black text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[1.05] tracking-tight mb-8 animate-slide-up text-white uppercase max-w-5xl drop-shadow-2xl"
         >
           Building the digital infrastructure for Nigerian <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008751] to-emerald-300">excellence</span>, <span className="text-white/60">heritage & opportunity</span>
         </h1>
-
-
       </div>
     </div>
   );
@@ -815,7 +822,7 @@ function JoinEcosystem() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008751] to-emerald-300">Ecosystem</span>
         </h2>
         <p className="text-lg md:text-2xl text-white/70 font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-          Explore Nigeria. Discover excellence. Connect to opportunity. Be part of the living record of Nigerian excellence — and help turn discovery into lasting opportunity.
+          Explore Nigeria. Discover excellence. Connect to opportunity. Be part of the living record of Nigerian excellence and help turn discovery into lasting opportunity.
         </p>
         
         {/* Flow equation */}

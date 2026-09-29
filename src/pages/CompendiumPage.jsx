@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Award, ThumbsUp } from "lucide-react";
+import { Award } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getNominees, voteForNominee } from "../services/compendiumService";
+import { getNominees } from "../services/compendiumService";
 import { usePopup } from "../context/PopupContext";
 
 export default function CompendiumPage() {
@@ -15,8 +15,6 @@ export default function CompendiumPage() {
   const [nominees, setNominees]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState(null);
-  const [votingId, setVotingId]   = useState(null);
-  const [votedIds, setVotedIds]   = useState(new Set());
 
   useEffect(() => {
     const fetchNominees = async () => {
@@ -32,26 +30,11 @@ export default function CompendiumPage() {
     fetchNominees();
   }, []);
 
-  const handleVote = async (id) => {
-    if (!user) { navigate("/login?redirect=/compendium"); return; }
-    if (votedIds.has(id) || votingId === id) return;
-    setVotingId(id);
-    try {
-      const updated = await voteForNominee(id);
-      setNominees(prev => prev.map(n => n.id === id ? { ...n, vote_count: updated.vote_count } : n));
-      setVotedIds(prev => new Set([...prev, id]));
-    } catch {
-      showAlert("Could not cast vote. You may have already voted for this nominee.");
-    } finally {
-      setVotingId(null);
-    }
-  };
-
-  // Sort: featured first, then by vote_count descending
+  // Sort: featured first
   const sorted = [...nominees].sort((a, b) => {
     if (a.is_featured && !b.is_featured) return -1;
     if (!a.is_featured && b.is_featured) return 1;
-    return (b.vote_count || 0) - (a.vote_count || 0);
+    return a.name.localeCompare(b.name);
   });
 
   const topNominees   = sorted.slice(0, 3);
@@ -94,13 +77,8 @@ export default function CompendiumPage() {
           <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">Nigeria @65 <span className="text-[#008751]">Compendium</span></p>
           <h1 className="heading text-4xl md:text-6xl mb-6">Nominated <span className="text-[#008751]">Global Icons</span></h1>
           <p className="text-white/80 max-w-2xl mx-auto leading-relaxed">
-            These are the talented individuals nominated by the community on this platform — each one a global icon in their own right. Browse their profiles, learn their stories, and vote for the ones you believe deserve a place in Nigeria's hall of excellence.
+            These are the talented individuals nominated by the community on this platform — each one a global icon in their own right. Browse their profiles and learn their stories as we celebrate Nigeria's hall of excellence.
           </p>
-          {!user && (
-            <p className="text-white/40 text-xs mt-4">
-              <a href="/login" className="text-[#008751] hover:underline">Sign in</a> to vote for your favourite nominated icons.
-            </p>
-          )}
         </div>
 
         {nominees.length === 0 ? (
@@ -149,25 +127,8 @@ export default function CompendiumPage() {
                           <h3 className="text-xl font-bold text-white">{nominee.name}</h3>
                         </div>
                       </div>
-                      <div className="p-5 flex flex-col justify-between h-36">
-                        <p className="text-sm text-white/70 line-clamp-3">{nominee.bio}</p>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="text-xs font-bold text-white/50">
-                            {(nominee.vote_count || 0).toLocaleString()} Votes
-                          </span>
-                          <button
-                            onClick={() => handleVote(nominee.id)}
-                            disabled={votedIds.has(nominee.id) || votingId === nominee.id}
-                            className={`text-xs font-bold px-4 py-2 rounded flex items-center gap-2 transition-colors ${
-                              votedIds.has(nominee.id)
-                                ? "bg-white/10 text-white/40 cursor-not-allowed"
-                                : "bg-[#008751] text-white hover:bg-[#00a562]"
-                            }`}
-                          >
-                            <ThumbsUp className="w-3 h-3" />
-                            {votingId === nominee.id ? "…" : votedIds.has(nominee.id) ? "Voted" : "Vote"}
-                          </button>
-                        </div>
+                      <div className="p-5 flex flex-col justify-between flex-1">
+                        <p className="text-sm text-white/70 line-clamp-3 mb-2">{nominee.bio}</p>
                       </div>
                     </div>
                   ))}
@@ -204,23 +165,7 @@ export default function CompendiumPage() {
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-white/60 mb-6 flex-1 line-clamp-4">{nominee.bio}</p>
-                      <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-auto">
-                        <span className="text-xs font-bold text-white/40">
-                          {(nominee.vote_count || 0).toLocaleString()}
-                        </span>
-                        <button
-                          onClick={() => handleVote(nominee.id)}
-                          disabled={votedIds.has(nominee.id) || votingId === nominee.id}
-                          className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wide transition-colors ${
-                            votedIds.has(nominee.id)
-                              ? "text-[#008751]"
-                              : "text-white hover:text-[#008751]"
-                          }`}
-                        >
-                          {votingId === nominee.id ? "…" : votedIds.has(nominee.id) ? "Voted ✓" : "Vote →"}
-                        </button>
-                      </div>
+                      <p className="text-xs text-white/60 flex-1 line-clamp-4">{nominee.bio}</p>
                     </div>
                   ))}
                 </div>

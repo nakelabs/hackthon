@@ -97,77 +97,119 @@ export default function EmployerDashboard() {
 
   return (
     <div className="container-main py-24 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+      {/* Header Area */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 animate-fade-in">
         <div>
-          <h1 className="text-4xl font-black text-white mb-2">Employer Dashboard</h1>
-          <p className="text-white/60">Manage your internship and opportunity postings.</p>
+          <p className="text-[#008751] text-xs font-bold uppercase tracking-[0.2em] mb-3">Employer Portal</p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight">Employer Dashboard</h1>
+          <p className="text-white/50 text-lg max-w-xl">Manage your active opportunities and review top-tier applicants.</p>
         </div>
-        <div className="flex gap-4">
-          <button onClick={employerLogout} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg whitespace-nowrap">
+        <div className="flex flex-wrap gap-4">
+          <button onClick={employerLogout} className="bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 text-white font-bold py-3 px-6 rounded-full transition-all text-sm uppercase tracking-widest">
             Sign Out
           </button>
           <Link 
             to="/employer/post" 
-            className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-emerald-500/20 whitespace-nowrap"
+            className="bg-[#008751] hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full transition-all shadow-[0_0_20px_rgba(0,135,81,0.2)] hover:shadow-[0_0_30px_rgba(0,135,81,0.4)] hover:-translate-y-1 text-sm uppercase tracking-widest flex items-center gap-2"
           >
-            + Post New Opportunity
+            <span>+</span> Post Opportunity
           </Link>
         </div>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/10 bg-white/[0.02]">
-          <h2 className="text-xl font-bold text-white">Your Active Postings</h2>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white uppercase tracking-widest text-white/50">Your Active Postings</h2>
+      </div>
+      
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#008751] border-t-transparent"></div>
         </div>
-        
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-400"></div>
-          </div>
-        ) : postings.length > 0 ? (
-          <div className="divide-y divide-white/10">
-            {postings.map(post => (
-              <div key={post.id} className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-white/[0.02] transition-colors">
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-1">{post.title}</h3>
-                  <p className="text-sm text-white/50">Posted on {post.postedDate} • {post.applicantsCount} Applicants</p>
+      ) : postings.length > 0 ? (
+        <div className="space-y-4">
+          {postings.map((post, idx) => (
+            <div 
+              key={post.id} 
+              className="bg-[#050505] border border-white/10 hover:border-[#008751]/40 p-6 md:p-8 rounded-[2rem] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] group animate-slide-up"
+              style={{ animationDelay: `${idx * 0.05}s` }}
+            >
+              
+              {/* Info section */}
+              <div className="flex-1 w-full">
+                <div className="flex flex-wrap items-center gap-3 mb-3">
+                  <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors">
+                    {post.title}
+                  </h3>
+                  {post.is_approved_status === 'PENDING' && (
+                    <span className="bg-yellow-500/10 text-yellow-500 text-[10px] uppercase px-3 py-1.5 rounded-full font-bold border border-yellow-500/20 tracking-widest">
+                      Pending
+                    </span>
+                  )}
+                  {post.is_approved_status === 'REJECTED' && (
+                    <span className="bg-red-500/10 text-red-500 text-[10px] uppercase px-3 py-1.5 rounded-full font-bold border border-red-500/20 tracking-widest">
+                      Rejected
+                    </span>
+                  )}
+                  {post.is_approved_status === 'CONFIRMED' && (
+                    <span className="bg-[#008751]/20 text-emerald-400 text-[10px] uppercase px-3 py-1.5 rounded-full font-bold border border-[#008751]/30 tracking-widest">
+                      Approved
+                    </span>
+                  )}
                 </div>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setSelectedJobForApplicants(post)}
-                    className="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    View Applicants
-                  </button>
-                  <Link 
-                    to={`/employer/edit/${post.type}/${post.id}`}
-                    className="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors flex items-center"
-                  >
-                    Edit
-                  </Link>
-                  <button 
-                    onClick={() => handleDelete(post.id, post.type)}
-                    className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-semibold py-2 px-4 rounded-lg transition-colors flex items-center"
-                  >
-                    Delete
-                  </button>
+                
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/40 font-medium">
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    Posted {new Date(post.created_at).toLocaleDateString()}
+                  </span>
+                  <span className="hidden sm:block w-1 h-1 bg-white/20 rounded-full"></span>
+                  <span className="flex items-center gap-1.5 text-emerald-400/80 bg-emerald-500/5 px-2 py-0.5 rounded-md">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    {post.applicantsCount || 0} Applicants
+                  </span>
+                  <span className="hidden sm:block w-1 h-1 bg-white/20 rounded-full"></span>
+                  <span className="uppercase tracking-widest text-[10px] font-bold text-white/50 border border-white/10 px-2 py-0.5 rounded-md">{post.type}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <svg className="w-12 h-12 mx-auto text-white/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+
+              {/* Actions section */}
+              <div className="flex items-center gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                <button 
+                  onClick={() => setSelectedJobForApplicants(post)}
+                  className="flex-1 lg:flex-none bg-[#008751]/10 hover:bg-[#008751]/20 text-[#008751] hover:text-emerald-300 text-xs uppercase tracking-widest font-bold py-3.5 px-6 rounded-xl transition-all border border-[#008751]/20 hover:border-[#008751]/50 text-center flex items-center justify-center gap-2"
+                >
+                  Applicants
+                </button>
+                <Link 
+                  to={`/employer/edit/${post.type}/${post.id}`}
+                  className="bg-white/5 hover:bg-white/10 text-white text-xs uppercase tracking-widest font-bold py-3.5 px-6 rounded-xl transition-all border border-white/10 hover:border-white/30 text-center"
+                >
+                  Edit
+                </Link>
+                <button 
+                  onClick={() => handleDelete(post.id, post.type)}
+                  className="bg-red-500/5 hover:bg-red-500/10 text-red-500 hover:text-red-400 text-xs uppercase tracking-widest font-bold py-3.5 px-6 rounded-xl transition-all border border-red-500/20 hover:border-red-500/50 text-center"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-32 bg-[#050505] border border-white/5 rounded-[2.5rem] animate-fade-in">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-bold text-white mb-2">No postings yet</h3>
-            <p className="text-white/50 mb-6">You haven't posted any opportunities.</p>
-            <Link to="/employer/post" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
-              Create your first post &rarr;
-            </Link>
           </div>
-        )}
-      </div>
+          <h3 className="text-2xl font-black text-white mb-2">No postings yet</h3>
+          <p className="text-white/40 mb-8">You haven't posted any opportunities yet.</p>
+          <Link to="/employer/post" className="bg-[#008751] text-white font-bold py-3 px-8 rounded-full hover:bg-emerald-600 transition-colors shadow-[0_0_15px_rgba(0,135,81,0.3)]">
+            Create your first post
+          </Link>
+        </div>
+      )}
 
       {selectedJobForApplicants && (
         <ApplicantsModal 

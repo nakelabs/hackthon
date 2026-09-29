@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const NAV_LINKS = [
-  { href: "/live",         label: "Live", isRoute: true },
-  { href: "/opportunities",label: "Opportunities", isRoute: true },
-  { href: "/#quiz",        label: "Quiz" },
-  { href: "/compendium",   label: "Compendium", isRoute: true },
-  { href: "/#icons",       label: "Icons" },
-  { href: "/leaderboard",  label: "Leaderboard", isRoute: true },
+  { href: "/live",         label: "Live", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
+  { href: "/opportunities",label: "Opportunities", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
+  { href: "/#quiz",        label: "Quiz", colorClass: "text-white hover:text-white/80" },
+  { href: "/heroes",       label: "Heroes", isRoute: true, colorClass: "text-white hover:text-white/80" },
+  { href: "/compendium",   label: "Compendium", isRoute: true, colorClass: "text-white hover:text-white/80" },
+  { href: "/about",        label: "About", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
+  { href: "/leaderboard",  label: "Leaderboard", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
 ];
 
 export default function Navbar() {
@@ -47,20 +48,20 @@ export default function Navbar() {
 
           {/* Desktop links - absolutely centered */}
           <ul className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
-            {NAV_LINKS.map(({ href, label, isRoute }) => (
+            {NAV_LINKS.map(({ href, label, isRoute, colorClass }) => (
               <li key={href}>
                 {isRoute ? (
                   <Link
                     to={href}
                     state={{ fromLanding: true }}
-                    className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
+                    className={`px-3 py-2 rounded text-sm transition-colors font-semibold ${colorClass}`}
                   >
                     {label}
                   </Link>
                 ) : (
                   <a
                     href={href}
-                    className="px-3 py-2 rounded text-sm text-white hover:text-white transition-colors"
+                    className={`px-3 py-2 rounded text-sm transition-colors font-semibold ${colorClass}`}
                   >
                     {label}
                   </a>
@@ -136,14 +137,14 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-2 overflow-y-auto flex-1">
-          {NAV_LINKS.map(({ href, label, isRoute }) => (
+          {NAV_LINKS.map(({ href, label, isRoute, colorClass }) => (
             isRoute ? (
               <Link
                 key={href}
                 to={href}
                 state={{ fromLanding: true }}
                 onClick={() => setOpen(false)}
-                className="py-3 px-4 text-base font-semibold text-white/80 hover:text-white hover:bg-white/5 transition-all rounded-lg"
+                className={`py-3 px-4 text-base font-semibold hover:bg-white/5 transition-all rounded-lg ${colorClass}`}
               >
                 {label}
               </Link>
@@ -152,7 +153,7 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 onClick={() => setOpen(false)}
-                className="py-3 px-4 text-base font-semibold text-white/80 hover:text-white hover:bg-white/5 transition-all rounded-lg"
+                className={`py-3 px-4 text-base font-semibold hover:bg-white/5 transition-all rounded-lg ${colorClass}`}
               >
                 {label}
               </a>

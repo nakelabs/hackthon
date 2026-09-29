@@ -48,9 +48,6 @@ export default function EmployerLoginPage() {
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-emerald-700/10 rounded-full blur-3xl"></div>
         
         <div className="relative z-10 w-full max-w-lg">
-          <Link to="/">
-            <img src="/new.png" alt="Logo" className="h-16 mb-12 filter brightness-200" />
-          </Link>
           <h1 className="text-5xl font-black text-white leading-tight mb-6 uppercase tracking-tighter">
             Hire the <span className="text-emerald-500">Next Gen</span><br/>of Innovators.
           </h1>
@@ -65,9 +62,7 @@ export default function EmployerLoginPage() {
         
         {/* Mobile Header (only visible on small screens) */}
         <div className="absolute top-6 left-6 lg:hidden">
-          <Link to="/">
-            <img src="/new.png" alt="Logo" className="h-10 filter brightness-200" />
-          </Link>
+          {/* Logo removed */}
         </div>
 
         <div className="w-full max-w-md">

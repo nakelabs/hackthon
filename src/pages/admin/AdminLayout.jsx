@@ -9,21 +9,35 @@ import {
   Tag,
   Award,
   Users,
+  Briefcase,
+  Star,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Dashboard",    href: "/control-deck/dashboard",  icon: LayoutDashboard },
-  { label: "Post Approvals", href: "/control-deck/posts",    icon: FileCheck },
-  { label: "User Search",  href: "/control-deck/users",      icon: Users },
-  { label: "Categories",   href: "/control-deck/categories", icon: Tag },
+  { label: "Dashboard", href: "/control-deck/dashboard", icon: LayoutDashboard },
+  { label: "User Search", href: "/control-deck/users", icon: Users },
+  {
+    label: "Moderation", icon: FileCheck,
+    subItems: [
+      { label: "Post Approvals", href: "/control-deck/posts" },
+      { label: "Categories", href: "/control-deck/categories" },
+    ]
+  },
+  {
+    label: "Modules", icon: Briefcase,
+    subItems: [
+      { label: "Opportunities", href: "/control-deck/opportunities" },
+      { label: "Achievers", href: "/control-deck/achievers" },
+      { label: "Nominees", href: "/control-deck/nominees" },
+    ]
+  },
   { 
     label: "Quiz", icon: HelpCircle,
     subItems: [
       { label: "Quiz Builder", href: "/control-deck/quiz/builder" },
       { label: "All Sessions", href: "/control-deck/quiz/sessions" }
     ]
-  },
-  { label: "Nominees",      href: "/control-deck/nominees",  icon: Award },
+  }
 ];
 
 export default function AdminLayout({ children }) {
