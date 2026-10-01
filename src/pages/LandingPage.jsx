@@ -106,7 +106,7 @@ const INITIATIVES = [
 
 function Initiatives() {
   return (
-    <section id="initiatives" className="section border-t border-white/8">
+    <section id="initiatives" className="section">
       <div className="container-main">
         <div className="mb-10">
           <p className="text-xs text-white uppercase tracking-[0.2em] mb-3">What We <span className="text-[color:#008751]">Celebrate</span></p>
@@ -138,7 +138,7 @@ function Initiatives() {
 // ─── Talent Categories ─────────────────────────────────────────────────────────
 function TalentCategories() {
   return (
-    <section id="talent" className="section border-t border-white/8">
+    <section id="talent" className="section">
       <div className="container-main">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
@@ -419,7 +419,7 @@ function GlobalIcons() {
   const visibleIcons = showAll ? ICONS : ICONS.slice(0, 3);
 
   return (
-    <section id="icons" className="section border-t border-white/8">
+    <section id="icons" className="section">
       <div className="container-main">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
@@ -804,7 +804,7 @@ function TechAndImpact() {
 // ─── Partnership & Join Ecosystem ──────────────────────────────────────────────
 function Partnership() {
   return (
-    <section className="py-10 bg-gradient-to-r from-[#006039] to-[#008751] text-white text-center px-5 border-y border-white/10 shadow-[0_10px_30px_rgba(0,135,81,0.2)] relative z-20">
+    <section className="py-10 bg-gradient-to-r from-[#006039] to-[#008751] text-white text-center px-5 shadow-[0_10px_30px_rgba(0,135,81,0.2)] relative z-20">
       <p className="text-sm md:text-base font-medium tracking-[0.1em] uppercase">
         In partnership with the <span className="font-black">African University of Science and Technology (AUST)</span>, Abuja.
       </p>
@@ -814,7 +814,7 @@ function Partnership() {
 
 function JoinEcosystem() {
   return (
-    <section className="pt-32 pb-40 bg-[#050505] text-center border-t border-white/5 relative z-10 overflow-hidden">
+    <section className="pt-32 pb-40 bg-[#050505] text-center relative z-10 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#008751]/5 to-transparent pointer-events-none"></div>
       <div className="container-main max-w-4xl relative z-10">
         <h2 className="heading text-5xl sm:text-6xl md:text-8xl font-black text-white uppercase mb-8 leading-[0.95] tracking-tight">
@@ -855,7 +855,7 @@ export default function LandingPage() {
   return (
     <div className="bg-[#050505] min-h-screen flex flex-col">
       <Hero />
-      <div className="bg-[#050505] border-t border-white/10">
+      <div className="bg-[#050505]">
         <Challenge />
         <Ecosystem />
         <DiscoveryPathway />

@@ -16,11 +16,32 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
+    let scrollTimeout;
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+
+      if (window.scrollY > 50) {
+        setIsScrolling(true);
+      } else {
+        setIsScrolling(false);
+      }
+
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 300);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
   }, []);
 
   const handleLogout = () => { logout(); navigate("/"); setOpen(false); };
@@ -28,7 +49,9 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolling && !open ? "-translate-y-full" : "translate-y-0"
+        } ${
           scrolled || open ? "bg-black/95 backdrop-blur-sm border-b border-white/8" : "bg-transparent"
         }`}
       >

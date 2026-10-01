@@ -116,64 +116,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── THE TEAM SECTION ──────────────────────────────────────────────────── */}
-      <section className="relative max-w-7xl mx-auto px-6 mb-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-medium uppercase tracking-widest inline-flex items-end justify-center">
-            THE<br/>TEAM <div className="w-4 h-4 bg-[#008751] ml-2 mb-2 rounded-sm"></div>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          
-          {/* Team Member 1 */}
-          <div className="group cursor-pointer">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-6 bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center">
-              <span className="text-white/20 font-bold uppercase tracking-widest text-sm">Image Pending</span>
-            </div>
-            <h3 className="text-xl font-bold text-white/50 mb-2 tracking-wide">Pending Details</h3>
-            <p className="text-[#008751]/50 text-xs font-bold uppercase tracking-widest mb-4">Role TBA</p>
-          </div>
-
-          {/* Team Member 2 */}
-          <a href="https://www.linkedin.com/in/ekanakpan" target="_blank" rel="noopener noreferrer" className="group block cursor-pointer">
-            <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden mb-6 bg-white/5">
-              <img src="/na.png" alt="Ekan Akpan" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              {/* LinkedIn Hover Overlay */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                <div className="p-4 bg-[#F5F5F0] rounded-full text-black border border-black/10 transition-transform shadow-[0_10px_25px_rgba(0,0,0,0.3)] group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                </div>
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2 tracking-wide group-hover:text-[#008751] transition-colors">Ekan Akpan</h3>
-            <p className="text-[#008751] text-xs font-bold uppercase tracking-widest mb-4">Frontend Engineer</p>
-            <p className="text-white/40 text-sm leading-relaxed">
-              "Ekan is a software developer and frontend engineer specializing in building fast, intuitive web and mobile apps with React, Next.js, and TypeScript. Backed by solid API integration skills and a passion for clean architecture, he focuses on turning complex ideas into scalable, real-world digital products."
-            </p>
-          </a>
-          
-          {/* Team Member 3 */}
-          <a href="https://www.linkedin.com/in/adegbite-david" target="_blank" rel="noopener noreferrer" className="group block cursor-pointer md:hidden lg:block">
-            <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden mb-6 bg-white/5">
-              <img src="/kb.jpeg" alt="David Adegbite" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              {/* LinkedIn Hover Overlay */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                <div className="p-4 bg-[#F5F5F0] rounded-full text-black border border-black/10 transition-transform shadow-[0_10px_25px_rgba(0,0,0,0.3)] group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                </div>
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2 tracking-wide group-hover:text-[#008751] transition-colors">David Adegbite</h3>
-            <p className="text-[#008751] text-xs font-bold uppercase tracking-widest mb-4">Backend Developer</p>
-            <p className="text-white/40 text-sm leading-relaxed">
-              "David is a backend developer specializing in architecting fast, reliable server-side systems with FastAPI and modern databases. He focuses on designing secure REST APIs, optimizing data workflows, and engineering robust backends that scale seamlessly."
-            </p>
-          </a>
-
-        </div>
-      </section>
-
     </div>
   );
 }

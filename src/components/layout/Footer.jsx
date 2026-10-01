@@ -87,10 +87,15 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-4">
-          <p className="text-sm text-white/50">
-            © {new Date().getFullYear()} nigeria celebrate's. All rights reserved.
-          </p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-4 border-t border-white/5">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-white/50">
+              © {new Date().getFullYear()} nigeria celebrate's. All rights reserved.
+            </p>
+            <p className="text-xs text-white/40">
+              Built and developed by <a href="https://www.linkedin.com/in/ekanakpan" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">Ekan Akpan</a> and <a href="https://www.linkedin.com/in/adegbite-david" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">David Adegbite</a>.
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             <Link to="/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link>
