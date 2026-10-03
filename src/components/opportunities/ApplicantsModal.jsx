@@ -11,7 +11,7 @@ export default function ApplicantsModal({ job, onClose }) {
     const fetchApplicants = async () => {
       setIsLoading(true);
       try {
-        const response = await api.get(`/${job.type}s/${job.id}/applicants`, {
+        const response = await api.get(`/api/employer/${job.type}s/${job.id}/applicants`, {
           headers: {
             'Authorization': `Bearer ${employerToken}`
           }

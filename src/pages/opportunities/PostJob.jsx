@@ -17,7 +17,7 @@ export default function PostJob() {
     const type = formData.get("type");
     
     // Construct the correct endpoint based on type selection
-    const endpoint = `/api/${type}s`;
+    const endpoint = `/api/employer/${type}s`;
 
     let payload = {
       title: formData.get("title"),
@@ -51,7 +51,9 @@ export default function PostJob() {
     }
 
     try {
-      await api.post(endpoint, payload);
+      await api.post(endpoint, payload, {
+        headers: { Authorization: `Bearer ${employerToken}` }
+      });
       
       // Successfully posted
       alert("Your opportunity has been submitted and is pending admin approval.");

@@ -26,9 +26,9 @@ export default function InternshipsFeed() {
         
         const qs = params.toString();
         const endpoints = [];
-        if (!typeFilter || typeFilter === "job") endpoints.push(`/jobs?${qs}`);
-        if (!typeFilter || typeFilter === "internship") endpoints.push(`/internships?${qs}`);
-        if (!typeFilter || typeFilter === "grant") endpoints.push(`/grants?${qs}`);
+        if (!typeFilter || typeFilter === "job") endpoints.push(`/api/jobs?${qs}`);
+        if (!typeFilter || typeFilter === "internship") endpoints.push(`/api/internships?${qs}`);
+        if (!typeFilter || typeFilter === "grant") endpoints.push(`/api/grants?${qs}`);
 
         const responses = await Promise.all(endpoints.map(ep => api.get(ep)));
         const dataArrays = responses.map(res => res.data);
@@ -159,7 +159,7 @@ export default function InternshipsFeed() {
       ) : jobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           {jobs.map((job) => (
-            <InternshipCard key={job.id} job={job} />
+            <InternshipCard key={`${job.type}-${job.id}`} job={job} />
           ))}
         </div>
       ) : (

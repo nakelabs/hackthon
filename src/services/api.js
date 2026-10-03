@@ -17,7 +17,7 @@ api.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem(LS_TOKEN_KEY);
     if (!token) token = localStorage.getItem(ADMIN_TOKEN_KEY); // Fallback for admins browsing public pages
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
