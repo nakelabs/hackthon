@@ -18,9 +18,12 @@ export default function AboutPage() {
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight italic font-serif">
               About Nigeria<br/>Celebrates Global
             </h1>
-            <p className="text-[#008751] font-bold text-lg leading-relaxed max-w-md italic">
-              "We provide the ultimate platform combining young professionals seamlessly with successful visionary leaders."
-            </p>
+            <div className="space-y-4 mt-8">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">What We Do</h2>
+              <p className="text-[#008751] font-bold text-lg md:text-xl leading-relaxed max-w-xl italic">
+                From Nigeria's foothills, we channel a global Ocean of Greatness mapping legends, filming history, and igniting youth brilliant enough to move mountains.
+              </p>
+            </div>
           </div>
         </div>
       </section>
