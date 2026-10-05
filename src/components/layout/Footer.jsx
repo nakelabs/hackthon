@@ -93,7 +93,7 @@ export default function Footer() {
               © {new Date().getFullYear()} nigeria celebrate's. All rights reserved.
             </p>
             <p className="text-xs text-white/40">
-              Built and developed by <a href="https://www.linkedin.com/in/ekanakpan" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">Ekan Akpan</a> and <a href="https://www.linkedin.com/in/adegbite-david" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">David Adegbite</a>.
+              Built and developed by <a href="https://www.linkedin.com/in/ekanakpan" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">Ekan Akpan</a>, <a href="https://www.linkedin.com/in/adegbite-david" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">David Adegbite</a>, and <a href="https://www.linkedin.com/in/chukwu-jonathan-onyedika-303a633b0?trk=contact-info" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-white/30 underline-offset-2">Chukwu Jonathan Onyedika</a>.
             </p>
           </div>
           <div className="flex items-center gap-6">
