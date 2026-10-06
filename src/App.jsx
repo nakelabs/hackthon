@@ -16,7 +16,6 @@ import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import UploadPage from "./pages/UploadPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
-import CompendiumPage from "./pages/CompendiumPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
 import SinglePostPage from "./pages/SinglePostPage";
 import UserSearchPage from "./pages/UserSearchPage";
@@ -74,9 +73,9 @@ export default function App() {
   const fromLanding = location.state?.fromLanding === true;
 
   // Hide global Navbar / Footer / BottomNav on admin and other app routes
-  const hideNavbar    = isAdminRoute || location.pathname.startsWith("/employer") || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/compendium", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
-  const hideFooter    = isAdminRoute || location.pathname.startsWith("/employer") || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live", "/compendium"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
-  const showBottomNav = !isAdminRoute && (["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live"].includes(location.pathname) || (["/live", "/leaderboard", "/compendium"].includes(location.pathname) && !fromLanding));
+  const hideNavbar    = isAdminRoute || location.pathname.startsWith("/employer") || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
+  const hideFooter    = isAdminRoute || location.pathname.startsWith("/employer") || ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/home", "/my-arena", "/my-arena/settings", "/quiz", "/map", "/upload", "/go-live", "/leaderboard", "/search", "/live"].includes(location.pathname) || location.pathname.startsWith("/profile/") || location.pathname.startsWith("/live/") || location.pathname.startsWith("/post/");
+  const showBottomNav = !isAdminRoute && (["/home", "/my-arena", "/quiz", "/map", "/upload", "/go-live"].includes(location.pathname) || (["/live", "/leaderboard"].includes(location.pathname) && !fromLanding));
 
   return (
     <PopupProvider>
@@ -109,7 +108,6 @@ export default function App() {
             <Route path="/live"        element={<LiveStreamsPage />} />
             <Route path="/live/:channelName" element={<ViewStreamPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/compendium"  element={<CompendiumPage />} />
             <Route path="/heroes"      element={<HeroesPage />} />
             <Route path="/heroes/:id"  element={<SingleHeroPage />} />
             <Route path="/search"      element={<UserSearchPage />} />

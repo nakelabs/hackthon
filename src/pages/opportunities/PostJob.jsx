@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
+import { useToast } from "../../context/ToastContext";
 import api from "../../services/api";
 
 export default function PostJob() {
   const { employerToken, loading } = useEmployerAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [oppType, setOppType] = useState("job");
@@ -17,7 +19,7 @@ export default function PostJob() {
     const type = formData.get("type");
     
     // Construct the correct endpoint based on type selection
-    const endpoint = `/api/employer/${type}s`;
+    const endpoint = `/api/${type}s`;
 
     let payload = {
       title: formData.get("title"),
@@ -56,10 +58,11 @@ export default function PostJob() {
       });
       
       // Successfully posted
-      alert("Your opportunity has been submitted and is pending admin approval.");
+      showToast("Your opportunity has been submitted and is pending admin approval.");
       navigate('/employer/dashboard');
     } catch (err) {
       console.error(err);
+      showToast("Failed to submit opportunity.", "error");
       setIsSubmitting(false);
     }
   };

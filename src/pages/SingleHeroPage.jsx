@@ -46,7 +46,7 @@ export default function SingleHeroPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white pt-24 pb-20">
-      <div className="container-main max-w-4xl mx-auto">
+      <div className="container-main max-w-6xl mx-auto">
         <Link 
           to="/heroes" 
           className="inline-flex items-center text-white/50 hover:text-white font-bold mb-8 transition-colors"
@@ -57,39 +57,44 @@ export default function SingleHeroPage() {
           Back to Heroes
         </Link>
         
-        <div className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
-          {/* Image Header */}
-          <div className="w-full h-64 md:h-[28rem] relative bg-black">
-            {hero.image_url ? (
-              <img 
-                src={hero.image_url} 
-                alt={hero.name} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-7xl opacity-20">🌟</span>
-              </div>
-            )}
-            {/* Elegant overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+        <div className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+          
+          {/* Image Side (Left on Desktop) */}
+          <div className="w-full lg:w-3/5 relative bg-black flex items-center justify-center min-h-[50vh] lg:min-h-[80vh] border-b lg:border-b-0 lg:border-r border-white/10 overflow-hidden">
             
-            <div className="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12 md:right-12">
-              <span className="inline-block bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full mb-4">
+            {/* Foreground Image */}
+            <div className="relative z-10 w-full h-full flex items-center justify-center bg-black">
+              {hero.image_url ? (
+                <img 
+                  src={hero.image_url} 
+                  alt={hero.name} 
+                  className="w-full h-auto max-h-[90vh] object-contain"
+                />
+              ) : (
+                <span className="text-7xl opacity-20">🌟</span>
+              )}
+            </div>
+          </div>
+
+          {/* Content Side (Right on Desktop) */}
+          <div className="w-full lg:w-2/5 flex flex-col bg-[#0a0a0a]">
+            {/* Title Section */}
+            <div className="p-8 md:p-12 lg:p-16 border-b border-white/10">
+              <span className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full mb-6">
                 {hero.category}
               </span>
-              <h1 className="text-4xl md:text-6xl font-black text-white leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
                 {hero.name}
               </h1>
             </div>
-          </div>
-          
-          {/* Content Body */}
-          <div className="p-8 md:p-12">
-            <div className="prose prose-invert max-w-none">
-              <p className="text-white/80 text-lg md:text-xl leading-relaxed whitespace-pre-wrap font-medium">
-                {hero.description || "No description provided."}
-              </p>
+            
+            {/* Description Section */}
+            <div className="p-8 md:p-12 lg:p-16 flex-1">
+              <div className="prose prose-invert max-w-none">
+                <p className="text-white/80 text-lg md:text-xl leading-relaxed whitespace-pre-wrap font-medium">
+                  {hero.description || "No description provided."}
+                </p>
+              </div>
             </div>
           </div>
         </div>

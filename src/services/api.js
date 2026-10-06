@@ -17,6 +17,7 @@ api.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem(LS_TOKEN_KEY);
     if (!token) token = localStorage.getItem(ADMIN_TOKEN_KEY); // Fallback for admins browsing public pages
+    if (!token) token = localStorage.getItem("nc_employer_token"); // Fallback for employers
     if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },

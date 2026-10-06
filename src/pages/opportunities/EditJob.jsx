@@ -26,7 +26,7 @@ export default function EditJob() {
         // The api instance handles authorization headers automatically if we are using nc_admin_token or normal token
         // Wait, employer token is separate? We might need to pass it explicitly if api.js doesn't attach employerToken.
         // Let's pass it just in case.
-        const response = await api.get(`/api/employer/${type}s/${id}`, {
+        const response = await api.get(`/api/${type}s/${id}`, {
           headers: { 'Authorization': `Bearer ${employerToken}` }
         });
         const data = response.data;
@@ -120,7 +120,7 @@ export default function EditJob() {
     }
 
     try {
-      await api.put(`/api/employer/${type}s/${id}`, payload, {
+      await api.put(`/api/${type}s/${id}`, payload, {
         headers: {
           'Authorization': `Bearer ${employerToken}`
         }

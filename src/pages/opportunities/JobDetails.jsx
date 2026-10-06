@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { useToast } from "../../context/ToastContext";
 import ApplicationModal from "../../components/opportunities/ApplicationModal";
 
 export default function JobDetails() {
   const { type, id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [job, setJob] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -14,7 +16,7 @@ export default function JobDetails() {
     const fetchJobDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await api.get(`/${type}s/${id}`);
+        const response = await api.get(`/api/${type}s/${id}`);
         setJob(response.data);
       } catch (error) {
         console.error("Error fetching job:", error);
@@ -132,9 +134,17 @@ export default function JobDetails() {
           job={job} 
           onClose={() => setShowApplyModal(false)} 
           onSubmit={async (formData) => {
-            const response = await api.post(`/${type}s/${job.id}/apply`, formData);
-            const data = response.data;
-            console.log("Application submitted:", data);
+            try {
+              await api.post(`/api/${type}s/${job.id}/apply`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+              });
+              setShowApplyModal(false);
+              showToast("Your application was submitted successfully!");
+            } catch (err) {
+              console.error(err);
+              showToast("Failed to submit application. Please try again.", "error");
+              throw err; // throw to let modal know it failed if needed
+            }
           }}
         />
       )}

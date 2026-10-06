@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { useToast } from "../../context/ToastContext";
 import { Briefcase, CheckCircle, XCircle } from "lucide-react";
 
 export default function AdminOpportunitiesPage() {
   const { adminToken } = useAdminAuth();
+  const { showToast, showConfirm } = useToast();
   const [opportunities, setOpportunities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("PENDING");
@@ -18,9 +20,9 @@ export default function AdminOpportunitiesPage() {
     try {
       const headers = { 'Authorization': `Bearer ${adminToken}` };
       const endpoints = [
-        `/api/admin/jobs?status=${status}`, 
-        `/api/admin/internships?status=${status}`, 
-        `/api/admin/grants?status=${status}`
+        `/admin/jobs?status=${status}`, 
+        `/admin/internships?status=${status}`, 
+        `/admin/grants?status=${status}`
       ];
       
       const responses = await Promise.all(endpoints.map(ep => api.get(ep, { headers })));
@@ -42,20 +44,22 @@ export default function AdminOpportunitiesPage() {
     }
   };
 
-  const handleApproval = async (id, type, status) => {
-    if (!window.confirm(`Are you sure you want to ${status.toLowerCase()} this ${type}?`)) return;
-    
-    try {
-      await api.patch(`/api/admin/${type}s/${id}/approval`, { status }, {
-        headers: { 'Authorization': `Bearer ${adminToken}` }
-      });
-      
-      // Update local state
-      setOpportunities(prev => prev.filter(opp => opp.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update status.");
-    }
+  const handleApproval = (id, type, status) => {
+    const action = status === "CONFIRMED" ? "approve" : "reject";
+    showConfirm(`Are you sure you want to ${action} this ${type}?`, async () => {
+      try {
+        await api.patch(`/admin/${type}s/${id}/${action}`, null, {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        
+        // Update local state
+        setOpportunities(prev => prev.filter(opp => opp.id !== id));
+        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} has been ${status.toLowerCase()}!`);
+      } catch (err) {
+        console.error(err);
+        showToast(`Failed to ${action} ${type}.`, "error");
+      }
+    });
   };
 
   return (

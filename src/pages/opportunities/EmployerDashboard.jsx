@@ -4,6 +4,7 @@ import api from "../../services/api";
 import { useEmployerAuth } from "../../context/EmployerAuthContext";
 import { useToast } from "../../context/ToastContext";
 import ApplicantsModal from "../../components/opportunities/ApplicantsModal";
+import EmployerProfileTab from "../../components/opportunities/EmployerProfileTab";
 
 export default function EmployerDashboard() {
   const { employerToken, loading, employerLogout } = useEmployerAuth();
@@ -13,40 +14,91 @@ export default function EmployerDashboard() {
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  const [dashboardData, setDashboardData] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [applicationFlow, setApplicationFlow] = useState({ data: [], maxCount: 40, pathD: "M0,100 L100,100 Z" });
+
   useEffect(() => {
-    const fetchPostings = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Real API calls with authentication
         const headers = { 'Authorization': `Bearer ${employerToken}` };
-        const endpoints = ['/api/employer/jobs', '/api/employer/internships', '/api/employer/grants'];
         
-        const responses = await Promise.all(endpoints.map(ep => api.get(ep, { headers })));
-        
-        const dataArrays = responses.map((res, i) => {
-          const data = res.data;
-          let type = 'job';
-          if (endpoints[i].includes('internships')) type = 'internship';
-          if (endpoints[i].includes('grants')) type = 'grant';
-          return data.map(item => ({ ...item, type }));
-        });
-        
-        const combined = dataArrays.flat().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        // Fetch dashboard stats and all opportunities in parallel
+        const [dashRes, oppsRes, jobsAppsRes, internshipsAppsRes, grantsAppsRes] = await Promise.all([
+          api.get('/api/employer/dashboard', { headers }),
+          api.get('/api/employer/opportunities', { headers }),
+          api.get('/api/employer/jobs/applicants', { headers }).catch(() => ({ data: [] })),
+          api.get('/api/employer/internships/applicants', { headers }).catch(() => ({ data: [] })),
+          api.get('/api/employer/grants/applicants', { headers }).catch(() => ({ data: [] }))
+        ]);
+
+        setDashboardData(dashRes.data);
+
+        // Process opportunities
+        const jobs = (oppsRes.data.jobs || []).map(item => ({ ...item, type: 'job' }));
+        const internships = (oppsRes.data.internships || []).map(item => ({ ...item, type: 'internship' }));
+        const grants = (oppsRes.data.grants || []).map(item => ({ ...item, type: 'grant' }));
+
+        const combined = [...jobs, ...internships, ...grants].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setPostings(combined);
-        setIsLoading(false);
+
+        // Process application flow
+        const allApps = [
+          ...(Array.isArray(jobsAppsRes.data) ? jobsAppsRes.data : []),
+          ...(Array.isArray(internshipsAppsRes.data) ? internshipsAppsRes.data : []),
+          ...(Array.isArray(grantsAppsRes.data) ? grantsAppsRes.data : [])
+        ];
+
+        const last7Days = Array.from({length: 7}).map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          d.setHours(0,0,0,0);
+          return d;
+        });
+
+        const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const flowData = last7Days.map(date => {
+          const label = dayLabels[date.getDay()];
+          const count = allApps.filter(app => {
+            if (!app.created_at) return false;
+            const appDate = new Date(app.created_at);
+            return appDate.getDate() === date.getDate() && 
+                   appDate.getMonth() === date.getMonth() && 
+                   appDate.getFullYear() === date.getFullYear();
+          }).length;
+          return { label, count };
+        });
+
+        const upperY = Math.ceil(Math.max(...flowData.map(d => d.count), 10) / 10) * 10;
+        const theMax = Math.max(upperY, 40);
+        
+        let pathD = `M0,100 `;
+        const dx = 100 / (flowData.length - 1);
+        flowData.forEach((pt, i) => {
+          const x = i * dx;
+          const y = 100 - (pt.count / theMax) * 90; // scale to 90% height max
+          pathD += `L${x.toFixed(1)},${y.toFixed(1)} `;
+        });
+        pathD += `L100,100 Z`;
+
+        setApplicationFlow({ data: flowData, maxCount: theMax, pathD });
+
       } catch (err) {
         console.error(err);
+        showToast("Failed to load dashboard data.", "error");
+      } finally {
         setIsLoading(false);
       }
     };
     
-    if (employerToken) fetchPostings();
-  }, [employerToken]);
+    if (employerToken) fetchData();
+  }, [employerToken, refreshKey]);
 
   const handleDelete = (postId, postType) => {
     showConfirm("Are you sure you want to delete this opportunity? This action cannot be undone.", async () => {
       try {
-        await api.delete(`/api/employer/${postType}s/${postId}`, {
+        await api.delete(`/api/${postType}s/${postId}`, {
           headers: { 'Authorization': `Bearer ${employerToken}` }
         });
 
@@ -106,6 +158,7 @@ export default function EmployerDashboard() {
           <div className="md:hidden flex gap-2">
             <button onClick={() => setActiveTab('dashboard')} className={`text-xs px-3 py-1.5 rounded ${activeTab === 'dashboard' ? 'bg-[#008751] text-white' : 'bg-white/5 text-gray-400'}`}>Dash</button>
             <button onClick={() => setActiveTab('postings')} className={`text-xs px-3 py-1.5 rounded ${activeTab === 'postings' ? 'bg-[#008751] text-white' : 'bg-white/5 text-gray-400'}`}>Jobs</button>
+            <button onClick={() => setActiveTab('profile')} className={`text-xs px-3 py-1.5 rounded ${activeTab === 'profile' ? 'bg-[#008751] text-white' : 'bg-white/5 text-gray-400'}`}>Profile</button>
           </div>
         </div>
 
@@ -124,6 +177,13 @@ export default function EmployerDashboard() {
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             Job Postings
           </button>
+          <button 
+            onClick={() => setActiveTab('profile')} 
+            className={`text-left px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${activeTab === 'profile' ? 'bg-[#008751]/10 text-[#008751]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            Profile & Settings
+          </button>
         </nav>
 
         <div className="hidden md:block mt-auto pt-6 border-t border-white/5">
@@ -139,7 +199,7 @@ export default function EmployerDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold mb-1">Welcome back, Employer</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold mb-1">Welcome back, {dashboardData?.profile?.company_name || "Employer"}</h1>
             <p className="text-gray-400 text-sm">{new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -160,17 +220,17 @@ export default function EmployerDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-[#2c2c2e] p-5 rounded-xl border border-white/5">
                   <p className="text-gray-400 text-xs mb-2">Total Postings</p>
-                  <p className="text-3xl font-semibold">{postings.length}</p>
+                  <p className="text-3xl font-semibold">{dashboardData?.stats?.total_opportunities || postings.length}</p>
                   <p className="text-[10px] text-gray-500 mt-2">Current total</p>
                 </div>
                 <div className="bg-[#2c2c2e] p-5 rounded-xl border border-white/5">
                   <p className="text-gray-400 text-xs mb-2">Total Applicants</p>
-                  <p className="text-3xl font-semibold">{postings.reduce((sum, p) => sum + (p.applicantsCount || 0), 0)}</p>
+                  <p className="text-3xl font-semibold">{dashboardData?.stats?.total_applications || postings.reduce((sum, p) => sum + (p.applicantsCount || 0), 0)}</p>
                   <p className="text-[10px] text-gray-500 mt-2">Current total</p>
                 </div>
                 <div className="bg-[#2c2c2e] p-5 rounded-xl border border-white/5">
                   <p className="text-gray-400 text-xs mb-2">Pending Approvals</p>
-                  <p className="text-3xl font-semibold">{postings.filter(p => p.is_approved_status === 'PENDING').length}</p>
+                  <p className="text-3xl font-semibold">{dashboardData?.stats?.pending_approval_postings || postings.filter(p => p.is_approved_status === 'PENDING').length}</p>
                   <p className="text-[10px] text-gray-500 mt-2">Current total</p>
                 </div>
               </div>
@@ -182,31 +242,44 @@ export default function EmployerDashboard() {
                 <span className="text-xs text-[#5c9dff] flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#5c9dff]"></div> Applicants</span>
               </div>
               <div className="flex-1 border-b border-l border-white/5 flex items-end justify-between px-2 sm:px-6 pb-4 pt-10 relative overflow-hidden min-h-[250px]">
-                {/* Faux chart */}
+                {/* Functional Chart */}
                 <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                  <path d="M0,100 L0,50 Q10,80 20,90 T40,60 T60,95 T80,70 L100,100 Z" fill="rgba(92, 157, 255, 0.05)" stroke="rgba(92, 157, 255, 0.8)" strokeWidth="1" />
+                  <path d={applicationFlow.pathD} fill="rgba(92, 157, 255, 0.05)" stroke="rgba(92, 157, 255, 0.8)" strokeWidth="1" />
                 </svg>
                 
-                {/* Y-axis faux labels */}
+                {/* Y-axis labels */}
                 <div className="absolute left-1 sm:left-2 bottom-4 top-10 flex flex-col justify-between text-[10px] text-gray-600">
-                  <span>40</span>
-                  <span>30</span>
-                  <span>20</span>
-                  <span>10</span>
+                  <span>{applicationFlow.maxCount}</span>
+                  <span>{Math.round(applicationFlow.maxCount * 0.75)}</span>
+                  <span>{Math.round(applicationFlow.maxCount * 0.5)}</span>
+                  <span>{Math.round(applicationFlow.maxCount * 0.25)}</span>
                   <span>0</span>
                 </div>
                 
                 {/* X-axis labels */}
-                <span className="text-[10px] text-gray-500 z-10 ml-6">Mon</span>
-                <span className="text-[10px] text-gray-500 z-10">Tue</span>
-                <span className="text-[10px] text-gray-500 z-10">Wed</span>
-                <span className="text-[10px] text-gray-500 z-10">Thu</span>
-                <span className="text-[10px] text-gray-500 z-10">Fri</span>
-                <span className="text-[10px] text-gray-500 z-10">Sat</span>
-                <span className="text-[10px] text-gray-500 z-10">Sun</span>
+                {applicationFlow.data.length > 0 ? applicationFlow.data.map((d, i) => (
+                  <span key={i} className={`text-[10px] text-gray-500 z-10 ${i === 0 ? 'ml-6' : ''}`}>{d.label}</span>
+                )) : (
+                  <>
+                    <span className="text-[10px] text-gray-500 z-10 ml-6">Mon</span>
+                    <span className="text-[10px] text-gray-500 z-10">Tue</span>
+                    <span className="text-[10px] text-gray-500 z-10">Wed</span>
+                    <span className="text-[10px] text-gray-500 z-10">Thu</span>
+                    <span className="text-[10px] text-gray-500 z-10">Fri</span>
+                    <span className="text-[10px] text-gray-500 z-10">Sat</span>
+                    <span className="text-[10px] text-gray-500 z-10">Sun</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
+        ) : activeTab === 'profile' ? (
+          /* Profile Tab */
+          <EmployerProfileTab 
+            profile={dashboardData?.profile} 
+            employerToken={employerToken} 
+            onProfileUpdate={() => setRefreshKey(k => k + 1)} 
+          />
         ) : (
           /* Job Postings Tab */
           <div className="max-w-5xl">

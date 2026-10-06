@@ -60,7 +60,7 @@ const INITIATIVES = [
     title: "Compendium of Nigerian Global Excellence",
     body: "Celebrating the outstanding achievements of Nigerians on the global stage across various industries and disciplines.",
     cta: "Explore →",
-    href: "/#",
+    href: "/heroes",
   },
   {
     id: "documentary",

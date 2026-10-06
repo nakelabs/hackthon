@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { useToast } from "../../context/ToastContext";
 import { Star, Plus, Edit2, Trash2, X } from "lucide-react";
 
 const CATEGORIES = [
@@ -12,6 +13,7 @@ const CATEGORIES = [
 
 export default function AdminAchieversPage() {
   const { adminToken } = useAdminAuth();
+  const { showToast, showConfirm } = useToast();
   const [achievers, setAchievers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,27 +61,29 @@ export default function AdminAchieversPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this achiever?")) return;
-    try {
-      await api.delete(`/api/achievers/${id}`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
-      fetchAchievers();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete achiever.");
-    }
+  const handleDelete = (id) => {
+    showConfirm("Are you sure you want to delete this achiever?", async () => {
+      try {
+        await api.delete(`/api/achievers/${id}`, {
+          headers: { Authorization: `Bearer ${adminToken}` }
+        });
+        showToast("Achiever deleted successfully.");
+        fetchAchievers();
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to delete achiever.", "error");
+      }
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !category) {
-      return alert("Name and Category are required.");
+      return showToast("Name and Category are required.", "error");
     }
 
     if (!editingId && !imageFile) {
-      return alert("Image is required for new achievers.");
+      return showToast("Image is required for new achievers.", "error");
     }
 
     const formData = new FormData();
@@ -100,10 +104,11 @@ export default function AdminAchieversPage() {
         await api.post("/api/achievers", formData, { headers });
       }
       setIsModalOpen(false);
+      showToast(editingId ? "Achiever updated successfully!" : "Achiever added successfully!");
       fetchAchievers();
     } catch (err) {
       console.error(err);
-      alert("Failed to save achiever. Check console for details.");
+      showToast("Failed to save achiever. Check console for details.", "error");
     }
   };
 

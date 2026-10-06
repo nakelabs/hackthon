@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
 const NAV_LINKS = [
   { href: "/live",         label: "Live", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
   { href: "/opportunities",label: "Opportunities", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
-  { href: "/heroes",       label: "Heroes", isRoute: true, colorClass: "text-white hover:text-white/80" },
-  { href: "/compendium",   label: "Compendium", isRoute: true, colorClass: "text-white hover:text-white/80" },
+  { href: "/heroes",       label: "Compendium", isRoute: true, colorClass: "text-white hover:text-white/80" },
   { href: "/about",        label: "About", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
   { href: "/leaderboard",  label: "Leaderboard", isRoute: true, colorClass: "text-[#008751] hover:text-emerald-400" },
 ];
