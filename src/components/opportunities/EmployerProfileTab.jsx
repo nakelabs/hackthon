@@ -10,6 +10,7 @@ export default function EmployerProfileTab({ profile, employerToken, onProfileUp
     full_name: profile?.full_name || "",
     bio: profile?.bio || "",
     location: profile?.location || "",
+    application_receive_email: profile?.application_receive_email || "",
   });
 
   const handleChange = (e) => {
@@ -93,9 +94,16 @@ export default function EmployerProfileTab({ profile, employerToken, onProfileUp
             </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">Location</label>
-            <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full bg-[#1c1c1e] border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#008751]/50 focus:ring-1 focus:ring-[#008751]/50" placeholder="e.g. Lagos, Nigeria" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">Location</label>
+              <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full bg-[#1c1c1e] border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#008751]/50 focus:ring-1 focus:ring-[#008751]/50" placeholder="e.g. Lagos, Nigeria" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">Application Receiving Email</label>
+              <input type="email" name="application_receive_email" value={formData.application_receive_email} onChange={handleChange} className="w-full bg-[#1c1c1e] border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#008751]/50 focus:ring-1 focus:ring-[#008751]/50" placeholder="careers@company.com" />
+              <p className="text-[10px] text-gray-500 mt-1">Leave blank to use main email.</p>
+            </div>
           </div>
           
           <div>

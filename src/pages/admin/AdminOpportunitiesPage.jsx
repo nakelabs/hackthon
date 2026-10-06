@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../../services/api";
+import { adminApi } from "../../services/api";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { useToast } from "../../context/ToastContext";
 import { Briefcase, CheckCircle, XCircle } from "lucide-react";
@@ -18,14 +18,13 @@ export default function AdminOpportunitiesPage() {
   const fetchOpportunities = async (status) => {
     setIsLoading(true);
     try {
-      const headers = { 'Authorization': `Bearer ${adminToken}` };
       const endpoints = [
         `/admin/jobs?status=${status}`, 
         `/admin/internships?status=${status}`, 
         `/admin/grants?status=${status}`
       ];
       
-      const responses = await Promise.all(endpoints.map(ep => api.get(ep, { headers })));
+      const responses = await Promise.all(endpoints.map(ep => adminApi.get(ep)));
       
       const dataArrays = responses.map((res, i) => {
         const data = res.data;
@@ -48,9 +47,7 @@ export default function AdminOpportunitiesPage() {
     const action = status === "CONFIRMED" ? "approve" : "reject";
     showConfirm(`Are you sure you want to ${action} this ${type}?`, async () => {
       try {
-        await api.patch(`/admin/${type}s/${id}/${action}`, null, {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
+        await adminApi.patch(`/admin/${type}s/${id}/${action}`);
         
         // Update local state
         setOpportunities(prev => prev.filter(opp => opp.id !== id));

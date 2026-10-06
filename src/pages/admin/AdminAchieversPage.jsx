@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../../services/api";
+import { adminApi as api } from "../../services/api";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { useToast } from "../../context/ToastContext";
 import { Star, Plus, Edit2, Trash2, X } from "lucide-react";
@@ -64,9 +64,7 @@ export default function AdminAchieversPage() {
   const handleDelete = (id) => {
     showConfirm("Are you sure you want to delete this achiever?", async () => {
       try {
-        await api.delete(`/api/achievers/${id}`, {
-          headers: { Authorization: `Bearer ${adminToken}` }
-        });
+        await api.delete(`/api/achievers/${id}`);
         showToast("Achiever deleted successfully.");
         fetchAchievers();
       } catch (err) {
@@ -94,7 +92,6 @@ export default function AdminAchieversPage() {
 
     try {
       const headers = {
-        Authorization: `Bearer ${adminToken}`,
         "Content-Type": "multipart/form-data"
       };
 

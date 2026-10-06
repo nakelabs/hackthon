@@ -4,7 +4,7 @@ import api from "../../../services/api";
 
 export default function EmployerRegisterPage() {
   const [formData, setFormData] = useState({ 
-    companyName: "", email: "", password: "", confirmPassword: "" 
+    companyName: "", email: "", password: "", confirmPassword: "", applicationReceiveEmail: "" 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -23,11 +23,12 @@ export default function EmployerRegisterPage() {
     }
     
     try {
-      await api.post("/auth/register", {
+      await api.post("/employer/auth/register", {
         full_name: formData.companyName, // Backend seems to map full_name generically
-        company_name: formData.companyName,
+        companyName: formData.companyName,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        application_receive_email: formData.applicationReceiveEmail || undefined
       });
       
       navigate("/employer/login");
@@ -85,7 +86,7 @@ export default function EmployerRegisterPage() {
             )}
             
             <div>
-              <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5">Company / Organization Name</label>
+              <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5">Company / Organization Name *</label>
               <input 
                 type="text" 
                 required
@@ -96,16 +97,29 @@ export default function EmployerRegisterPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5">Work Email</label>
-              <input 
-                type="email" 
-                required
-                value={formData.email}
-                onChange={e => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 text-white text-sm px-5 py-3.5 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors" 
-                placeholder="hr@company.com"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5">Login Email *</label>
+                <input 
+                  type="email" 
+                  required
+                  value={formData.email}
+                  onChange={e => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 text-white text-sm px-5 py-3.5 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors" 
+                  placeholder="hr@company.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5">Receiving Email (Optional)</label>
+                <input 
+                  type="email" 
+                  value={formData.applicationReceiveEmail}
+                  onChange={e => setFormData({...formData, applicationReceiveEmail: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 text-white text-sm px-5 py-3.5 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors" 
+                  placeholder="careers@company.com"
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

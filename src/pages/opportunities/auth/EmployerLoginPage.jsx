@@ -21,7 +21,7 @@ export default function EmployerLoginPage() {
       params.append("username", formData.username);
       params.append("password", formData.password);
 
-      const response = await api.post("/auth/token", params, {
+      const response = await api.post("/employer/auth/token", params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },

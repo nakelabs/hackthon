@@ -28,10 +28,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem(LS_TOKEN_KEY);
-      const hasAdminToken = !!localStorage.getItem(ADMIN_TOKEN_KEY);
-      if (!hasAdminToken && window.location.pathname !== "/login") {
-        window.location.href = "/login";
+      const path = window.location.pathname;
+      if (path.startsWith("/employer")) {
+        localStorage.removeItem("nc_employer_token");
+        if (path !== "/employer/login") {
+          window.location.href = "/employer/login";
+        }
+      } else {
+        localStorage.removeItem(LS_TOKEN_KEY);
+        const hasAdminToken = !!localStorage.getItem(ADMIN_TOKEN_KEY);
+        if (!hasAdminToken && path !== "/login") {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
