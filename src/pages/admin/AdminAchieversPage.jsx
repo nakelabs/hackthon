@@ -3,6 +3,8 @@ import { adminApi as api } from "../../services/api";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { useToast } from "../../context/ToastContext";
 import { Star, Plus, Edit2, Trash2, X } from "lucide-react";
+import OptimizedImage from "../../components/ui/OptimizedImage";
+import { compressImageForUpload } from "../../utils/imageUtils";
 
 const CATEGORIES = [
   "Nigeria in diaspora",
@@ -11,11 +13,15 @@ const CATEGORIES = [
   "The 36 state Governors"
 ];
 
+const PAGE_SIZE = 50;
+
 export default function AdminAchieversPage() {
   const { adminToken } = useAdminAuth();
   const { showToast, showConfirm } = useToast();
   const [achievers, setAchievers] = useState([]);
+  const [totalAchievers, setTotalAchievers] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
@@ -32,14 +38,36 @@ export default function AdminAchieversPage() {
   const fetchAchievers = async () => {
     setIsLoading(true);
     try {
-      const { data } = await api.get("/api/achievers");
+      const { data } = await api.get("/api/achievers", { params: { skip: 0, limit: PAGE_SIZE } });
       const arr = Array.isArray(data) ? data : (data?.data || data?.achievers || []);
+      const total = typeof data?.total === "number" ? data.total : arr.length;
       setAchievers(arr);
+      setTotalAchievers(total);
     } catch (err) {
       console.error(err);
       setAchievers([]);
+      setTotalAchievers(0);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || achievers.length >= totalAchievers) return;
+    setIsLoadingMore(true);
+    try {
+      const { data } = await api.get("/api/achievers", {
+        params: { skip: achievers.length, limit: PAGE_SIZE }
+      });
+      const arr = Array.isArray(data) ? data : (data?.data || data?.achievers || []);
+      const total = typeof data?.total === "number" ? data.total : (achievers.length + arr.length);
+      setAchievers(prev => [...prev, ...arr]);
+      setTotalAchievers(total);
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to load more achievers.", "error");
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -84,11 +112,16 @@ export default function AdminAchieversPage() {
       return showToast("Image is required for new achievers.", "error");
     }
 
+    let uploadFile = imageFile;
+    if (imageFile) {
+      uploadFile = await compressImageForUpload(imageFile);
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("category", category);
     if (description) formData.append("description", description);
-    if (imageFile) formData.append("image", imageFile);
+    if (uploadFile) formData.append("image", uploadFile);
 
     try {
       const headers = {
@@ -117,7 +150,9 @@ export default function AdminAchieversPage() {
             <Star className="w-8 h-8 text-[#008751]" />
             Achievers CMS
           </h1>
-          <p className="text-gray-500 font-medium">Manage achievers displayed on the Heroes page.</p>
+          <p className="text-gray-500 font-medium">
+            Manage achievers displayed on the Heroes page. {totalAchievers > 0 && `(${totalAchievers} total)`}
+          </p>
         </div>
         <button 
           onClick={openCreateModal}
@@ -138,39 +173,60 @@ export default function AdminAchieversPage() {
           <p className="text-gray-500 font-medium">No achievers found. Click "Add Achiever" to create one.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {achievers.map((achiever) => (
-            <div key={achiever.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-              {achiever.image_url ? (
-                <img src={achiever.image_url} alt={achiever.name} className="w-full h-48 object-cover bg-gray-100" />
-              ) : (
-                <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400">
-                  <Star className="w-8 h-8" />
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {achievers.map((achiever) => (
+              <div key={achiever.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                <div className="w-full h-48 bg-gray-100 overflow-hidden">
+                  <OptimizedImage src={achiever.image_url} alt={achiever.name} width={500} className="w-full h-48 object-cover" />
                 </div>
-              )}
-              <div className="p-4 flex-1 flex flex-col">
-                <span className="text-[10px] font-bold text-[#008751] uppercase tracking-wider mb-1">
-                  {achiever.category}
-                </span>
-                <h3 className="font-bold text-lg text-black leading-tight mb-2">{achiever.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{achiever.description}</p>
-                <div className="flex justify-between items-center pt-3 border-t border-gray-100 mt-auto">
-                  <button 
-                    onClick={() => openEditModal(achiever)}
-                    className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <Edit2 className="w-4 h-4" /> Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(achiever.id)}
-                    className="flex items-center gap-1 text-sm font-semibold text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
+                <div className="p-4 flex-1 flex flex-col">
+                  <span className="text-[10px] font-bold text-[#008751] uppercase tracking-wider mb-1">
+                    {achiever.category}
+                  </span>
+                  <h3 className="font-bold text-lg text-black leading-tight mb-2">{achiever.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{achiever.description}</p>
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-100 mt-auto">
+                    <button 
+                      onClick={() => openEditModal(achiever)}
+                      className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" /> Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(achiever.id)}
+                      className="flex items-center gap-1 text-sm font-semibold text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {achievers.length < totalAchievers && (
+            <div className="mt-8 text-center flex flex-col items-center">
+              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">
+                Showing {achievers.length} of {totalAchievers} achievers
+              </p>
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="inline-flex items-center gap-2 bg-[#008751] hover:bg-[#007043] text-white px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Loading More...</span>
+                  </>
+                ) : (
+                  <span>Load More Achievers</span>
+                )}
+              </button>
             </div>
-          ))}
+          )}
         </div>
       )}
 

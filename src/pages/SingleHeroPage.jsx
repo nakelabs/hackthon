@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../services/api";
+import OptimizedImage from "../components/ui/OptimizedImage";
 
 export default function SingleHeroPage() {
   const { id } = useParams();
@@ -64,15 +65,12 @@ export default function SingleHeroPage() {
             
             {/* Foreground Image */}
             <div className="relative z-10 w-full h-full flex items-center justify-center bg-black">
-              {hero.image_url ? (
-                <img 
-                  src={hero.image_url} 
-                  alt={hero.name} 
-                  className="w-full h-auto max-h-[90vh] object-contain"
-                />
-              ) : (
-                <span className="text-7xl opacity-20">🌟</span>
-              )}
+              <OptimizedImage 
+                src={hero.image_url} 
+                alt={hero.name} 
+                width={1200}
+                className="w-full h-auto max-h-[90vh] object-contain"
+              />
             </div>
           </div>
 

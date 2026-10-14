@@ -14,8 +14,30 @@ export function ToastProvider({ children }) {
     }, 4000);
   }, []);
 
-  const showConfirm = useCallback((message, onConfirm) => {
-    setConfirmDialog({ message, onConfirm });
+  const showConfirm = useCallback((message, onConfirm, options = {}) => {
+    let confirmText = typeof options === 'string' ? options : options?.confirmText;
+    let variant = typeof options === 'object' ? options?.variant : undefined;
+    const title = (typeof options === 'object' && options?.title) || "Confirm Action";
+
+    if (!confirmText) {
+      const lower = (message || "").toLowerCase();
+      if (lower.includes("approve")) {
+        confirmText = "Yes, approve";
+        variant = variant || "success";
+      } else if (lower.includes("reject")) {
+        confirmText = "Yes, reject";
+        variant = variant || "danger";
+      } else if (lower.includes("delete")) {
+        confirmText = "Yes, delete";
+        variant = variant || "danger";
+      } else {
+        confirmText = "Confirm";
+        variant = variant || "danger";
+      }
+    }
+    if (!variant) variant = "danger";
+
+    setConfirmDialog({ message, onConfirm, confirmText, variant, title });
   }, []);
 
   const closeConfirm = () => setConfirmDialog(null);
@@ -43,14 +65,40 @@ export function ToastProvider({ children }) {
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity" onClick={closeConfirm}></div>
           <div className="relative bg-[#1c1c1e] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-fade-in">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
-              <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-5 border ${
+              confirmDialog.variant === 'success' 
+                ? 'bg-emerald-500/10 border-emerald-500/20' 
+                : 'bg-red-500/10 border-red-500/20'
+            }`}>
+              {confirmDialog.variant === 'success' ? (
+                <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              )}
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Confirm Action</h3>
+            <h3 className="text-lg font-bold text-white mb-2">{confirmDialog.title}</h3>
             <p className="text-gray-400 text-sm mb-8 leading-relaxed">{confirmDialog.message}</p>
             <div className="flex gap-3">
-              <button onClick={closeConfirm} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/5">Cancel</button>
-              <button onClick={() => { confirmDialog.onConfirm(); closeConfirm(); }} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-red-500/20">Yes, delete</button>
+              <button 
+                onClick={closeConfirm} 
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors border border-white/5 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => { confirmDialog.onConfirm(); closeConfirm(); }} 
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors border cursor-pointer ${
+                  confirmDialog.variant === 'success'
+                    ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border-emerald-500/30 font-bold'
+                    : 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20'
+                }`}
+              >
+                {confirmDialog.confirmText}
+              </button>
             </div>
           </div>
         </div>

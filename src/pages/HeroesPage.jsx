@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import { getNominees } from "../services/compendiumService";
 import { Award } from "lucide-react";
+import OptimizedImage from "../components/ui/OptimizedImage";
 
 const CATEGORIES = [
   "All",
@@ -12,32 +13,87 @@ const CATEGORIES = [
   "The 36 state Governors"
 ];
 
+const PAGE_SIZE = 48;
+
 export default function HeroesPage() {
   const [achievers, setAchievers] = useState([]);
+  const [totalAchievers, setTotalAchievers] = useState(0);
   const [nominees, setNominees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
 
+  // Fetch Nominees once on mount
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+    let isMounted = true;
+    const fetchNominees = async () => {
       try {
-        const [achieversRes, nomineesData] = await Promise.all([
-          api.get("/api/achievers").catch(() => ({ data: [] })),
-          getNominees({ limit: 50 }).catch(() => ({ nominees: [] }))
-        ]);
-        
-        const arr = Array.isArray(achieversRes.data) ? achieversRes.data : (achieversRes.data?.data || achieversRes.data?.achievers || []);
-        setAchievers(arr);
-        setNominees(nomineesData.nominees || []);
+        const nomineesData = await getNominees({ limit: 50 }).catch(() => ({ nominees: [] }));
+        if (isMounted) {
+          setNominees(nomineesData.nominees || []);
+        }
       } catch (err) {
-        console.error("Failed to fetch data", err);
-      } finally {
-        setIsLoading(false);
+        console.error("Failed to fetch nominees", err);
       }
     };
-    fetchData();
+    fetchNominees();
+    return () => { isMounted = false; };
   }, []);
+
+  // Fetch Achievers when category filter changes
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFirstPage = async () => {
+      setIsLoading(true);
+      try {
+        const params = { skip: 0, limit: PAGE_SIZE };
+        if (activeFilter !== "All") {
+          params.category = activeFilter;
+        }
+        const { data } = await api.get("/api/achievers", { params });
+        if (isMounted) {
+          const list = Array.isArray(data) ? data : (data?.achievers || data?.data || []);
+          const total = typeof data?.total === "number" ? data.total : list.length;
+          setAchievers(list);
+          setTotalAchievers(total);
+        }
+      } catch (err) {
+        console.error("Failed to fetch achievers", err);
+        if (isMounted) {
+          setAchievers([]);
+          setTotalAchievers(0);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchFirstPage();
+    return () => { isMounted = false; };
+  }, [activeFilter]);
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || achievers.length >= totalAchievers) return;
+    setIsLoadingMore(true);
+    try {
+      const params = {
+        skip: achievers.length,
+        limit: PAGE_SIZE,
+      };
+      if (activeFilter !== "All") {
+        params.category = activeFilter;
+      }
+      const { data } = await api.get("/api/achievers", { params });
+      const list = Array.isArray(data) ? data : (data?.achievers || data?.data || []);
+      const total = typeof data?.total === "number" ? data.total : (achievers.length + list.length);
+      setAchievers(prev => [...prev, ...list]);
+      setTotalAchievers(total);
+    } catch (err) {
+      console.error("Failed to load more achievers", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const filteredAchievers = activeFilter === "All" 
     ? achievers 
@@ -104,7 +160,8 @@ export default function HeroesPage() {
                 <p className="text-white/50">Check back later or try a different category.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 items-stretch">
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 items-stretch">
                 {filteredAchievers.map((hero, index) => {
                   const isCompany = hero.category === "Nigerian companies";
 
@@ -117,19 +174,14 @@ export default function HeroesPage() {
                     >
                       {/* Image Section */}
                       <div className={`aspect-square relative overflow-hidden transition-all duration-500 ${isCompany ? 'bg-white' : 'bg-[#1a1a1a]'}`}>
-                        {hero.image_url ? (
-                          <img 
-                            src={hero.image_url} 
-                            alt={hero.name} 
-                            className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${
-                              isCompany ? "object-contain p-8" : "object-cover object-center"
-                            }`}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-black/50">
-                            <span className="text-6xl opacity-20">🌟</span>
-                          </div>
-                        )}
+                        <OptimizedImage 
+                          src={hero.image_url} 
+                          alt={hero.name} 
+                          width={500}
+                          className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${
+                            isCompany ? "object-contain p-8" : "object-cover object-center"
+                          }`}
+                        />
                         {/* Overlay Gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500"></div>
                         
@@ -167,7 +219,42 @@ export default function HeroesPage() {
                   );
                 })}
               </div>
-            )}
+
+              {/* Load More Section */}
+              {achievers.length < totalAchievers && (
+                <div className="mt-14 text-center flex flex-col items-center">
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-4 font-semibold">
+                    Showing {achievers.length} of {totalAchievers} heroes
+                  </p>
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm px-8 py-3.5 rounded-full transition-all duration-300 shadow-[0_0_25px_rgba(16,185,129,0.25)] hover:shadow-[0_0_35px_rgba(16,185,129,0.4)] hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        <span>Loading More...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Load More Heroes</span>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {achievers.length >= totalAchievers && totalAchievers > PAGE_SIZE && (
+                <div className="mt-14 text-center text-white/30 text-xs tracking-wider uppercase font-semibold">
+                  All {totalAchievers} heroes loaded
+                </div>
+              )}
+            </>
+          )}
 
             {/* Compendium Section */}
             {nominees.length > 0 && (

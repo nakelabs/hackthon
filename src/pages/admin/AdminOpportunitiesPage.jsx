@@ -44,19 +44,28 @@ export default function AdminOpportunitiesPage() {
   };
 
   const handleApproval = (id, type, status) => {
-    const action = status === "CONFIRMED" ? "approve" : "reject";
-    showConfirm(`Are you sure you want to ${action} this ${type}?`, async () => {
-      try {
-        await adminApi.patch(`/admin/${type}s/${id}/${action}`);
-        
-        // Update local state
-        setOpportunities(prev => prev.filter(opp => opp.id !== id));
-        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} has been ${status.toLowerCase()}!`);
-      } catch (err) {
-        console.error(err);
-        showToast(`Failed to ${action} ${type}.`, "error");
+    const isApprove = status === "CONFIRMED";
+    const action = isApprove ? "approve" : "reject";
+    showConfirm(
+      `Are you sure you want to ${action} this ${type}?`,
+      async () => {
+        try {
+          await adminApi.patch(`/admin/${type}s/${id}/${action}`);
+          
+          // Update local state
+          setOpportunities(prev => prev.filter(opp => opp.id !== id));
+          showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} has been ${status.toLowerCase()}!`);
+        } catch (err) {
+          console.error(err);
+          showToast(`Failed to ${action} ${type}.`, "error");
+        }
+      },
+      {
+        confirmText: isApprove ? "Yes, approve" : "Yes, reject",
+        variant: isApprove ? "success" : "danger",
+        title: isApprove ? "Approve Posting" : "Reject Posting"
       }
-    });
+    );
   };
 
   return (
